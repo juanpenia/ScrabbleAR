@@ -1,7 +1,4 @@
-
 # rama felipe
-
-
 import PySimpleGUI as sg
 import os
 from sys import platform
