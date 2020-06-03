@@ -18,6 +18,7 @@ sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
 										'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
 									}
 
+#terminar tablero commit de prueba
 
 sg.theme('Fachero') # tiene que ser cambiado
 
