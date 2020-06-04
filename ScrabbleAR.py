@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import os
 from sys import platform
 from random import shuffle, choice
+from time import time as now
 #from pattern.es import verbs, spelling, lexicon 
 
 PATH_TABLERO = 'img/tablero'
@@ -52,7 +53,9 @@ def GenerarBolsa():
 	shuffle(lista)
 	return lista
 
-def generar_tablero():
+
+def generar_tablero(tj):
+	# tj = tiempo de juego
 	
 	Bolsa = GenerarBolsa()
 
@@ -68,8 +71,8 @@ def generar_tablero():
 	col_derecha.append([sg.Button("test")])
 
 	col_izquierda = [[sg.Listbox([], size=(30, 10), key='lista_puntos')],
-					[sg.Text("Fichas restantes: {}".format(len(Bolsa)))],
-					[sg.Text("Tiempo restante: 10 años")],
+					[sg.Text("Fichas restantes: {}".format(len(Bolsa)), key="bolsa")],
+					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Button("Cambiar Fichas")],
 					[sg.Button("TERMINAR"), sg.Button("POSPONER")]]
 
@@ -78,29 +81,52 @@ def generar_tablero():
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
 
+	# cronometro related
+
+	fin = now() + (tj * 60)
+
 	while True:
 
 		# el "_" detras de una variable significa que no se usa, es para que no salte warning
 		# cuando la usemos, le sacamos el "_"
-		event, _values = window.Read()
+		event, _values = window.Read(timeout=10)
 
 		if event is None:
 			break
 
 		# test
 		if event is "test":
+
+			# jejejeje
 			window.Element((7, 7)).Update(image_filename=os.path.join(PATH_FICHAS, "h.png"))
 			window.Element((7, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
 			window.Element((7, 9)).Update(image_filename=os.path.join(PATH_FICHAS, "r.png"))
 			window.Element((7, 10)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
 			window.Element((7, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
 
+			window.Element((6, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "p.png"))
+			window.Element((8, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
+			window.Element((9, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
+			window.Element((10, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "a.png"))
+
+			window.Element((4, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "f.png"))
+			window.Element((5, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
+			window.Element((6, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "l.png"))
+
+		# cronometro
+
+		if now() < fin:
+			# para mayor legibilidad
+			min_restantes = int((fin - now()) // 60)
+			seg_restantes = int((fin - now()) % 60)
+			window["cronometro"].Update(value="Tiempo restante: {:02d}:{:02d}".format(min_restantes, seg_restantes))
+
 # fin generar_tablero()
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
-	[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), key="niveles")],
-	[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), key="tiempo")],
-	[sg.Button("INICIAR")]]
+		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
+		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
+		[sg.Button("INICIAR")]]
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
 
@@ -112,4 +138,4 @@ while True:
 
 	if event is "INICIAR":
 		window.Close()
-		generar_tablero()
+		generar_tablero(values["tiempo"])
