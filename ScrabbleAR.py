@@ -32,7 +32,7 @@ TUPLA_VERDES = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2)
 
 #letras = {a:"a.png", b: "b.png",c: "c.png", d: "d.png",e: "e.png", f: "f.png",g: "g.png", h: "h.png",i: "i.png", j: "j.png",k: "k.png", l: "l.png",m: "m.png", n: "n.png",o: "o.png", p: "p.png",q: "q.png", r: "r.png",s: "s.png", t: "t.png",u: "u.png", v: "v.png",w: "w.png", x: "x.png",y: "y.png", z: "z.png"}
 
-def ImagenSegunColor(x, y): # cambiar nombre
+def casillero_segun_color(x, y): # cambiar nombre
 	# cambiar ruta, obviamente
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
@@ -50,7 +50,7 @@ def ImagenSegunColor(x, y): # cambiar nombre
 		return os.path.join(PATH_TABLERO, "fondo.png") # nada
 
 
-def GenerarBolsa():
+def generar_bolsa():
 	lista = list("aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz")
 	shuffle(lista)
 	return lista
@@ -59,13 +59,13 @@ def GenerarBolsa():
 def generar_tablero(tj):
 	# tj = tiempo de juego
 	
-	Bolsa = GenerarBolsa()
+	bolsa = generar_bolsa()
 
 	matriz = []
 	for i in range(15):
 		matriz.append([])
 		for j in range(15):
-			matriz[i].append(sg.Button(image_filename=ImagenSegunColor(i, j), key=(i,j), pad=(0, 0)))
+			matriz[i].append(sg.Button(image_filename=casillero_segun_color(i, j), key=(i,j), pad=(0, 0)))
 
 	col_derecha = matriz.copy()
 
@@ -74,7 +74,7 @@ def generar_tablero(tj):
 
 	col_izquierda = [[sg.Text("Puntajes: ")],
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
-					[sg.Text("Fichas restantes: {}".format(len(Bolsa)), key="bolsa")],
+					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Button("Cambiar Fichas")],
 					[sg.Button("TERMINAR"), sg.Button("POSPONER")]]
