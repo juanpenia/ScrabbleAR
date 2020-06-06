@@ -78,6 +78,7 @@ def generar_tablero(tj):
 					[sg.Button("Cambiar Fichas" , pad=((0,0),(420,0)))],
 					[sg.Button("TERMINAR", pad=((0, 0),(25, 0))), sg.Button("POSPONER", pad=((20, 0),(25, 0)))]]
 
+
 	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right")]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
@@ -130,6 +131,7 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
 		[sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
 		[sg.Button('INICIAR',button_color=('black', '#D9B382'),pad=((85, 0),(85, 0)))]]
+
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
