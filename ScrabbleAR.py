@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import os
 from sys import platform
 from random import shuffle, choice
+from time import time as now
 #from pattern.es import verbs, spelling, lexicon 
 
 PATH_TABLERO = 'img/tablero'
@@ -26,7 +27,7 @@ sg.theme('Fachero') # tiene que ser cambiado
 TUPLA_MARRONES = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
 TUPLA_ROJOS = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (1, 13), (2, 12), (3, 11), (4, 10), (5, 9), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1), (13, 13), (12, 12), (11, 11), (10, 10), (9, 9))
 TUPLA_AZULES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-TUPLA_VERDES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13), (0, 3), (0, 10), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+TUPLA_VERDES = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
 
 #letras = {a:"a.png", b: "b.png",c: "c.png", d: "d.png",e: "e.png", f: "f.png",g: "g.png", h: "h.png",i: "i.png", j: "j.png",k: "k.png", l: "l.png",m: "m.png", n: "n.png",o: "o.png", p: "p.png",q: "q.png", r: "r.png",s: "s.png", t: "t.png",u: "u.png", v: "v.png",w: "w.png", x: "x.png",y: "y.png", z: "z.png"}
 
@@ -53,7 +54,9 @@ def GenerarBolsa():
 	shuffle(lista)
 	return lista
 
-def generar_tablero():
+
+def generar_tablero(tj):
+	# tj = tiempo de juego
 	
 	Bolsa = GenerarBolsa()
 
@@ -68,9 +71,10 @@ def generar_tablero():
 	col_derecha.append([sg.Text()])
 	col_derecha.append([sg.Button("test")])
 
-	col_izquierda = [[sg.Listbox([], size=(30, 10), key='lista_puntos')],
-					[sg.Text("Fichas restantes: {}".format(len(Bolsa)))],
-					[sg.Text("Tiempo restante: 10 años")],
+	col_izquierda = [[sg.Text("Puntajes: ")],
+					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
+					[sg.Text("Fichas restantes: {}".format(len(Bolsa)), key="bolsa")],
+					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Button("Cambiar Fichas")],
 					[sg.Button("TERMINAR"), sg.Button("POSPONER")]]
 
@@ -79,22 +83,45 @@ def generar_tablero():
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
 
+	# cronometro related
+
+	fin = now() + (tj * 60)
+
 	while True:
 
 		# el "_" detras de una variable significa que no se usa, es para que no salte warning
 		# cuando la usemos, le sacamos el "_"
-		event, _values = window.Read()
+		event, _values = window.Read(timeout=10)
 
 		if event is None:
 			break
 
 		# test
 		if event is "test":
+
+			# jejejeje
 			window.Element((7, 7)).Update(image_filename=os.path.join(PATH_FICHAS, "h.png"))
 			window.Element((7, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
 			window.Element((7, 9)).Update(image_filename=os.path.join(PATH_FICHAS, "r.png"))
 			window.Element((7, 10)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
 			window.Element((7, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
+
+			window.Element((6, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "p.png"))
+			window.Element((8, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
+			window.Element((9, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
+			window.Element((10, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "a.png"))
+
+			window.Element((4, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "f.png"))
+			window.Element((5, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
+			window.Element((6, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "l.png"))
+
+		# cronometro
+
+		if now() < fin:
+			# para mayor legibilidad
+			min_restantes = int((fin - now()) // 60)
+			seg_restantes = int((fin - now()) % 60)
+			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
 
 # fin generar_tablero()
 
@@ -103,6 +130,7 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 	[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), key="tiempo")],
 	[sg.Button("TOP 10"),sg.Button("OPCIONES AVANZADAS")],
 	[sg.Button("INICIAR")]]
+
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
 
@@ -114,4 +142,4 @@ while True:
 
 	if event is "INICIAR":
 		window.Close()
-		generar_tablero()
+		generar_tablero(values["tiempo"])
