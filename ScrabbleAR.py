@@ -101,6 +101,7 @@ def generar_tablero():
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
 	[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), key="niveles")],
 	[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), key="tiempo")],
+	[sg.Button("TOP 10"),sg.Button("OPCIONES AVANZADAS")],
 	[sg.Button("INICIAR")]]
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
