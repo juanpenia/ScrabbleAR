@@ -75,8 +75,8 @@ def generar_tablero(tj):
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(Bolsa)), key="bolsa")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas" , pad=((0,0),(420,0)))],
-					[sg.Button("TERMINAR", pad=((0, 0),(25, 0))), sg.Button("POSPONER", pad=((20, 0),(25, 0)))]]
+					[sg.Button("Cambiar Fichas" ,button_color=('black','#D9B382'), pad=((0,0),(420,0)))],
+					[sg.Button("TERMINAR", button_color=('black','#D9B382'),pad=((0, 0),(25, 0))), sg.Button("POSPONER",button_color=('black', '#D9B382'), pad=((20, 0),(25, 0)))]]
 
 
 	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right")]]
