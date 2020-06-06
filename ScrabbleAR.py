@@ -38,16 +38,16 @@ def casillero_segun_color(x, y): # cambiar nombre
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
     
 	elif (x, y) in TUPLA_ROJOS:
-		return os.path.join(PATH_TABLERO, "beta_rojo2.png")
+		return os.path.join(PATH_TABLERO, "beta_rojo3.png")
 
 	elif (x, y) in TUPLA_AZULES:
-		return os.path.join(PATH_TABLERO, "beta_azul.png")
+		return os.path.join(PATH_TABLERO, "beta_azul2.png")
 
 	elif (x, y) in TUPLA_VERDES:
-		return os.path.join(PATH_TABLERO, "beta_verde.png")
+		return os.path.join(PATH_TABLERO, "beta_verde2.png")
 
 	else:
-		return os.path.join(PATH_TABLERO, "fondo.png") # nada
+		return os.path.join(PATH_TABLERO, "fondo3.png") # nada
 
 
 def generar_bolsa():
