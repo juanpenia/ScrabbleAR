@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 import os
+from json import load, dump
 from sys import platform
 from random import shuffle, choice
 from time import time as now
@@ -125,11 +126,29 @@ def generar_tablero(tj):
 
 # fin generar_tablero()
 
+def mostrar_top10(puntajes):
+	ancho_columnas = (10, 10)
+	headings = ("Jugador", "Puntaje")
+	layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
+	window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
+	while True:
+		event, _values = window.read()
+		if event is None:
+			break
+
+# fin mostrar_top10
+
+def popup_top10_vacio():
+	#sg.Popup("No hay puntajes registrados.", title=":(")
+	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(") # cambiar despues jeje
+
+# fin pop_top10_vacio
+
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
-	[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), key="niveles")],
-	[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), key="tiempo")],
-	[sg.Button("TOP 10"),sg.Button("OPCIONES AVANZADAS")],
-	[sg.Button("INICIAR")]]
+		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
+		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
+		[sg.Button("TOP 10"),sg.Button("OPCIONES AVANZADAS")],
+		[sg.Button("INICIAR")]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
@@ -143,3 +162,16 @@ while True:
 	if event is "INICIAR":
 		window.Close()
 		generar_tablero(values["tiempo"])
+
+	if event is "TOP 10":
+		if(os.path.isfile("puntajes.json")):
+			with open("puntajes.json") as arc:
+				datos = load(arc)
+				if not datos:
+					popup_top10_vacio()
+				else:
+					puntajes = sorted(datos.items(), reverse=True, key=lambda x:x[1])
+					mostrar_top10(puntajes)
+
+		else:
+			popup_top10_vacio()
