@@ -115,10 +115,11 @@ def generar_tablero(tj):
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas")],
-					[sg.Button("TERMINAR"), sg.Button("POSPONER")]]
+					[sg.Button("Cambiar Fichas" ,button_color=('black','#D9B382'), pad=((0,0),(420,0)))],
+					[sg.Button("TERMINAR", button_color=('black','#D9B382'),pad=((0, 0),(25, 0))), sg.Button("POSPONER",button_color=('black', '#D9B382'), pad=((20, 0),(25, 0)))]]
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha)]]
+
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right")]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
@@ -189,8 +190,8 @@ def popup_top10_vacio():
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
 		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
 		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
-		[sg.Button("TOP 10"),sg.Button("OPCIONES AVANZADAS")],
-		[sg.Button("INICIAR")]]
+		[sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
+		[sg.Button('INICIAR',button_color=('black', '#D9B382'),pad=((85, 0),(85, 0)))]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
