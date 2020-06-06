@@ -26,7 +26,7 @@ sg.theme('Fachero') # tiene que ser cambiado
 TUPLA_MARRONES = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
 TUPLA_ROJOS = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (1, 13), (2, 12), (3, 11), (4, 10), (5, 9), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1), (13, 13), (12, 12), (11, 11), (10, 10), (9, 9))
 TUPLA_AZULES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-TUPLA_VERDES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13), (0, 3), (0, 10), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+TUPLA_VERDES = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
 
 #letras = {a:"a.png", b: "b.png",c: "c.png", d: "d.png",e: "e.png", f: "f.png",g: "g.png", h: "h.png",i: "i.png", j: "j.png",k: "k.png", l: "l.png",m: "m.png", n: "n.png",o: "o.png", p: "p.png",q: "q.png", r: "r.png",s: "s.png", t: "t.png",u: "u.png", v: "v.png",w: "w.png", x: "x.png",y: "y.png", z: "z.png"}
 
@@ -70,7 +70,8 @@ def generar_tablero(tj):
 	col_derecha.append([sg.Text()])
 	col_derecha.append([sg.Button("test")])
 
-	col_izquierda = [[sg.Listbox([], size=(30, 10), key='lista_puntos')],
+	col_izquierda = [[sg.Text("Puntajes: ")],
+					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(Bolsa)), key="bolsa")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Button("Cambiar Fichas")],
@@ -119,7 +120,7 @@ def generar_tablero(tj):
 			# para mayor legibilidad
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
-			window["cronometro"].Update(value="Tiempo restante: {:02d}:{:02d}".format(min_restantes, seg_restantes))
+			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
 
 # fin generar_tablero()
 
