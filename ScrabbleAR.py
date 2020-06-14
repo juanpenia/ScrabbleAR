@@ -55,7 +55,9 @@ letras = {"a": os.path.join(PATH_FICHAS, "a.png"),
 		"w": os.path.join(PATH_FICHAS, "w.png"),
 		"x": os.path.join(PATH_FICHAS, "x.png"),
 		"y": os.path.join(PATH_FICHAS, "y.png"), 
-		"z": os.path.join(PATH_FICHAS, "z.png")}
+		"z": os.path.join(PATH_FICHAS, "z.png"),
+		"?": os.path.join(PATH_FICHAS, "question_mark.png")}
+	
 
 def casillero_segun_color(x, y): # cambiar nombre
 	# cambiar ruta, obviamente
@@ -81,17 +83,23 @@ def generar_bolsa():
 	return lista
 
 def sacar_letra(bolsa): 
-	#print("before:", bolsa) #debug
 	letra = choice(bolsa)
 	bolsa.remove(letra)
-	#print("after:", bolsa) #debug
 	return letra
 # fin sacar_letra
 
 
 def generar_tablero(tj):
 	# tj = tiempo de juego
-	
+	cambiando_fichas = False
+	_fichas_seleccionadas = 0
+	dic_debug = {"ficha_jugador_0": False, 
+				"ficha_jugador_1": False, 
+				"ficha_jugador_2": False, 
+				"ficha_jugador_3": False, 
+				"ficha_jugador_4": False,
+				"ficha_jugador_5": False,
+				"ficha_jugador_6": False}# deberia haber una clase ficha mepa, digoooooooooooooooooooo
 	bolsa = generar_bolsa()
 
 	matriz = []
@@ -102,24 +110,28 @@ def generar_tablero(tj):
 
 	col_derecha = matriz.copy()
 
-	col_derecha.append([sg.Text()])
+	lista_selec = []
+	#col_derecha.append([sg.Text()])
 	col_derecha.append([sg.Button("test")])
-	letras_jugador = []
-	for i in range(0, 5):
-		l = sacar_letra(bolsa)
-		letras_jugador.append(sg.Button(image_filename=letras[l]))
+	col_derecha.append([sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))])
 
+	letras_jugador = []
+	for i in range(0, 7):
+		l = sacar_letra(bolsa) # deberia devolver un objeto y no una letra
+		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
+
+	#t = Ficha("a", letras["i"])
 	col_derecha.append(letras_jugador)
 
 	col_izquierda = [[sg.Text("Puntajes: ")],
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas" ,button_color=('black','#D9B382'), pad=((0,0),(420,0)))],
-					[sg.Button("TERMINAR", button_color=('black','#D9B382'),pad=((0, 0),(25, 0))), sg.Button("POSPONER",button_color=('black', '#D9B382'), pad=((20, 0),(25, 0)))]]
+					[sg.Button("Cambiar Fichas" ,button_color=('black', '#D9B382'), pad=((0,0), (420,0)))],
+					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right")]]
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha)]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
@@ -137,25 +149,66 @@ def generar_tablero(tj):
 		if event is None:
 			break
 
+		if event is "Cambiar Fichas":
+			if((cambiando_fichas) and len(lista_selec)):
+				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
+				if(salida == "OK"):
+					bolsa.extend(lista_selec)
+					shuffle(bolsa)
+					#print(lista_selec)
+					for x in lista_selec:
+						l = sacar_letra(bolsa)
+						# aca peude estar el bug de que no todas se cambien o actualizen
+						for i in range(7): #debug, deberia ser mejor y mas prolijo
+							if(dic_debug["ficha_jugador_{}".format(i)]):
+								window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
+								dic_debug["ficha_jugador_{}".format(i)] = False
+								break
+						lista_selec.remove(x)
+				else:
+					lista_selec = []
+				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
+			cambiando_fichas = not cambiando_fichas
+
+		if event in ("ficha_jugador_0", "ficha_jugador_1", "ficha_jugador_2", "ficha_jugador_3", "ficha_jugador_4", "ficha_jugador_5", "ficha_jugador_6"):
+			if(cambiando_fichas):
+				# terminar
+				if(not dic_debug[event]):
+					#window[event].Update(border_width=3)
+					lista_selec.append(window[event].GetText())
+					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
+					#print(" ".join(lista_selec).upper())
+				else:
+					lista_selec.remove(window[event].GetText())
+					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
+					#print(" ".join(lista_selec).upper())
+				dic_debug[event] = not dic_debug[event]
+
 		# test
 		if event is "test":
 
 			# jejejeje
 			window.Element((7, 7)).Update(image_filename=letras["h"])
-			window.Element((7, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
-			window.Element((7, 9)).Update(image_filename=os.path.join(PATH_FICHAS, "r.png"))
-			window.Element((7, 10)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
-			window.Element((7, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
+			window.Element((7, 8)).Update(image_filename=letras["e"])
+			window.Element((7, 9)).Update(image_filename=letras["r"])
+			window.Element((7, 10)).Update(image_filename=letras["n"])
+			window.Element((7, 11)).Update(image_filename=letras["i"])
 
-			window.Element((6, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "p.png"))
-			window.Element((8, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "n.png"))
-			window.Element((9, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "i.png"))
-			window.Element((10, 8)).Update(image_filename=os.path.join(PATH_FICHAS, "a.png"))
+			window.Element((6, 8)).Update(image_filename=letras["p"])
+			window.Element((8, 8)).Update(image_filename=letras["n"])
+			window.Element((9, 8)).Update(image_filename=letras["i"])
+			window.Element((10, 8)).Update(image_filename=letras["a"])
+			window.Element((11, 8)).Update(image_filename=letras["?"])
 
-			window.Element((4, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "f.png"))
-			window.Element((5, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "e.png"))
-			window.Element((6, 11)).Update(image_filename=os.path.join(PATH_FICHAS, "l.png"))
-			print(sacar_letra(bolsa))
+			window.Element((4, 11)).Update(image_filename=letras["f"])
+			window.Element((5, 11)).Update(image_filename=letras["e"])
+			window.Element((6, 11)).Update(image_filename=letras["l"])
+			try:
+				print(sacar_letra(bolsa))
+			except IndexError:
+				sg.Popup("No bro, no hay mas fixas") #debug, este boton ni va a existir
+
+			#print(lista_selec)
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
