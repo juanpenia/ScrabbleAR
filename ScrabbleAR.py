@@ -89,8 +89,21 @@ def sacar_letra(bolsa):
 	return letra
 # fin sacar_letra
 
+#def generar_tablero2(tj):        #Tablero 2 Medium mode 
+	# tj = tiempo de juego
+#	cambiando_fichas = False
+#	_fichas_seleccionadas = 0
+#	dic_debug = {"ficha_jugador_0": False, 
+#				"ficha_jugador_1": False, 
+#				"ficha_jugador_2": False, 
+#				"ficha_jugador_3": False, 
+#				"ficha_jugador_4": False,
+#				"ficha_jugador_5": False,
+#				"ficha_jugador_6": False}          
+#	bolsa = generar_bolsa()
 
-def generar_tablero(tj):
+
+def generar_tablero1(tj):        #Tablero 1 Easy mode 
 	# tj = tiempo de juego
 	cambiando_fichas = False
 	_fichas_seleccionadas = 0
@@ -100,14 +113,14 @@ def generar_tablero(tj):
 				"ficha_jugador_3": False, 
 				"ficha_jugador_4": False,
 				"ficha_jugador_5": False,
-				"ficha_jugador_6": False}# deberia haber una clase ficha mepa, digoooooooooooooooooooo
+				"ficha_jugador_6": False}           # deberia haber una clase ficha mepa, digoooooooooooooooooooo
 	bolsa = generar_bolsa()
 
 	matriz = []
 	for i in range(15):
 		matriz.append([])
 		for j in range(15):
-			matriz[i].append(sg.Button(image_filename=casillero_segun_color(i, j), key=(i,j), pad=(0, 0)))
+			matriz[i].append(sg.Button(image_filename=casillero_segun_color(i, j), key=(i,j), pad=(0, 0))) 
 
 	col_derecha = matriz.copy()
 
@@ -128,11 +141,12 @@ def generar_tablero(tj):
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas" ,button_color=('black', '#D9B382'), pad=((0,0), (420,0)))],
+					[sg.Button("Cambiar Fichas" ,button_color=('black', '#D9B382'), pad=((0,0), (530,0)))],
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
 	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha)]]
+	
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
@@ -258,7 +272,8 @@ while True:
 
 	if event is "INICIAR":
 		window.Close()
-		generar_tablero(values["tiempo"])
+		#aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
+		generar_tablero1(values["tiempo"])
 
 	if event is "TOP 10":
 		if(os.path.isfile("puntajes.json")):
