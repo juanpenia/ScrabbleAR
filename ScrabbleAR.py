@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import PySimpleGUI as sg
 import os
 from json import load, dump
@@ -30,32 +31,32 @@ TUPLA_ROJOS = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (1, 13), (2, 12), (3, 11)
 TUPLA_AZULES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
 TUPLA_VERDES = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
 
-letras = {"a": os.path.join(PATH_FICHAS, "a.png"),
-		"b": os.path.join(PATH_FICHAS, "b.png"),
-		"c": os.path.join(PATH_FICHAS, "c.png"),
-		"d": os.path.join(PATH_FICHAS, "d.png"),
-		"e": os.path.join(PATH_FICHAS, "e.png"),
-		"f": os.path.join(PATH_FICHAS, "f.png"),
-		"g": os.path.join(PATH_FICHAS, "g.png"),
-		"h": os.path.join(PATH_FICHAS, "h.png"),
-		"i": os.path.join(PATH_FICHAS, "i.png"),
-		"j": os.path.join(PATH_FICHAS, "j.png"),
-		"k": os.path.join(PATH_FICHAS, "k.png"),
-		"l": os.path.join(PATH_FICHAS, "l.png"),
-		"m": os.path.join(PATH_FICHAS, "m.png"),
-		"n": os.path.join(PATH_FICHAS, "n.png"),
-		"o": os.path.join(PATH_FICHAS, "o.png"),
-		"p": os.path.join(PATH_FICHAS, "p.png"),
-		"q": os.path.join(PATH_FICHAS, "q.png"),
-		"r": os.path.join(PATH_FICHAS, "r.png"),
-		"s": os.path.join(PATH_FICHAS, "s.png"),
-		"t": os.path.join(PATH_FICHAS, "t.png"),
-		"u": os.path.join(PATH_FICHAS, "u.png"),
-		"v": os.path.join(PATH_FICHAS, "v.png"),
-		"w": os.path.join(PATH_FICHAS, "w.png"),
-		"x": os.path.join(PATH_FICHAS, "x.png"),
-		"y": os.path.join(PATH_FICHAS, "y.png"), 
-		"z": os.path.join(PATH_FICHAS, "z.png"),
+letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
+		"b": os.path.join(PATH_FICHAS, "B.png"),
+		"c": os.path.join(PATH_FICHAS, "C.png"),
+		"d": os.path.join(PATH_FICHAS, "D.png"),
+		"e": os.path.join(PATH_FICHAS, "E.png"),
+		"f": os.path.join(PATH_FICHAS, "F.png"),
+		"g": os.path.join(PATH_FICHAS, "G.png"),
+		"h": os.path.join(PATH_FICHAS, "H.png"),
+		"i": os.path.join(PATH_FICHAS, "I.png"),
+		"j": os.path.join(PATH_FICHAS, "J.png"),
+		"k": os.path.join(PATH_FICHAS, "K.png"),
+		"l": os.path.join(PATH_FICHAS, "L.png"),
+		"m": os.path.join(PATH_FICHAS, "M.png"),
+		"n": os.path.join(PATH_FICHAS, "N.png"),
+		"o": os.path.join(PATH_FICHAS, "O.png"),
+		"p": os.path.join(PATH_FICHAS, "P.png"),
+		"q": os.path.join(PATH_FICHAS, "Q.png"),
+		"r": os.path.join(PATH_FICHAS, "R.png"),
+		"s": os.path.join(PATH_FICHAS, "S.png"),
+		"t": os.path.join(PATH_FICHAS, "T.png"),
+		"u": os.path.join(PATH_FICHAS, "U.png"),
+		"v": os.path.join(PATH_FICHAS, "V.png"),
+		"w": os.path.join(PATH_FICHAS, "W.png"),
+		"x": os.path.join(PATH_FICHAS, "X.png"),
+		"y": os.path.join(PATH_FICHAS, "Y.png"), 
+		"z": os.path.join(PATH_FICHAS, "Z.png"),
 		"?": os.path.join(PATH_FICHAS, "question_mark.png")}
 	
 
