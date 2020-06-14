@@ -111,7 +111,7 @@ def generar_tablero(tj):
 
 	col_derecha.append(letras_jugador)
 
-	col_izquierda = [[sg.Text("Puntajes: ")],
+	col_izquierda = [[sg.Text("Puntajes: ",size = (70,0)) ],
 					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
