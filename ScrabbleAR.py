@@ -119,7 +119,7 @@ def generar_tablero(tj):
 					[sg.Button("TERMINAR", button_color=('black','#D9B382'),pad=((0, 0),(25, 0))), sg.Button("POSPONER",button_color=('black', '#D9B382'), pad=((20, 0),(25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right")]]
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right",pad=(0,120))]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
