@@ -137,7 +137,7 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 	col_derecha.append(letras_jugador)
 
 	headings_tabla = ("Jugador", "Puntaje")
-	col_izquierda = [[sg.Text("Puntajes: ")],
+	col_izquierda = [[sg.Text("Puntajes: ", size=(70,0))],
 					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
@@ -145,8 +145,7 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha)]]
-	
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right",pad=(0,0),size=(150,150))]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
