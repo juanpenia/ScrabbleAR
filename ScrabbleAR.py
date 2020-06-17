@@ -145,7 +145,7 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, element_justification="right",pad=(0,0),size=(150,150))]]
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, pad=(0,0))]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
@@ -169,7 +169,7 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 				if(salida == "OK"):
 					bolsa.extend(lista_selec)
 					shuffle(bolsa)
-					for x in lista_selec:
+					for _x in lista_selec:
 						l = sacar_letra(bolsa)
 						for i in range(7): #debug, deberia ser mejor y mas prolijo
 							if(dic_debug["ficha_jugador_{}".format(i)]):
