@@ -16,7 +16,7 @@ sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
 										'TEXT_INPUT': '#191970',
 										'SCROLL': '#c7e78b',
 										#'BUTTON': ('black', '#D9B382'),
-										'BUTTON': ('black', '#F5F5F5'),
+										'BUTTON': ('black', '#d1d6d7'),
 										'PROGRESS': ('#01826B', '#D0D0D0'),
 										'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
 									}
@@ -106,7 +106,6 @@ def sacar_letra(bolsa):
 def generar_tablero1(tj):        #Tablero 1 Easy mode 
 	# tj = tiempo de juego
 	cambiando_fichas = False
-	_fichas_seleccionadas = 0
 	dic_debug = {"ficha_jugador_0": False, 
 				"ficha_jugador_1": False, 
 				"ficha_jugador_2": False, 
@@ -132,21 +131,21 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 	letras_jugador = []
 	for i in range(0, 7):
 		l = sacar_letra(bolsa) # deberia devolver un objeto y no una letra
+		#letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
 		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
 
-	#t = Ficha("a", letras["i"])
 	col_derecha.append(letras_jugador)
 
-	col_izquierda = [[sg.Text("Puntajes: ")],
-					[sg.Listbox([], size=(30, 10), key='lista_puntos')],
+	headings_tabla = ("Jugador", "Puntaje")
+	col_izquierda = [[sg.Text("Puntajes: ", size=(70,0))],
+					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas" ,button_color=('black', '#D9B382'), pad=((0,0), (530,0)))],
+					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (530, 0)), key="cambiar_fichas")],
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha)]]
-	
+	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, pad=(0,0))]]
 
 	window = sg.Window("ScrabbleAR", layout).Finalize()
 	window.Maximize()
@@ -164,6 +163,7 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 		if event is None:
 			break
 
+
 		if event is "TERMINAR": #Cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
 			sg.Popup("termino")
 			break
@@ -172,26 +172,27 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 			pass
 
 
-		if event is "Cambiar Fichas":
+	
+		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
 			if((cambiando_fichas) and len(lista_selec)):
 				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
 				if(salida == "OK"):
 					bolsa.extend(lista_selec)
 					shuffle(bolsa)
-					#print(lista_selec)
-					for x in lista_selec:
+					for _x in lista_selec:
 						l = sacar_letra(bolsa)
-						# aca peude estar el bug de que no todas se cambien o actualizen
 						for i in range(7): #debug, deberia ser mejor y mas prolijo
 							if(dic_debug["ficha_jugador_{}".format(i)]):
 								window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
 								dic_debug["ficha_jugador_{}".format(i)] = False
 								break
-						lista_selec.remove(x)
-				else:
-					lista_selec = []
+				lista_selec = []
 				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
 			cambiando_fichas = not cambiando_fichas
+			if(cambiando_fichas):
+				window["cambiar_fichas"].Update(button_color=('white', '#008000'))
+			else:
+				window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
 
 		if event in ("ficha_jugador_0", "ficha_jugador_1", "ficha_jugador_2", "ficha_jugador_3", "ficha_jugador_4", "ficha_jugador_5", "ficha_jugador_6"):
 			if(cambiando_fichas):
@@ -200,38 +201,34 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 					#window[event].Update(border_width=3)
 					lista_selec.append(window[event].GetText())
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
-					#print(" ".join(lista_selec).upper())
 				else:
 					lista_selec.remove(window[event].GetText())
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
-					#print(" ".join(lista_selec).upper())
 				dic_debug[event] = not dic_debug[event]
 
 		# test
 		if event is "test":
 
 			# jejejeje
-			window.Element((7, 7)).Update(image_filename=letras["h"])
-			window.Element((7, 8)).Update(image_filename=letras["e"])
-			window.Element((7, 9)).Update(image_filename=letras["r"])
-			window.Element((7, 10)).Update(image_filename=letras["n"])
-			window.Element((7, 11)).Update(image_filename=letras["i"])
+			window.Element((7, 7)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["h"])
+			window.Element((7, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["e"])
+			window.Element((7, 9)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["r"])
+			window.Element((7, 10)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["n"])
+			window.Element((7, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["i"])
 
-			window.Element((6, 8)).Update(image_filename=letras["p"])
-			window.Element((8, 8)).Update(image_filename=letras["n"])
-			window.Element((9, 8)).Update(image_filename=letras["i"])
-			window.Element((10, 8)).Update(image_filename=letras["a"])
-			window.Element((11, 8)).Update(image_filename=letras["?"])
+			window.Element((6, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["p"])
+			window.Element((8, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["n"])
+			window.Element((9, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["i"])
+			window.Element((10, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["a"])
+			window.Element((11, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["?"])
 
-			window.Element((4, 11)).Update(image_filename=letras["f"])
-			window.Element((5, 11)).Update(image_filename=letras["e"])
-			window.Element((6, 11)).Update(image_filename=letras["l"])
+			window.Element((4, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["f"])
+			window.Element((5, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["e"])
+			window.Element((6, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["l"])
 			try:
-				print(sacar_letra(bolsa))
+				sacar_letra(bolsa)
 			except IndexError:
 				sg.Popup("No bro, no hay mas fixas") #debug, este boton ni va a existir
-
-			#print(lista_selec)
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
@@ -303,4 +300,3 @@ while True:
 		else:
 			popup_top10_vacio()
 
-    
