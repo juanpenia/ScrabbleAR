@@ -163,6 +163,16 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 		if event is None:
 			break
 
+
+		if event is "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+			sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
+			break
+		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+
+			pass
+
+
+	
 		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
 			if((cambiando_fichas) and len(lista_selec)):
 				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
@@ -229,6 +239,8 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
+        
+				
 
 # fin generar_tablero()
 
@@ -254,7 +266,9 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
 		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
 		[sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
-		[sg.Button('INICIAR',button_color=('black', '#D9B382'),pad=((85, 0),(85, 0)))]]
+		
+		[sg.Button('CONTINUAR PARTIDA',button_color=('black', '#D9B382'),pad=((45, 0),(30, 0)))],
+		[sg.Button('INICIAR',button_color=('black', '#D9B382'),pad=((80, 0),(30, 0)))]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
@@ -270,6 +284,9 @@ while True:
 		#aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
 		generar_tablero1(values["tiempo"])
 
+	if event is "CONTINUAR PARTIDA": #Se debe  poder seguir la partida que fue pospuesta anteriormente.
+			pass
+
 	if event is "TOP 10":
 		if(os.path.isfile("puntajes.json")):
 			with open("puntajes.json") as arc:
@@ -282,3 +299,4 @@ while True:
 
 		else:
 			popup_top10_vacio()
+
