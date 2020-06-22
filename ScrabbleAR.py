@@ -164,8 +164,8 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 			break
 
 
-		if event is "TERMINAR": #Cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
-			sg.Popup("termino")
+		if event is "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+			sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
 			break
 		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
 
