@@ -64,7 +64,7 @@ def casillero_segun_color(x, y): # cambiar nombre
 	# cambiar ruta, obviamente
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
-    
+
 	elif (x, y) in TUPLA_ROJOS:
 		return os.path.join(PATH_TABLERO, "beta_rojo3.png")
 
@@ -89,70 +89,71 @@ def sacar_letra(bolsa):
 	return letra
 # fin sacar_letra
 
-#def generar_tablero2(tj):        #Tablero 2 Medium mode 
-	# tj = tiempo de juego
-#	cambiando_fichas = False
-#	_fichas_seleccionadas = 0
-#	dic_debug = {"ficha_jugador_0": False, 
-#				"ficha_jugador_1": False, 
-#				"ficha_jugador_2": False, 
-#				"ficha_jugador_3": False, 
-#				"ficha_jugador_4": False,
-#				"ficha_jugador_5": False,
-#				"ficha_jugador_6": False}          
-#	bolsa = generar_bolsa()
+def generar_tablero():
+	tablero = []
+	for i in range(15):
+		tablero.append([])
+		for j in range(15):
+			tablero[i].append(sg.Button(image_filename=casillero_segun_color(i, j), image_size=(32, 32), key=(i,j), pad=(0, 0)))
+	return tablero
 
-
-def generar_tablero1(tj):        #Tablero 1 Easy mode 
-	# tj = tiempo de juego
+def generar_ventana_de_juego(tj): # tj = tiempo de juego
+	# cambio de fichas
+	cambios = 0
 	cambiando_fichas = False
-	dic_debug = {"ficha_jugador_0": False, 
+	estado_ficha = {"ficha_jugador_0": False, 
 				"ficha_jugador_1": False, 
 				"ficha_jugador_2": False, 
 				"ficha_jugador_3": False, 
 				"ficha_jugador_4": False,
 				"ficha_jugador_5": False,
 				"ficha_jugador_6": False}           # deberia haber una clase ficha mepa, digoooooooooooooooooooo
+
+	# cronometro related
+	fin = now() + (tj * 60)
+
+	# bolsa de fichas
 	bolsa = generar_bolsa()
 
-	matriz = []
-	for i in range(15):
-		matriz.append([])
-		for j in range(15):
-			matriz[i].append(sg.Button(image_filename=casillero_segun_color(i, j), key=(i,j), pad=(0, 0))) 
+	# columnas: 
+	# fichas computadora: 
+	col_arriba = [[sg.Text(" "*45)]]
+	for i in range(7):
+		col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, button_color=('black', '#191970')))
 
-	col_derecha = matriz.copy()
+	# tablero de juego:
+	col_tablero = generar_tablero()
 
+	# letras del jugador:
 	lista_selec = []
-	#col_derecha.append([sg.Text()])
-	col_derecha.append([sg.Button("test")])
-	col_derecha.append([sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))])
+	col_derecha = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
 
-	letras_jugador = []
+	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
 		l = sacar_letra(bolsa) # deberia devolver un objeto y no una letra
-		#letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
-		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
+		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
+		#letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
 
 	col_derecha.append(letras_jugador)
 
+	# panel izquierdo:
 	headings_tabla = ("Jugador", "Puntaje")
-	col_izquierda = [[sg.Text("Puntajes: ", size=(70,0))],
+	col_izquierda = [[sg.Text("Puntajes: ")],
 					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (530, 0)), key="cambiar_fichas")],
-					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
+					#[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (530, 0)), key="cambiar_fichas")],
+					#[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
+					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas")],
+					[sg.Button("TERMINAR", button_color=('black', '#D9B382')), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
 
-	layout = [[sg.Column(col_izquierda), sg.Column(col_derecha, pad=(0,0))]]
+	layout = [[sg.Column(col_arriba)],
+			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,0), element_justification="right")],
+			[sg.Column(col_derecha)]]
 
-	window = sg.Window("ScrabbleAR", layout).Finalize()
-	window.Maximize()
-
-	# cronometro related
-
-	fin = now() + (tj * 60)
+	window = sg.Window("ScrabbleAR", layout, size=(900, 700)).Finalize()
+	#window.Maximize()
 
 	while True:
 
@@ -168,12 +169,13 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 			sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
 			break
 		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-
 			pass
 
 
 	
 		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
+			if(cambios >= 3):
+				sg.Popup("f") # cambiar
 			if((cambiando_fichas) and len(lista_selec)):
 				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
 				if(salida == "OK"):
@@ -182,10 +184,11 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 					for _x in lista_selec:
 						l = sacar_letra(bolsa)
 						for i in range(7): #debug, deberia ser mejor y mas prolijo
-							if(dic_debug["ficha_jugador_{}".format(i)]):
+							if(estado_ficha["ficha_jugador_{}".format(i)]):
 								window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
-								dic_debug["ficha_jugador_{}".format(i)] = False
+								estado_ficha["ficha_jugador_{}".format(i)] = False
 								break
+					cambios+=1
 				lista_selec = []
 				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
 			cambiando_fichas = not cambiando_fichas
@@ -197,38 +200,14 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 		if event in ("ficha_jugador_0", "ficha_jugador_1", "ficha_jugador_2", "ficha_jugador_3", "ficha_jugador_4", "ficha_jugador_5", "ficha_jugador_6"):
 			if(cambiando_fichas):
 				# terminar
-				if(not dic_debug[event]):
+				if(not estado_ficha[event]):
 					#window[event].Update(border_width=3)
 					lista_selec.append(window[event].GetText())
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
 				else:
 					lista_selec.remove(window[event].GetText())
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
-				dic_debug[event] = not dic_debug[event]
-
-		# test
-		if event is "test":
-
-			# jejejeje
-			window.Element((7, 7)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["h"])
-			window.Element((7, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["e"])
-			window.Element((7, 9)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["r"])
-			window.Element((7, 10)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["n"])
-			window.Element((7, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["i"])
-
-			window.Element((6, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["p"])
-			window.Element((8, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["n"])
-			window.Element((9, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["i"])
-			window.Element((10, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["a"])
-			window.Element((11, 8)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["?"])
-
-			window.Element((4, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["f"])
-			window.Element((5, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["e"])
-			window.Element((6, 11)).Update(button_color=('black', '#d1d6d7'), image_filename=letras["l"])
-			try:
-				sacar_letra(bolsa)
-			except IndexError:
-				sg.Popup("No bro, no hay mas fixas") #debug, este boton ni va a existir
+				estado_ficha[event] = not estado_ficha[event]
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
@@ -239,10 +218,9 @@ def generar_tablero1(tj):        #Tablero 1 Easy mode
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
-        
-				
+			
+	window.Close()
 
-# fin generar_tablero()
 
 def mostrar_top10(puntajes):
 	ancho_columnas = (10, 10)
@@ -254,13 +232,13 @@ def mostrar_top10(puntajes):
 		if event is None:
 			break
 
-# fin mostrar_top10
 
 def popup_top10_vacio():
 	#sg.Popup("No hay puntajes registrados.", title=":(")
 	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(") # cambiar despues jeje
 
-# fin pop_top10_vacio
+
+# comienzo de "main"
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
 		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
@@ -282,10 +260,10 @@ while True:
 	if event is "INICIAR":
 		window.Close()
 		#aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
-		generar_tablero1(values["tiempo"])
+		generar_ventana_de_juego(values["tiempo"])
 
 	if event is "CONTINUAR PARTIDA": #Se debe  poder seguir la partida que fue pospuesta anteriormente.
-			pass
+		pass
 
 	if event is "TOP 10":
 		if(os.path.isfile("puntajes.json")):
@@ -300,3 +278,4 @@ while True:
 		else:
 			popup_top10_vacio()
 
+window.Close()
