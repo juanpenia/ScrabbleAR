@@ -5,8 +5,9 @@ Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
 
 ### Requerimientos:
 
-* Python 3.6+
+* Python 3.6 (es necesaria esta versión ya que pattern tiene problemas con versiones posteriores)
 * PySimpleGUI 4.19.0+
+* Pattern 3.6
 
 
 ### Como instalar:
@@ -14,7 +15,7 @@ Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
 ### Windows:
 
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-383/)
-* En cmd o powershell ejecutar: `pip3 install PySimpleGUI`
+* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
 
 **Nota:** también se puede utilizar el ejecutable que se dejará en la pestaña "Releases".
 
@@ -23,4 +24,4 @@ Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
 * Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk`
-* Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI`
+* Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern`
