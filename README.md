@@ -14,7 +14,7 @@ Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
 
 ### Windows:
 
-* Descargar instalador de Python (https://www.python.org/downloads/release/python-383/)
+* Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
 * En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
 
 **Nota:** también se puede utilizar el ejecutable que se dejará en la pestaña "Releases".
