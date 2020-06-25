@@ -89,6 +89,19 @@ def sacar_letra(bolsa):
 	return letra
 # fin sacar_letra
 
+def dar_fichas_maquina(bolsa):
+	return [sacar_letra(bolsa) for x in range(7)]
+
+def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario, asi esta mas organizado
+	for _i in range(7):
+		bolsa.extend(fm)
+	shuffle(bolsa)
+	fm = dar_fichas_maquina(bolsa)
+	return fm, cambios+1
+	
+def cambiar_fichas_jugador():
+	pass
+
 def generar_tablero():
 	tablero = []
 	for i in range(15):
@@ -99,7 +112,11 @@ def generar_tablero():
 
 def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	# cambio de fichas
-	cambios = 0
+	cambios_jugador = 0
+	_cambios_maquina = 0 # todavia no se usa
+	# la idea es que en algun momento de la logica del cpu se use asi:
+	# fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
+
 	cambiando_fichas = False
 	estado_ficha = {"ficha_jugador_0": False, 
 				"ficha_jugador_1": False, 
@@ -114,6 +131,9 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 	# bolsa de fichas
 	bolsa = generar_bolsa()
+
+	# fichas de la maquina:
+	_fichas_maquina = dar_fichas_maquina(bolsa)
 
 	# columnas: 
 	# fichas computadora: 
@@ -167,13 +187,13 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 		if event is "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
 			sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
 			break
+
 		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
 			pass
 
-
-	
 		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
-			if(cambios >= 3):
+			# me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+			if(cambios_jugador >= 3):
 				sg.Popup("f") # cambiar
 			if((cambiando_fichas) and len(lista_selec)):
 				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
@@ -187,7 +207,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 								window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
 								estado_ficha["ficha_jugador_{}".format(i)] = False
 								break
-					cambios+=1
+					cambios_jugador += 1
 				lista_selec = []
 				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
 			cambiando_fichas = not cambiando_fichas
