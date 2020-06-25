@@ -137,21 +137,21 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 	# columnas: 
 	# fichas computadora: 
-	col_arriba = [[sg.Text(" "*45)]]
+	col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)),sg.Text(" "*10)]]
 	for i in range(7):
-		col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, button_color=('black', '#191970')))
+		col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad =((9,0),(10,0)),button_color=('black', '#191970')))
 
 	# tablero de juego:
 	col_tablero = generar_tablero()
 
 	# letras del jugador:
 	lista_selec = []
-	col_derecha = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
+	col_derecha = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc",size=(180, None))]]
 
 	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
 		l = sacar_letra(bolsa) # deberia devolver un objeto y no una letra
-		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
+		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0,key="ficha_jugador_{}".format(i)))
 		#letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
 
 	col_derecha.append(letras_jugador)
@@ -159,17 +159,16 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	# panel izquierdo:
 	headings_tabla = ("Jugador", "Puntaje")
 	col_izquierda = [[sg.Text("Puntajes: ")],
-					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
+					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False,key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					#[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (530, 0)), key="cambiar_fichas")],
-					#[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
-					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas")],
-					[sg.Button("TERMINAR", button_color=('black', '#D9B382')), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
+					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (200, 0)), key="cambiar_fichas")],
+					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
+
 
 
 	layout = [[sg.Column(col_arriba)],
-			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,0), element_justification="right")],
+			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,26), element_justification="right")],
 			[sg.Column(col_derecha)]]
 
 	window = sg.Window("ScrabbleAR", layout, size=(900, 700)).Finalize()
