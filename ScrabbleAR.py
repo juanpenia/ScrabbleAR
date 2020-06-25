@@ -98,9 +98,6 @@ def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para
 	shuffle(bolsa)
 	fm = dar_fichas_maquina(bolsa)
 	return fm, cambios+1
-	
-def cambiar_fichas_jugador():
-	pass
 
 def generar_tablero():
 	tablero = []
@@ -118,7 +115,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	# fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
 	cambiando_fichas = False
-	estado_ficha = {"ficha_jugador_0": False, 
+	estado_fichas = {"ficha_jugador_0": False, 
 				"ficha_jugador_1": False, 
 				"ficha_jugador_2": False, 
 				"ficha_jugador_3": False, 
@@ -145,7 +142,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	col_tablero = generar_tablero()
 
 	# letras del jugador:
-	lista_selec = []
+	fichas_seleccionadas = []
 	col_derecha = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc",size=(180, None))]]
 
 	letras_jugador = [sg.Text(" "*45)]
@@ -171,7 +168,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,26), element_justification="right")],
 			[sg.Column(col_derecha)]]
 
-	window = sg.Window("ScrabbleAR", layout, size=(900, 700)).Finalize()
+	window = sg.Window("ScrabbleAR", layout, size=(900, 700), location=(300, 0), resizable=True).Finalize()
 	#window.Maximize()
 
 	while True:
@@ -194,39 +191,39 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
 			# me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
 			if(cambios_jugador >= 3):
-				sg.Popup("f") # cambiar
-			if((cambiando_fichas) and len(lista_selec)):
-				salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
-				if(salida == "OK"):
-					bolsa.extend(lista_selec)
-					shuffle(bolsa)
-					for _x in lista_selec:
-						l = sacar_letra(bolsa)
-						for i in range(7): #debug, deberia ser mejor y mas prolijo
-							if(estado_ficha["ficha_jugador_{}".format(i)]):
-								window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
-								estado_ficha["ficha_jugador_{}".format(i)] = False
-								break
-					cambios_jugador += 1
-				lista_selec = []
-				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
-			cambiando_fichas = not cambiando_fichas
+				sg.Popup("Ya no tienes cambios de fichas restantes.")
+			else:
+				if((cambiando_fichas) and len(fichas_seleccionadas)):
+					salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
+					if(salida == "OK"):
+						bolsa.extend(fichas_seleccionadas)
+						shuffle(bolsa)
+						for _x in fichas_seleccionadas:
+							l = sacar_letra(bolsa)
+							for i in range(7): #debug, deberia ser mejor y mas prolijo
+								if(estado_fichas["ficha_jugador_{}".format(i)]):
+									window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
+									estado_fichas["ficha_jugador_{}".format(i)] = False
+									break
+						cambios_jugador += 1
+					fichas_seleccionadas = []
+					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
+				cambiando_fichas = not cambiando_fichas
+
 			if(cambiando_fichas):
 				window["cambiar_fichas"].Update(button_color=('white', '#008000'))
 			else:
 				window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
 
-		if event in ("ficha_jugador_0", "ficha_jugador_1", "ficha_jugador_2", "ficha_jugador_3", "ficha_jugador_4", "ficha_jugador_5", "ficha_jugador_6"):
+		if event in estado_fichas.keys():
 			if(cambiando_fichas):
 				# terminar
-				if(not estado_ficha[event]):
-					#window[event].Update(border_width=3)
-					lista_selec.append(window[event].GetText())
-					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
+				if(not estado_fichas[event]):
+					fichas_seleccionadas.append(window[event].GetText())
 				else:
-					lista_selec.remove(window[event].GetText())
-					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(lista_selec).upper()))
-				estado_ficha[event] = not estado_ficha[event]
+					fichas_seleccionadas.remove(window[event].GetText())
+				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))	
+				estado_fichas[event] = not estado_fichas[event]
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
