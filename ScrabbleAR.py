@@ -176,16 +176,17 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 	# panel izquierdo:
 	headings_tabla = ("Jugador", "Puntaje")
-	col_izquierda = [[sg.Text("\nPuntajes: ")],
+	col_izquierda = [[sg.Text("Puntajes: ")],
 					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False,key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
-					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (200, 0)), key="cambiar_fichas")],
-					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
+					[sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
+					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas")],
+					[sg.Button("TERMINAR", button_color=('black', '#D9B382')), sg.Button("POSPONER", button_color=('black', '#D9B382'))]]
 
 	# panel derecho: (referencias)
 
-	col_derecha = [[sg.Text("\nReferencias:")],
+	col_derecha = [[sg.Text("Referencias:")],
 	[sg.Button(image_filename=casillas["palabra_x2"]), sg.Text("Duplica valor de la palabra")],
 	[sg.Button(image_filename=casillas["palabra_x3"]), sg.Text("Triplica valor de la palabra")],
 	[sg.Button(image_filename=casillas["letra_x2"]), sg.Text("Duplica letra")],
@@ -196,7 +197,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 
 	layout = [[sg.Column(col_arriba)],
-			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,26), element_justification="right"), sg.Column(col_derecha)],
+			[sg.Column(col_izquierda), sg.Column(col_tablero, element_justification="right"), sg.Column(col_derecha)],
 			[sg.Column(col_jugador)]]
 
 	window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
