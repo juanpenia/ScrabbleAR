@@ -127,7 +127,7 @@ def generar_tablero():
 def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	# cambio de fichas
 	'''Esta funcion es la que que inicia el juego,utilizando los procesos
-	declarados anteriormente.Tambien se encarga de genrar el cronometro.
+	declarados anteriormente.Tambien se encarga de generar el cronometro.
 	'''
 	cambios_jugador = 0
 	_cambios_maquina = 0 # todavia no se usa
@@ -276,7 +276,7 @@ def mostrar_top10(puntajes):
 
 def popup_top10_vacio():
 	'''Esta funcion muestra una imagen
-		en caso de que el top 10 este vacio
+	en caso de que el top 10 este vacio
 	'''	
 	#sg.Popup("No hay puntajes registrados.", title=":(")
 	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(") # cambiar despues jeje
