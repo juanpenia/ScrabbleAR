@@ -59,6 +59,10 @@ letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
 	
 
 def casillero_segun_color(x, y):
+	'''Esta funcion lo que hace es poner en el tablero el
+		color del casillero del tablero correspondiente segun las
+		"coordenadas" de la tupla
+	'''
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
 
@@ -76,11 +80,17 @@ def casillero_segun_color(x, y):
 
 # podriamos hacer que la bolsa quede asi o se seleccione de un archivo configurable
 def generar_bolsa():
+	'''Esta funcion genera la bolsa 
+		de 98 fichas
+	'''
 	lista = list("aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz")
 	shuffle(lista)
 	return lista
 
 def sacar_letra(bolsa): 
+	'''Saca una letra random
+		de la "bolsa" de letras.
+	'''
 	letra = choice(bolsa)
 	bolsa.remove(letra)
 	return letra
@@ -96,6 +106,10 @@ def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para
 	return fm, cambios+1
 
 def generar_tablero():
+	'''genera el tablero utilizando la funcion 
+	casillero_segun_color de una dimension de 
+	15x15
+	'''
 	tablero = []
 	for i in range(15):
 		tablero.append([])
@@ -105,6 +119,9 @@ def generar_tablero():
 
 def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	# cambio de fichas
+	'''Esta funcion es la que que inicia el juego,utilizando los procesos
+	declarados anteriormente.Tambien se encarga de genrar el cronometro.
+	'''
 	cambios_jugador = 0
 	_cambios_maquina = 0 # todavia no se usa
 	# la idea es que en algun momento de la logica del cpu se use asi:
@@ -236,6 +253,11 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 
 def mostrar_top10(puntajes):
+	'''Esta funcion genera el boton "top 10"
+	donde se puede visualizar un top 10 con los puntajes
+	obtenidos del tipo: fecha + puntaje + nivel.
+
+	'''
 	ancho_columnas = (10, 10)
 	headings = ("Jugador", "Puntaje")
 	layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
@@ -247,6 +269,9 @@ def mostrar_top10(puntajes):
 
 
 def popup_top10_vacio():
+	'''Esta funcion muestra una imagen
+		en caso de que el top 10 este vacio
+	'''	
 	#sg.Popup("No hay puntajes registrados.", title=":(")
 	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(") # cambiar despues jeje
 
