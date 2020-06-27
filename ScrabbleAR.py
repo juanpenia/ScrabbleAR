@@ -68,9 +68,17 @@ letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
 		"y": os.path.join(PATH_FICHAS, "Y.png"), 
 		"z": os.path.join(PATH_FICHAS, "Z.png"),
 		"?": os.path.join(PATH_FICHAS, "question_mark.png")}
-	
 
-def casillero_segun_color(x, y):
+casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambiar, no precisamente son esas
+		"palabra_x3": os.path.join(PATH_TABLERO, "amarelo.png"),
+		"letra_x2": os.path.join(PATH_TABLERO, 'beta_marron.png'),
+		"letra_x3": os.path.join(PATH_TABLERO, "beta_azul2.png"),
+		"descuento_x1": os.path.join(PATH_TABLERO, "resta1.png"),
+		"descuento_x2": os.path.join(PATH_TABLERO, "resta2.png"),
+		"descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
+		"neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
+
+def casillero_segun_color(x, y): # acomodar
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
 
@@ -156,7 +164,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 	# letras del jugador:
 	fichas_seleccionadas = []
-	col_derecha = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc",size=(180, None))]]
+	col_jugador = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc",size=(180, None))]]
 
 	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
@@ -164,24 +172,34 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0,key="ficha_jugador_{}".format(i)))
 		#letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
 
-	col_derecha.append(letras_jugador)
+	col_jugador.append(letras_jugador)
 
 	# panel izquierdo:
 	headings_tabla = ("Jugador", "Puntaje")
-	col_izquierda = [[sg.Text("Puntajes: ")],
+	col_izquierda = [[sg.Text("\nPuntajes: ")],
 					[sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False,key="tabla_puntos")],
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), pad=((0, 0), (200, 0)), key="cambiar_fichas")],
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382'), pad=((0, 0), (25, 0))), sg.Button("POSPONER", button_color=('black', '#D9B382'), pad=((20, 0), (25, 0)))]]
 
+	# panel derecho: (referencias)
+
+	col_derecha = [[sg.Text("\nReferencias:")],
+	[sg.Button(image_filename=casillas["palabra_x2"]), sg.Text("Duplica valor de la palabra")],
+	[sg.Button(image_filename=casillas["palabra_x3"]), sg.Text("Triplica valor de la palabra")],
+	[sg.Button(image_filename=casillas["letra_x2"]), sg.Text("Duplica letra")],
+	[sg.Button(image_filename=casillas["letra_x3"]), sg.Text("Triplica letra")],
+	[sg.Button(image_filename=casillas["descuento_x1"]), sg.Text("Resta 1 punto")],
+	[sg.Button(image_filename=casillas["descuento_x2"]), sg.Text("Resta 2 puntos")],
+	[sg.Button(image_filename=casillas["descuento_x3"]), sg.Text("Resta 3 puntos")]]
 
 
 	layout = [[sg.Column(col_arriba)],
-			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,26), element_justification="right")],
-			[sg.Column(col_derecha)]]
+			[sg.Column(col_izquierda), sg.Column(col_tablero, pad=(0,26), element_justification="right"), sg.Column(col_derecha)],
+			[sg.Column(col_jugador)]]
 
-	window = sg.Window("ScrabbleAR", layout, size=(900, 700), location=(300, 0), resizable=True).Finalize()
+	window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
 	#window.Maximize()
 
 	while True:
