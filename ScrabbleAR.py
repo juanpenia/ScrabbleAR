@@ -21,11 +21,9 @@ sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
 										'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
 									}
 
-#terminar tablero commit de prueba
-
 sg.theme('Fachero') # tiene que ser cambiado
 
-# no se bo
+# esto va a tener que ser cambiado, ya que corresponden a un solo tablero
 TUPLA_MARRONES = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
 TUPLA_ROJOS = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (1, 13), (2, 12), (3, 11), (4, 10), (5, 9), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1), (13, 13), (12, 12), (11, 11), (10, 10), (9, 9))
 TUPLA_AZULES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
@@ -60,8 +58,7 @@ letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
 		"?": os.path.join(PATH_FICHAS, "question_mark.png")}
 	
 
-def casillero_segun_color(x, y): # cambiar nombre
-	# cambiar ruta, obviamente
+def casillero_segun_color(x, y):
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
 
@@ -77,7 +74,7 @@ def casillero_segun_color(x, y): # cambiar nombre
 	else:
 		return os.path.join(PATH_TABLERO, "fondo3.png") # nada
 
-
+# podriamos hacer que la bolsa quede asi o se seleccione de un archivo configurable
 def generar_bolsa():
 	lista = list("aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz")
 	shuffle(lista)
@@ -87,12 +84,11 @@ def sacar_letra(bolsa):
 	letra = choice(bolsa)
 	bolsa.remove(letra)
 	return letra
-# fin sacar_letra
 
 def dar_fichas_maquina(bolsa):
 	return [sacar_letra(bolsa) for x in range(7)]
 
-def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario, asi esta mas organizado
+def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario tambien, asi esta mas organizado
 	for _i in range(7):
 		bolsa.extend(fm)
 	shuffle(bolsa)
@@ -121,7 +117,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 				"ficha_jugador_3": False, 
 				"ficha_jugador_4": False,
 				"ficha_jugador_5": False,
-				"ficha_jugador_6": False}           # deberia haber una clase ficha mepa, digoooooooooooooooooooo
+				"ficha_jugador_6": False}
 
 	# cronometro related
 	fin = now() + (tj * 60)
@@ -133,6 +129,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 	_fichas_maquina = dar_fichas_maquina(bolsa)
 
 	# columnas: 
+
 	# fichas computadora: 
 	col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)),sg.Text(" "*10)]]
 	for i in range(7):
@@ -188,8 +185,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
 			pass
 
-		if event is "cambiar_fichas": # si se le asigna una key, no se lo puede llamar por el contenido del boton
-			# me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+		if event is "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
 			if(cambios_jugador >= 3):
 				sg.Popup("Ya no tienes cambios de fichas restantes.")
 			else:
@@ -200,7 +196,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 						shuffle(bolsa)
 						for _x in fichas_seleccionadas:
 							l = sacar_letra(bolsa)
-							for i in range(7): #debug, deberia ser mejor y mas prolijo
+							for i in range(7):
 								if(estado_fichas["ficha_jugador_{}".format(i)]):
 									window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
 									estado_fichas["ficha_jugador_{}".format(i)] = False
@@ -210,6 +206,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
 				cambiando_fichas = not cambiando_fichas
 
+			# cambio de color del boton para indicar que el jugador esta realizando un cambio de fichas
 			if(cambiando_fichas):
 				window["cambiar_fichas"].Update(button_color=('white', '#008000'))
 			else:
@@ -217,7 +214,6 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 		if event in estado_fichas.keys():
 			if(cambiando_fichas):
-				# terminar
 				if(not estado_fichas[event]):
 					fichas_seleccionadas.append(window[event].GetText())
 				else:
@@ -231,6 +227,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 		if now() < fin:
 			# para mayor legibilidad
+			# llegado de hacer la funcion de posponer, habria que guardar el tiempo restante
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
