@@ -113,8 +113,7 @@ def dar_fichas_maquina(bolsa):
 
 
 def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario tambien, asi esta mas organizado
-	for _i in range(7):
-		bolsa.extend(fm)
+	bolsa.extend(fm)
 	shuffle(bolsa)
 	fm = dar_fichas_maquina(bolsa)
 	return fm, cambios+1
@@ -298,8 +297,8 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
 		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
 		[sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
-		[sg.Button('CONTINUAR PARTIDA',button_color=('black', '#D9B382'),pad=((45, 0),(30, 0)))],
-		[sg.Button('INICIAR',button_color=('black', '#D9B382'),pad=((80, 0),(30, 0)))]]
+		[sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((45, 0), (30, 0)))],
+		[sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((80, 0), (30, 0)))]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
@@ -319,15 +318,16 @@ while True:
 		pass
 
 	if event is "TOP 10":
-		if(os.path.isfile("puntajes.json")):
+		# if(os.path.isfile("puntajes.json")):
+		try:
 			with open("puntajes.json") as arc:
 				datos = load(arc)
 				if not datos:
 					popup_top10_vacio()
 				else:
-					puntajes = sorted(datos.items(), reverse=True, key=lambda x:x[1])
+					puntajes = sorted(datos.items(), reverse=True, key=lambda x: x[1])
 					mostrar_top10(puntajes)
 
-		else:
+		except FileNotFoundError:
 			popup_top10_vacio()
 window.Close()
