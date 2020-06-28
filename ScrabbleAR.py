@@ -281,6 +281,8 @@ def mostrar_top10(puntajes):
 		event, _values = window.read()
 		if event is None:
 			break
+
+
 def mostrar_opc(letras):
 	'''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
 	
@@ -299,10 +301,10 @@ def mostrar_opc(letras):
 		segunda = lista[mitad:]
 
 
-		colum_arriba = [ [sg.Text('Opciones Avanzadas :')],[sg.Text('             cant   puntaje    '*2)]]
-		colum_izq = [ [sg.Text(letra.upper()+':',key=letra),sg.InputText(default_text=15,size=(5,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(5,3),key=('punt'+letra))]for letra in primera]
-		col_der = [ [sg.Text(letra.upper()+':',key=letra),sg.InputText(default_text=15,size=(5,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(5,3),key=('punt'+letra))]for letra in segunda]
-		col_abajo = [ [sg.Button('Guardar'),sg.Button('Restablecer Valores de Fabrica',key='reset'),sg.Button('Salir')] ]
+		colum_arriba = [[sg.Text("       cantidad  puntaje     ".upper()*2)]]
+		colum_izq = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in primera]
+		col_der = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in segunda]
+		col_abajo = [ [sg.Button('Guardar', button_color=('black', '#D9B382')),sg.Button('Restablecer Valores de Fabrica',key='reset',pad=(24,0), button_color=('black', '#D9B382')),sg.Button('Atras', button_color=('black', '#D9B382'))]]
 		
 		layout = [[sg.Column(colum_arriba)],
 				[sg.Column(colum_izq),sg.Column(col_der)],
@@ -339,6 +341,7 @@ def mostrar_opc(letras):
 
 	window=sg.Window('Opciones avanzadas ',layout)
 
+
 	while True:
 		
 		event,values=window.read()
@@ -348,7 +351,7 @@ def mostrar_opc(letras):
 			guardar_json(values.items())	
 		
 		if event is 'reset':
-			'''Se resetea el por defecto los valores del tablero y el json'''
+			'''Se resetea por defecto los valores del tablero y el json'''
 			for  key,valor in  values.items():
 				if key.startswith('c'):
 					window[key].update(15)
@@ -359,7 +362,7 @@ def mostrar_opc(letras):
 			guardar_json(values.items())
 			
 		
-		if event == sg.WIN_CLOSED or event is 'Salir':
+		if event == sg.WIN_CLOSED or event is 'Atras':
 			break
 	window.close()
 
@@ -411,6 +414,7 @@ while True:
 
 		else:
 			popup_top10_vacio()
+			
 	if event is "OPCIONES AVANZADAS":
 		mostrar_opc(letras.keys())
 		
