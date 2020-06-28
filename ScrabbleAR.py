@@ -15,6 +15,8 @@ from sys import platform
 from json import load, dump
 from random import shuffle, choice
 from time import time as now
+from os.path import isfile
+import json
 
 import PySimpleGUI as sg
 #from pattern.es import verbs, spelling, lexicon 
@@ -299,6 +301,91 @@ def mostrar_top10(puntajes):
 			break
 
 
+def mostrar_opc(letras):
+	'''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
+	
+	def FileNameJugadores():
+		return ('jugadores.json')
+	
+	
+	def intefaz():
+	
+		cant_letras = len(letras)
+		#Preparo la sublista
+		lista = sorted(letras,reverse = False)
+		lista.remove('?')
+		mitad = int(len(lista)/2)
+		primera = lista[:mitad] 
+		segunda = lista[mitad:]
+
+
+		colum_arriba = [[sg.Text("       cantidad  puntaje     ".upper()*2)]]
+		colum_izq = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in primera]
+		col_der = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in segunda]
+		col_abajo = [ [sg.Button('Guardar', button_color=('black', '#D9B382')),sg.Button('Restablecer Valores de Fabrica',key='reset',pad=(24,0), button_color=('black', '#D9B382')),sg.Button('Atras', button_color=('black', '#D9B382'))]]
+		
+		layout = [[sg.Column(colum_arriba)],
+				[sg.Column(colum_izq),sg.Column(col_der)],
+				[sg.Column(col_abajo)]]
+	
+		return layout
+
+	def guardar_json(datos):
+		if(isfile(FileNameJugadores())): # se podria usar un try except
+			with open(FileNameJugadores()) as arc:
+				dic = json.load(arc)
+		else:
+			dic = {}
+		for key,dato in datos:
+			#Dato en la primer instacia tiene el valor de cantidad 
+			#Dato en la segunda instancia tiene el valor de puntaje
+			letra =str(key[4])
+			if not(letra in dic.keys()):
+				dic[letra] = {}
+			if key.startswith('c'):
+				#Guardo el valor de cant
+				cant = dato
+			else: 
+				dic[letra]= {"cantidad ":int(cant),"puntaje ":int(dato)}
+
+		
+		with open(FileNameJugadores(),'w') as arc:
+			json.dump(dic,arc,indent = 4)
+		sg.popup_ok('Se guardo correctamente los datos en ',FileNameJugadores(),title='Aviso', button_color=('black', '#D9B382'))
+
+
+
+	layout =intefaz()
+
+	window=sg.Window('Opciones avanzadas ',layout)
+
+
+	while True:
+		
+		event,values=window.read()
+
+		
+		if event is 'Guardar':
+			guardar_json(values.items())	
+		
+		if event is 'reset':
+			'''Se resetea por defecto los valores del tablero y el json'''
+			if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica',title='Aviso', button_color=('black', '#D9B382')) is'OK':
+				for  key,valor in  values.items():
+					if key.startswith('c'):
+						window[key].update(15)
+						values[key] = 15
+					else :
+						window[key].update(1)
+						values[key] = 1
+				guardar_json(values.items())
+			
+		
+		if event == sg.WIN_CLOSED or event is 'Atras':
+			break
+	window.close()
+
+
 def popup_top10_vacio():
 	'''Funcion encargada de mostrar una imagen
 	en caso de que el top 10 este vacio
@@ -346,5 +433,10 @@ while True:
 
 		else:
 			popup_top10_vacio()
+
+	if event is "OPCIONES AVANZADAS":
+		mostrar_opc(letras.keys())
+		
+
 
 window.Close()
