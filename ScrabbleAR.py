@@ -80,7 +80,10 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 		"descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
 		"neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
 
-def casillero_segun_color(x, y): # acomodar
+def casillero_segun_color(x, y):
+	'''Funcion encargada de colocar en el tablero los colores correspondientes
+	segun las coordenadas de las tuplas.
+	'''
 	if (x, y) in TUPLA_MARRONES:
 		return os.path.join(PATH_TABLERO, 'beta_marron.png')
 
@@ -98,16 +101,24 @@ def casillero_segun_color(x, y): # acomodar
 
 # podriamos hacer que la bolsa quede asi o se seleccione de un archivo configurable
 def generar_bolsa():
+	'''Funcion encargada de generar la bolsa de 98 fichas.
+	'''
 	lista = list("aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz")
 	shuffle(lista)
 	return lista
 
 def sacar_letra(bolsa): 
+	'''Funcion encargada de "sacar" una letra
+	random de la bolsa.
+	'''
 	letra = choice(bolsa)
 	bolsa.remove(letra)
 	return letra
 
 def dar_fichas_maquina(bolsa):
+	'''Funcion encargada de otorgar las 7 fichas random
+	utilizando la funcion sacar_letra.
+	'''
 	return [sacar_letra(bolsa) for x in range(7)]
 
 def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario tambien, asi esta mas organizado
@@ -118,6 +129,9 @@ def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para
 	return fm, cambios+1
 
 def generar_tablero():
+	'''Funcion encargada de generar los 3 tableros con una dimesion de 15x15
+	utilizando la funcion casillero_segun_color
+	'''
 	tablero = []
 	for i in range(15):
 		tablero.append([])
@@ -127,7 +141,7 @@ def generar_tablero():
 
 def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
-	'''Esta funcion es la que que inicia el juego,utilizando los procesos
+	'''Funcion encargada de iniciar el juego,utilizando los procesos
 	declarados anteriormente.Tambien se encarga de generar el cronometro.
 	'''
   # cambio de fichas
@@ -216,9 +230,11 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 
 		if event is "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
-			sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
-			break
-
+			exit= sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
+			if(exit=="OK"):
+				break
+			else:
+				pass
 		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
 			pass
 
@@ -273,6 +289,8 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 
 def mostrar_top10(puntajes):
+	'''Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
+	'''
 	ancho_columnas = (10, 10)
 	headings = ("Jugador", "Puntaje")
 	layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
@@ -369,7 +387,7 @@ def mostrar_opc(letras):
 
 
 def popup_top10_vacio():
-	'''Esta funcion muestra una imagen
+	'''Funcion encargada de mostrar una imagen
 	en caso de que el top 10 este vacio
 	'''	
 	#sg.Popup("No hay puntajes registrados.", title=":(")
