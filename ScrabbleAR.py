@@ -333,7 +333,7 @@ def mostrar_opc(letras):
 		
 		with open(FileNameJugadores(),'w') as arc:
 			json.dump(dic,arc,indent = 4)
-		sg.popup_ok('Se guardo correctamente los datos en ',FileNameJugadores(),title='Aviso')
+		sg.popup_ok('Se guardo correctamente los datos en ',FileNameJugadores(),title='Aviso', button_color=('black', '#D9B382'))
 
 
 
@@ -352,14 +352,15 @@ def mostrar_opc(letras):
 		
 		if event is 'reset':
 			'''Se resetea por defecto los valores del tablero y el json'''
-			for  key,valor in  values.items():
-				if key.startswith('c'):
-					window[key].update(15)
-					values[key] = 15
-				else :
-					window[key].update(1)
-					values[key] = 1
-			guardar_json(values.items())
+			if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica',title='Aviso', button_color=('black', '#D9B382')) is'OK':
+				for  key,valor in  values.items():
+					if key.startswith('c'):
+						window[key].update(15)
+						values[key] = 15
+					else :
+						window[key].update(1)
+						values[key] = 1
+				guardar_json(values.items())
 			
 		
 		if event == sg.WIN_CLOSED or event is 'Atras':
@@ -414,7 +415,7 @@ while True:
 
 		else:
 			popup_top10_vacio()
-			
+
 	if event is "OPCIONES AVANZADAS":
 		mostrar_opc(letras.keys())
 		
