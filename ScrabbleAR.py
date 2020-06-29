@@ -35,11 +35,33 @@ sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
 
 sg.theme('Fachero') # tiene que ser cambiado
 
-# esto va a tener que ser cambiado, ya que corresponden a un solo tablero
-TUPLA_MARRONES = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
-TUPLA_ROJOS = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (1, 13), (2, 12), (3, 11), (4, 10), (5, 9), (9, 5), (10, 4), (11, 3), (12, 2), (13, 1), (13, 13), (12, 12), (11, 11), (10, 10), (9, 9))
-TUPLA_AZULES = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-TUPLA_VERDES = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+# casilleros del tablero en dificultad facil
+
+CASILLEROS_LETRA_X2_FACIL = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
+CASILLEROS_LETRA_RESTA1_FACIL = ((2, 2), (2, 12), (12, 2), (12, 12))
+CASILLEROS_LETRA_RESTA2_FACIL = ((4, 4), (4, 10), (10, 4), (10, 10))
+CASILLEROS_LETRA_X3_FACIL = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
+CASILLEROS_PALABRA_X2_FACIL = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+CASILLEROS_PALABRA_X3_FACIL = ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
+
+# casilleros del tablero en dificultad medio
+
+CASILLEROS_LETRA_X2_MEDIO = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
+CASILLEROS_LETRA_RESTA1_MEDIO = ((2, 2), (2, 12), (12, 2), (12, 12))
+CASILLEROS_LETRA_RESTA2_MEDIO = ((4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (13, 7))
+CASILLEROS_LETRA_RESTA3_MEDIO = ((5, 7), (7, 5), (7, 9), (9, 7))
+CASILLEROS_LETRA_X3_MEDIO = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
+CASILLEROS_PALABRA_X2_MEDIO = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+CASILLEROS_PALABRA_X3_MEDIO = ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
+
+# casilleros del tablero en dificultad dificil
+
+CASILLEROS_LETRA_X2_DIFICIL = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
+CASILLEROS_LETRA_RESTA2_DIFICIL = ((2, 2), (2, 12), (4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (12, 2), (12, 12), (13, 7))
+CASILLEROS_LETRA_RESTA3_DIFICIL = ((1, 1), (1, 13), (5, 5), (5, 7), (5, 9), (7, 5), (7, 9), (9, 5), (9, 7), (9, 9), (13, 1), (13, 13))
+CASILLEROS_LETRA_X3_DIFICIL = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
+CASILLEROS_PALABRA_X2_DIFICIL = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
+CASILLEROS_PALABRA_X3_DIFICIL = ((3, 3), (3, 11), (11, 3), (11, 11))
 
 letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
 		"b": os.path.join(PATH_FICHAS, "B.png"),
@@ -78,22 +100,56 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 		"descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
 		"neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
 
+def dibujar_casillero(x, y, dif):
+	if dif == "Facil":
+		if (x, y) in CASILLEROS_LETRA_X2_FACIL:
+			return casillas["letra_x2"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA1_FACIL:
+			return casillas["descuento_x1"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA2_FACIL:
+			return casillas["descuento_x2"]
+		elif (x, y) in CASILLEROS_LETRA_X3_FACIL:
+			return casillas["letra_x3"]
+		elif (x, y) in CASILLEROS_PALABRA_X2_FACIL:
+			return casillas["palabra_x2"]
+		elif (x, y) in CASILLEROS_PALABRA_X3_FACIL:
+			return  casillas["palabra_x3"]
+		else:
+			return casillas["neutro"]
 
-def casillero_segun_color(x, y): # acomodar
-	if (x, y) in TUPLA_MARRONES:
-		return os.path.join(PATH_TABLERO, 'beta_marron.png')
+	elif dif == "Medio":
+		if (x, y) in CASILLEROS_LETRA_X2_MEDIO:
+			return casillas["letra_x2"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA1_MEDIO:
+			return casillas["descuento_x1"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA2_MEDIO:
+			return casillas["descuento_x2"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA3_MEDIO:
+			return casillas["descuento_x3"]
+		elif (x, y) in CASILLEROS_LETRA_X3_MEDIO:
+			return casillas["letra_x3"]
+		elif (x, y) in CASILLEROS_PALABRA_X2_MEDIO:
+			return casillas["palabra_x2"]
+		elif (x, y) in CASILLEROS_PALABRA_X3_MEDIO:
+			return casillas["palabra_x3"]
+		else:
+			return casillas["neutro"]
 
-	elif (x, y) in TUPLA_ROJOS:
-		return os.path.join(PATH_TABLERO, "beta_rojo3.png")
-
-	elif (x, y) in TUPLA_AZULES:
-		return os.path.join(PATH_TABLERO, "beta_azul2.png")
-
-	elif (x, y) in TUPLA_VERDES:
-		return os.path.join(PATH_TABLERO, "beta_verde2.png")
-
-	else:
-		return os.path.join(PATH_TABLERO, "fondo3.png") # nada
+	elif dif == "Dificil":
+		if (x, y) in CASILLEROS_LETRA_X2_DIFICIL:
+			return casillas["letra_x2"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA2_DIFICIL:
+			return casillas["descuento_x2"]
+		elif (x, y) in CASILLEROS_LETRA_RESTA3_DIFICIL:
+			return casillas["descuento_x3"]
+		elif (x, y) in CASILLEROS_LETRA_X3_DIFICIL:
+			return casillas["letra_x3"]
+		elif (x, y) in CASILLEROS_PALABRA_X2_DIFICIL:
+			return casillas["palabra_x2"]
+		elif (x, y) in CASILLEROS_PALABRA_X3_DIFICIL:
+			return casillas["palabra_x3"]
+		else:
+			return casillas["neutro"]
 
 
 def generar_bolsa(): # podriamos hacer que la bolsa quede asi o se seleccione de un archivo configurable
@@ -119,16 +175,16 @@ def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para
 	return fm, cambios+1
 
 
-def generar_tablero():
+def generar_tablero(dificultad):
 	tablero = []
 	for i in range(15):
 		tablero.append([])
 		for j in range(15):
-			tablero[i].append(sg.Button(image_filename=casillero_segun_color(i, j), image_size=(32, 32), key=(i, j), pad=(0, 0)))
+			tablero[i].append(sg.Button(image_filename=dibujar_casillero(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
 	return tablero
 
 
-def generar_ventana_de_juego(tj): # tj = tiempo de juego
+def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 
 	'''Esta funcion es la que que inicia el juego,utilizando los procesos
 	declarados anteriormente.Tambien se encarga de generar el cronometro.
@@ -165,7 +221,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 		col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=('black', '#191970')))
 
 	# tablero de juego:
-	col_tablero = generar_tablero()
+	col_tablero = generar_tablero(dif)
 
 	# letras del jugador:
 	fichas_seleccionadas = []
@@ -211,7 +267,7 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 
 		# el "_" detras de una variable significa que no se usa, es para que no salte warning
 		# cuando la usemos, le sacamos el "_"
-		event, _values = window.Read(timeout=10)
+		event, _values = window.Read()
 
 		if event is None:
 			break
@@ -269,6 +325,8 @@ def generar_ventana_de_juego(tj): # tj = tiempo de juego
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
+		
+		print(event)
 	window.Close()
 
 
@@ -294,7 +352,7 @@ def popup_top10_vacio():
 # comienzo de "main"
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
-		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="niveles")],
+		[sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
 		[sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
 		[sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
 		[sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((45, 0), (30, 0)))],
@@ -312,7 +370,7 @@ while True:
 	if event is "INICIAR":
 		window.Close()
 		# aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
-		generar_ventana_de_juego(values["tiempo"])
+		generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
 	if event is "CONTINUAR PARTIDA": # Se debe  poder seguir la partida que fue pospuesta anteriormente.
 		pass
