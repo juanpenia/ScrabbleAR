@@ -267,7 +267,7 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 
 		# el "_" detras de una variable significa que no se usa, es para que no salte warning
 		# cuando la usemos, le sacamos el "_"
-		event, _values = window.Read()
+		event, _values = window.Read(timeout=10)
 
 		if event is None:
 			break
@@ -326,7 +326,6 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
 		
-		print(event)
 	window.Close()
 
 
