@@ -357,15 +357,15 @@ def mostrar_top10(puntajes):
 
 
 def mostrar_opc(letras):
-	'''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
+	'''Funcion principal encargada de manejar las opciones avanzadas'''
 	
-	def FileNameJugadores():
-		return ('jugadores.json')
+	def FileNameOpciones():
+		'''Funcion encargada de retornar la ruta del archivo que contiene las opciones del juego'''
+		return ('opciones.json')
 	
 	
 	def intefaz():
-	
-		cant_letras = len(letras)
+		'''Intefaz de la ventana de opciones avanzadas'''
 		#Preparo la sublista
 		lista = sorted(letras,reverse = False)
 		lista.remove('?')
@@ -386,8 +386,9 @@ def mostrar_opc(letras):
 		return layout
 
 	def guardar_json(datos):
-		if(isfile(FileNameJugadores())): # se podria usar un try except
-			with open(FileNameJugadores()) as arc:
+		'''Guarda las opciones avanzadas  en el archivo json'''
+		if(isfile(FileNameOpciones())): # se podria usar un try except
+			with open(FileNameOpciones()) as arc:
 				dic = json.load(arc)
 		else:
 			dic = {}
@@ -404,9 +405,9 @@ def mostrar_opc(letras):
 				dic[letra]= {"cantidad ":int(cant),"puntaje ":int(dato)}
 
 		
-		with open(FileNameJugadores(),'w') as arc:
+		with open(FileNameOpciones(),'w') as arc:
 			json.dump(dic,arc,indent = 4)
-		sg.popup_ok('Se guardo correctamente los datos en ',FileNameJugadores(),title='Aviso', button_color=('black', '#D9B382'))
+		sg.popup_ok('Se guardo correctamente los datos en ',FileNameOpciones(),title='Aviso', button_color=('black', '#D9B382'))
 
 
 
@@ -424,9 +425,8 @@ def mostrar_opc(letras):
 			guardar_json(values.items())	
 		
 		if event is 'reset':
-			'''Se resetea por defecto los valores del tablero y el json'''
 			if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica',title='Aviso', button_color=('black', '#D9B382')) is'OK':
-				for  key,valor in  values.items():
+				for  key,_valor in  values.items():
 					if key.startswith('c'):
 						window[key].update(15)
 						values[key] = 15
