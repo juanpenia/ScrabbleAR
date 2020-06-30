@@ -1,0 +1,32 @@
+lineas clave
+
+1473     def select_promotion_piece(self, stm):
+2444
+2419
+2454
+
+# por ahora debug:
+
+class Ficha():
+	def __init__(self, letra, imagen):
+		self.__letra = letra
+		self.__imagen = imagen
+		self.__esta_selec = False
+
+	def set_letra(self, letra):
+		self.__letra = letra
+
+	def set_imagen(self, imagen):
+		self.__imagen = imagen
+
+	def set_seleccionado(self, opcion):
+		self.__esta_selec = opcion
+
+	def get_letra(self):
+		return self.__letra
+
+	def get_imagen(self):
+		return self.__imagen
+
+	def get_seleccionado(self):
+		return self.__esta_selec

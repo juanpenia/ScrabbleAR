@@ -1,5 +1,4 @@
 # ScrabbleAR
-
 Trabajo integrador de la materia Seminario de Lenguajes Opción Python
 
 Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
