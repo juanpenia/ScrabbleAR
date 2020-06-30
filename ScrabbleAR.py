@@ -11,12 +11,11 @@ __email__ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmai
 __status__ = "Produccion"
 
 import os
+import json
 from sys import platform
-from json import load, dump
 from random import shuffle, choice
 from time import time as now
 from os.path import isfile
-import json
 
 import PySimpleGUI as sg
 # from pattern.es import verbs, spelling, lexicon
@@ -347,7 +346,7 @@ def mostrar_top10(puntajes):
 	'''Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
 	'''
 	ancho_columnas = (10, 10)
-	headings = ("Jugador", "Puntaje")
+	headings = ("Jugador", "Nivel", "Puntaje")
 	layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
 	window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
 	while True:
@@ -469,21 +468,19 @@ while True:
 
 	if event is "INICIAR":
 		window.Close()
-		# aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
 		generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
 	if event is "CONTINUAR PARTIDA": # Se debe  poder seguir la partida que fue pospuesta anteriormente.
 		pass
 
 	if event is "TOP 10":
-		# if(os.path.isfile("puntajes.json")):
 		try:
 			with open("puntajes.json") as arc:
-				datos = load(arc)
+				datos = json.load(arc)
 				if not datos:
 					popup_top10_vacio()
 				else:
-					puntajes = sorted(datos.items(), reverse=True, key=lambda x: x[1])
+					puntajes = sorted(datos, reverse=True, key=lambda x: x[2])
 					mostrar_top10(puntajes)
 
 		except FileNotFoundError:
