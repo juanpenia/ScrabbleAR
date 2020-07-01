@@ -11,12 +11,9 @@ __email__ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmai
 __status__ = "Produccion"
 
 import os
-from sys import platform
-from json import load, dump
+import json
 from random import shuffle, choice
 from time import time as now
-from os.path import isfile
-import json
 
 import PySimpleGUI as sg
 # from pattern.es import verbs, spelling, lexicon
@@ -102,7 +99,11 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 		"descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
 		"neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
 
-def dibujar_casillero(x, y, dif):
+
+def dibujar_casilla(x, y, dif):
+
+	'''Funcion que se encarga de devolver de que casillero
+	se pinta cada casilla del tablero'''
 	if dif == "Facil":
 		if (x, y) in CASILLEROS_LETRA_X2_FACIL:
 			return casillas["letra_x2"]
@@ -115,7 +116,7 @@ def dibujar_casillero(x, y, dif):
 		elif (x, y) in CASILLEROS_PALABRA_X2_FACIL:
 			return casillas["palabra_x2"]
 		elif (x, y) in CASILLEROS_PALABRA_X3_FACIL:
-			return  casillas["palabra_x3"]
+			return casillas["palabra_x3"]
 		else:
 			return casillas["neutro"]
 
@@ -154,15 +155,44 @@ def dibujar_casillero(x, y, dif):
 			return casillas["neutro"]
 
 
+def generar_bolsa():
 
-def generar_bolsa(): # podriamos hacer que la bolsa quede asi o se seleccione de un archivo configurable
 	'''Funcion encargada de generar la bolsa de 98 fichas.
 	'''
-	lista = list("aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz")
+	string = ""
+	try:
+		with open("config.cfg") as config:
+			datos = json.load(config)
+
+	except FileNotFoundError:
+		# de paso al no existir, genero el archivo
+		with open("config.cfg", "w") as config:
+			datos = bolsa_por_defecto()
+			json.dump(datos, config, indent=4)
+	for key, value in datos.items():
+		string = string + key*value
+	lista = list(string)
 	shuffle(lista)
 	return lista
 
-def sacar_letra(bolsa): 
+
+def bolsa_por_defecto():
+
+	'''Funcion que devuelve el estado original pretendido
+	de la bolsa en caso de querer restablaecer a su valor
+	por defecto.'''
+	original = "aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz"
+	bolsa = {}
+	for char in original:
+		if char in bolsa:
+			bolsa[char] += 1
+		else:
+			bolsa.setdefault(char, 1)
+	return bolsa
+
+
+def sacar_letra(bolsa):
+
 	'''Funcion encargada de "sacar" una letra
 	random de la bolsa.
 	'''
@@ -172,17 +202,19 @@ def sacar_letra(bolsa):
 
 
 def dar_fichas_maquina(bolsa):
+
 	'''Funcion encargada de otorgar las 7 fichas random
 	utilizando la funcion sacar_letra.
 	'''
 	return [sacar_letra(bolsa) for x in range(7)]
 
 
-def cambiar_fichas_maquina(bolsa, fm, cambios): # deberia haber una funcion para cambiar fichas del usuario tambien, asi esta mas organizado
+def cambiar_fichas_maquina(bolsa, fm, cambios):
 	bolsa.extend(fm)
 	shuffle(bolsa)
 	fm = dar_fichas_maquina(bolsa)
 	return fm, cambios+1
+
 
 def generar_tablero(dificultad):
 
@@ -193,11 +225,11 @@ def generar_tablero(dificultad):
 	for i in range(15):
 		tablero.append([])
 		for j in range(15):
-			tablero[i].append(sg.Button(image_filename=dibujar_casillero(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
+			tablero[i].append(sg.Button(image_filename=dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
 	return tablero
 
 
-def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
+def generar_ventana_de_juego(tj, dif):
 
 	'''Funcion encargada de iniciar el juego,utilizando los procesos
 	declarados anteriormente.Tambien se encarga de generar el cronometro.
@@ -242,9 +274,8 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 
 	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
-		l = sacar_letra(bolsa) # deberia devolver un objeto y no una letra
-		letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
-		# letras_jugador.append(sg.Button(l, font="Arial 1", image_filename=letras[l], key="ficha_jugador_{}".format(i)))
+		letra = sacar_letra(bolsa)
+		letras_jugador.append(sg.Button(letra, font="Arial 1", image_filename=letras[letra], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
 
 	col_jugador.append(letras_jugador)
 
@@ -285,12 +316,12 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 		if event is None:
 			break
 
-		if event is "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+		if event is "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
 			exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
 			if(exit == "OK"):
 				break
-        
-		if event is "POSPONER": #  Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+		
+		if event is "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
 			pass
 
 		if event is "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
@@ -303,10 +334,10 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 						bolsa.extend(fichas_seleccionadas)
 						shuffle(bolsa)
 						for _x in fichas_seleccionadas:
-							l = sacar_letra(bolsa)
+							letra = sacar_letra(bolsa)
 							for i in range(7):
 								if(estado_fichas["ficha_jugador_{}".format(i)]):
-									window["ficha_jugador_{}".format(i)].Update(text=l, image_filename=letras[l])
+									window["ficha_jugador_{}".format(i)].Update(text=letra, image_filename=letras[letra])
 									estado_fichas["ficha_jugador_{}".format(i)] = False
 									break
 						cambios_jugador += 1
@@ -339,7 +370,7 @@ def generar_ventana_de_juego(tj, dif): # tj = tiempo de juego
 			min_restantes = int((fin - now()) // 60)
 			seg_restantes = int((fin - now()) % 60)
 			window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
-		
+
 	window.Close()
 
 
@@ -347,7 +378,7 @@ def mostrar_top10(puntajes):
 	'''Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
 	'''
 	ancho_columnas = (10, 10)
-	headings = ("Jugador", "Puntaje")
+	headings = ("Jugador", "Nivel", "Puntaje")
 	layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
 	window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
 	while True:
@@ -356,88 +387,68 @@ def mostrar_top10(puntajes):
 			break
 
 
-def mostrar_opc(letras):
+def mostrar_opciones(letras):
 	'''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
-	
-	def FileNameJugadores():
-		return ('jugadores.json')
-	
-	
+
+	def get_cant_letra(letra):
+		try:
+			with open("config.cfg") as config:
+				datos = json.load(config)
+				return datos[letra]
+
+		except FileNotFoundError:
+			return bolsa_por_defecto()[letra]
+
 	def intefaz():
-	
-		cant_letras = len(letras)
-		#Preparo la sublista
-		lista = sorted(letras,reverse = False)
+		# Preparo la sublista
+		lista = sorted(letras, reverse=False)
 		lista.remove('?')
 		mitad = int(len(lista)/2)
-		primera = lista[:mitad] 
+		primera = lista[:mitad]
 		segunda = lista[mitad:]
 
+		colum_arriba = [[sg.Text("       CANTIDAD    "*2)]]
+		colum_izq = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_cant_letra(letra), size=(8, 3), key=('cant'+letra))] for letra in primera]
+		col_der = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_cant_letra(letra), size=(8, 3), key=('cant'+letra))] for letra in segunda]
+		col_abajo = [[sg.Button('Guardar', button_color=('black', '#D9B382')), sg.Button('Restablecer', key='reset', pad=(24, 0), button_color=('black', '#D9B382')), sg.Button('Atras', button_color=('black', '#D9B382'))]]
 
-		colum_arriba = [[sg.Text("       cantidad  puntaje     ".upper()*2)]]
-		colum_izq = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in primera]
-		col_der = [ [sg.Text(letra.upper()+':',key=letra,size=(2,1)),sg.InputText(default_text=15,size=(8,3),key=('cant'+letra)),sg.InputText(default_text=1,size=(8,3),key=('punt'+letra))]for letra in segunda]
-		col_abajo = [ [sg.Button('Guardar', button_color=('black', '#D9B382')),sg.Button('Restablecer Valores de Fabrica',key='reset',pad=(24,0), button_color=('black', '#D9B382')),sg.Button('Atras', button_color=('black', '#D9B382'))]]
-		
 		layout = [[sg.Column(colum_arriba)],
-				[sg.Column(colum_izq),sg.Column(col_der)],
+				[sg.Column(colum_izq), sg.Column(col_der)],
 				[sg.Column(col_abajo)]]
-	
+
 		return layout
 
 	def guardar_json(datos):
-		if(isfile(FileNameJugadores())): # se podria usar un try except
-			with open(FileNameJugadores()) as arc:
-				dic = json.load(arc)
-		else:
-			dic = {}
-		for key,dato in datos:
-			#Dato en la primer instacia tiene el valor de cantidad 
-			#Dato en la segunda instancia tiene el valor de puntaje
-			letra =str(key[4])
-			if not(letra in dic.keys()):
-				dic[letra] = {}
-			if key.startswith('c'):
-				#Guardo el valor de cant
-				cant = dato
-			else: 
-				dic[letra]= {"cantidad ":int(cant),"puntaje ":int(dato)}
+		temp_dic = {}
+		for key, _value in datos.items():
+			temp_dic[key.replace("cant", "")] = int(datos[key])
+		del datos
 
-		
-		with open(FileNameJugadores(),'w') as arc:
-			json.dump(dic,arc,indent = 4)
-		sg.popup_ok('Se guardo correctamente los datos en ',FileNameJugadores(),title='Aviso', button_color=('black', '#D9B382'))
+		with open("config.cfg", "w") as arc:
+			json.dump(temp_dic, arc, indent=4)
 
-
-
-	layout =intefaz()
-
-	window=sg.Window('Opciones avanzadas ',layout)
-
+	window = sg.Window('Opciones avanzadas ', intefaz())
 
 	while True:
-		
-		event,values=window.read()
+		event, values = window.read()
 
-		
 		if event is 'Guardar':
-			guardar_json(values.items())	
-		
+			guardar_json(values)
+			window.Close()
+
 		if event is 'reset':
 			'''Se resetea por defecto los valores del tablero y el json'''
-			if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica',title='Aviso', button_color=('black', '#D9B382')) is'OK':
-				for  key,valor in  values.items():
-					if key.startswith('c'):
-						window[key].update(15)
-						values[key] = 15
-					else :
-						window[key].update(1)
-						values[key] = 1
-				guardar_json(values.items())
-			
-		
+			if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
+								title='Aviso', button_color=('black', '#D9B382')) is 'OK':
+				for key, _valor in values.items():
+					valor_nuevo = bolsa_por_defecto()["{}".format(key.replace("cant", ""))]
+					window[key].update(valor_nuevo)
+					values[key] = valor_nuevo
+				guardar_json(values)
+
 		if event == sg.WIN_CLOSED or event is 'Atras':
 			break
+
 	window.close()
 
 
@@ -445,8 +456,7 @@ def popup_top10_vacio():
 	'''Funcion encargada de mostrar una imagen
 	en caso de que el top 10 este vacio
 	'''
-	# sg.Popup("No hay puntajes registrados.", title=":(")
-	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(") # cambiar despues jeje
+	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(")
 
 
 # comienzo de "main"
@@ -469,27 +479,25 @@ while True:
 
 	if event is "INICIAR":
 		window.Close()
-		# aca hay que hacer if,para preguntar que nivel es y asi mostrar el tablero correspondiente a cada nivel
 		generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
-	if event is "CONTINUAR PARTIDA": # Se debe  poder seguir la partida que fue pospuesta anteriormente.
+	if event is "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
 		pass
 
 	if event is "TOP 10":
-		# if(os.path.isfile("puntajes.json")):
 		try:
 			with open("puntajes.json") as arc:
-				datos = load(arc)
+				datos = json.load(arc)
 				if not datos:
 					popup_top10_vacio()
 				else:
-					puntajes = sorted(datos.items(), reverse=True, key=lambda x: x[1])
+					puntajes = sorted(datos, reverse=True, key=lambda x: x[2])
 					mostrar_top10(puntajes)
 
 		except FileNotFoundError:
 			popup_top10_vacio()
 
 	if event is "OPCIONES AVANZADAS":
-		mostrar_opc(letras.keys())
-    
+		mostrar_opciones(letras.keys())
+
 window.Close()
