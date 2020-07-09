@@ -241,19 +241,18 @@ def generar_ventana_de_juego(tj, dif):
 	# fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
 	cambiando_fichas = False
-	estado_fichas = {"ficha_jugador_0": False,
-				"ficha_jugador_1": False,
-				"ficha_jugador_2": False,
-				"ficha_jugador_3": False,
-				"ficha_jugador_4": False,
-				"ficha_jugador_5": False,
-				"ficha_jugador_6": False}
-
-	# cronometro related
-	fin = now() + (tj * 60)
 
 	# bolsa de fichas
 	bolsa = generar_bolsa()
+
+	estado_fichas = {}
+
+	for i in range(0, 7):
+		estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False}
+
+
+	# cronometro related
+	fin = now() + (tj * 60)
 
 	# fichas de la maquina:
 	_fichas_maquina = dar_fichas_maquina(bolsa)
@@ -274,8 +273,7 @@ def generar_ventana_de_juego(tj, dif):
 
 	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
-		letra = sacar_letra(bolsa)
-		letras_jugador.append(sg.Button(letra, font="Arial 1", image_filename=letras[letra], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
+		letras_jugador.append(sg.Button(image_filename=letras[estado_fichas["ficha_jugador_{}".format(i)]["letra"]], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
 
 	col_jugador.append(letras_jugador)
 
@@ -336,11 +334,15 @@ def generar_ventana_de_juego(tj, dif):
 						for _x in fichas_seleccionadas:
 							letra = sacar_letra(bolsa)
 							for i in range(7):
-								if(estado_fichas["ficha_jugador_{}".format(i)]):
-									window["ficha_jugador_{}".format(i)].Update(text=letra, image_filename=letras[letra])
-									estado_fichas["ficha_jugador_{}".format(i)] = False
+								if(estado_fichas["ficha_jugador_{}".format(i)]["cambiando"]):
+									estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
+									estado_fichas["ficha_jugador_{}".format(i)]["letra"] = letra
+									window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
 									break
 						cambios_jugador += 1
+					else:
+						for i in range(7):
+							estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
 					fichas_seleccionadas = []
 					window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
 				cambiando_fichas = not cambiando_fichas
@@ -353,12 +355,13 @@ def generar_ventana_de_juego(tj, dif):
 
 		if event in estado_fichas.keys():
 			if(cambiando_fichas):
-				if(not estado_fichas[event]):
-					fichas_seleccionadas.append(window[event].GetText())
+				if(not estado_fichas[event]["cambiando"]):
+					fichas_seleccionadas.append(estado_fichas[event]["letra"])
 				else:
-					fichas_seleccionadas.remove(window[event].GetText())
+					fichas_seleccionadas.remove(estado_fichas[event]["letra"])
 				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
-				estado_fichas[event] = not estado_fichas[event]
+				estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
+
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
