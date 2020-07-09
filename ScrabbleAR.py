@@ -241,13 +241,6 @@ def generar_ventana_de_juego(tj, dif):
 	# fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
 	cambiando_fichas = False
-	# estado_fichas = {"ficha_jugador_0": False,
-	# 			"ficha_jugador_1": False,
-	# 			"ficha_jugador_2": False,
-	# 			"ficha_jugador_3": False,
-	# 			"ficha_jugador_4": False,
-	# 			"ficha_jugador_5": False,
-	# 			"ficha_jugador_6": False}
 
 	# bolsa de fichas
 	bolsa = generar_bolsa()
@@ -256,6 +249,7 @@ def generar_ventana_de_juego(tj, dif):
 
 	for i in range(0, 7):
 		estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False}
+
 
 	# cronometro related
 	fin = now() + (tj * 60)
@@ -367,6 +361,7 @@ def generar_ventana_de_juego(tj, dif):
 					fichas_seleccionadas.remove(estado_fichas[event]["letra"])
 				window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
 				estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
+
 
 		window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
