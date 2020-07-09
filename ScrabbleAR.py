@@ -200,6 +200,20 @@ def sacar_letra(bolsa):
     bolsa.remove(letra)
     return letra
 
+def puntajes_por_defecto():
+    puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
+                "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
+                "k": 8, "l": 1, "m": 3, "n": 1, "o": 1,
+                "p": 3, "q": 8, "r": 1, "s": 1, "t": 1,
+                "u": 1, "v": 4, "w": 8, "x": 8, "y": 4, "z": 10}
+    return puntajes
+
+def cargar_puntajes_letra():
+    pass
+    # try:
+    #     with open("config.cfg") as config:
+    #         datos = json.load(config)
+
 
 def dar_fichas_maquina(bolsa):
 
@@ -320,15 +334,15 @@ def generar_ventana_de_juego(tj, dif):
         if event is None:
             break
 
-        if event is "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+        if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
             exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
             if(exit == "OK"):
                 break
         
-        if event is "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-            pass
+        if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+            print("bbbbbb")
 
-        if event is "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+        if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
             if(cambios_jugador >= 3):
                 sg.Popup("Ya no tienes cambios de fichas restantes.")
             else:
@@ -440,21 +454,21 @@ def mostrar_opciones(letras):
     while True:
         event, values = window.read()
 
-        if event is 'Guardar':
+        if event == 'Guardar':
             guardar_json(values)
             window.Close()
 
-        if event is 'reset':
+        if event == 'reset':
             '''Se resetea por defecto los valores del tablero y el json'''
             if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
-                                title='Aviso', button_color=('black', '#D9B382')) is 'OK':
+                                title='Aviso', button_color=('black', '#D9B382')) == 'OK':
                 for key, _valor in values.items():
                     valor_nuevo = bolsa_por_defecto()["{}".format(key.replace("cant", ""))]
                     window[key].update(valor_nuevo)
                     values[key] = valor_nuevo
                 guardar_json(values)
 
-        if event == sg.WIN_CLOSED or event is 'Atras':
+        if event in (sg.WIN_CLOSED, 'Atras'):
             break
 
     window.close()
@@ -485,14 +499,14 @@ while True:
     if event is None:
         break
 
-    if event is "INICIAR":
+    if event == "INICIAR":
         window.Close()
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
-    if event is "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
-        pass
+    if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
+        print("aaaaaaaaa")
 
-    if event is "TOP 10":
+    if event == "TOP 10":
         try:
             with open("puntajes.json") as arc:
                 datos = json.load(arc)
@@ -505,7 +519,7 @@ while True:
         except FileNotFoundError:
             popup_top10_vacio()
 
-    if event is "OPCIONES AVANZADAS":
+    if event == "OPCIONES AVANZADAS":
         mostrar_opciones(letras.keys())
 
 window.Close()
