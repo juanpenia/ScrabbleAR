@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""ScrabbleAR.py: Trabajo integrador de la materia Seminario de Lenguajes Opción Python"""
+"""
+ScrabbleAR.py: Trabajo integrador de la materia Seminario de Lenguajes Opción Python
+"""
 
 __author__ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
 __credits__ = ["Juan Sebastián Peña", "Hernan Nahuel Ramos", "Felipe Verdugo"]
@@ -101,9 +103,10 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 
 
 def dibujar_casilla(x, y, dif):
-
-    '''Funcion que se encarga de devolver de que casillero
-    se pinta cada casilla del tablero'''
+    """
+    Funcion que se encarga de devolver de que casillero
+    se pinta cada casilla del tablero
+    """
     if dif == "Facil":
         if (x, y) in CASILLEROS_LETRA_X2_FACIL:
             return casillas["letra_x2"]
@@ -157,8 +160,9 @@ def dibujar_casilla(x, y, dif):
 
 def generar_bolsa():
 
-    '''Funcion encargada de generar la bolsa de 98 fichas.
-    '''
+    """
+    Funcion encargada de generar la bolsa de 98 fichas.
+    """
     string = ""
     try:
         with open("config.cfg") as config:
@@ -177,10 +181,10 @@ def generar_bolsa():
 
 
 def sacar_letra(bolsa):
-
-    '''Funcion encargada de "sacar" una letra
+    """
+    Funcion encargada de "sacar" una letra
     random de la bolsa.
-    '''
+    """
     letra = choice(bolsa)
     bolsa.remove(letra)
     return letra
@@ -241,13 +245,17 @@ def cargar_puntajes_letra():
 
 def dar_fichas_maquina(bolsa):
 
-    '''Funcion encargada de otorgar las 7 fichas random
+    """
+    Funcion encargada de otorgar las 7 fichas random
     utilizando la funcion sacar_letra.
-    '''
+    """
     return [sacar_letra(bolsa) for x in range(7)]
 
 
 def cambiar_fichas_maquina(bolsa, fm, cambios):
+    """
+    Funcion encargada de cambiar las fichas de la maquina
+    """
     bolsa.extend(fm)
     shuffle(bolsa)
     fm = dar_fichas_maquina(bolsa)
@@ -255,10 +263,10 @@ def cambiar_fichas_maquina(bolsa, fm, cambios):
 
 
 def generar_tablero(dificultad):
-
-    '''Funcion encargada de generar los 3 tableros con una dimesion de 15x15
+    """
+    Funcion encargada de generar los 3 tableros con una dimesion de 15x15
     utilizando la funcion casillero_segun_color
-    '''
+    """
     tablero = []
     for i in range(15):
         tablero.append([])
@@ -267,11 +275,13 @@ def generar_tablero(dificultad):
     return tablero
 
 
+
 def generar_ventana_de_juego(tj, dif):
 
-    '''Funcion encargada de iniciar el juego,utilizando los procesos
+    """
+    Funcion encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
-    '''
+    """
     # cambio de fichas
     cambios_jugador = 0
     _cambios_maquina = 0 # todavia no se usa
@@ -415,8 +425,9 @@ def generar_ventana_de_juego(tj, dif):
 
 
 def mostrar_top10(puntajes):
-    '''Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
-    '''
+    """
+    Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
+    """
     ancho_columnas = (10, 10)
     headings = ("Jugador", "Nivel", "Puntaje")
     layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
@@ -428,14 +439,16 @@ def mostrar_top10(puntajes):
 
 
 def mostrar_opciones(letras):
-    '''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
+    """
+    Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
+    """
 
     def get_datos_letra(letra):
         try:
             with open("config.cfg") as config:
                 datos = json.load(config)
                 return datos[letra]
-
+              
         except FileNotFoundError:
             config_por_defecto()[letra]
 
@@ -483,7 +496,9 @@ def mostrar_opciones(letras):
             window.Close()
 
         if event == 'reset':
-            '''Se resetea por defecto los valores del tablero y el json'''
+        """
+        Se resetea por defecto los valores del tablero y el json
+        """
             if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
                                 title='Aviso', button_color=('black', '#D9B382')) == 'OK':
                 for key, _valor in values.items():
@@ -500,11 +515,11 @@ def mostrar_opciones(letras):
 
 
 def popup_top10_vacio():
-    '''Funcion encargada de mostrar una imagen
+    """
+    Funcion encargada de mostrar una imagen
     en caso de que el top 10 este vacio
-    '''
+    """
     sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(")
-
 
 # comienzo de "main"
 
