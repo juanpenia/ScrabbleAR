@@ -166,29 +166,14 @@ def generar_bolsa():
 
     except FileNotFoundError:
         # de paso al no existir, genero el archivo
-        with open("config.cfg", "w") as config:
-            datos = bolsa_por_defecto()
-            json.dump(datos, config, indent=4)
-    for key, value in datos.items():
-        string = string + key*value
+        generar_archivo_config()
+
+    # si existia el archivo de configuracion, iterará sobre lo que leyo, sino, sobre la configuración por defecto, me explico?
+    for key, value in datos.items() if "datos" in locals() else config_por_defecto().items():
+        string = string + key*value["cantidad"]
     lista = list(string)
     shuffle(lista)
     return lista
-
-
-def bolsa_por_defecto():
-
-    '''Funcion que devuelve el estado original pretendido
-    de la bolsa en caso de querer restablaecer a su valor
-    por defecto.'''
-    original = "aaaaaaaaaaabbbccccddddeeeeeeeeeeeffgghhiiiiiijjkllllmmmnnnnnooooooooppqrrrrsssssssttttuuuuuuvvwxyz"
-    bolsa = {}
-    for char in original:
-        if char in bolsa:
-            bolsa[char] += 1
-        else:
-            bolsa.setdefault(char, 1)
-    return bolsa
 
 
 def sacar_letra(bolsa):
@@ -200,6 +185,39 @@ def sacar_letra(bolsa):
     bolsa.remove(letra)
     return letra
 
+
+def config_por_defecto():
+    return {"a": {"puntaje": 1, "cantidad": 11},
+            "b": {"puntaje": 3, "cantidad": 3},
+            "c": {"puntaje": 2, "cantidad": 4},
+            "d": {"puntaje": 2, "cantidad": 4},
+            "e": {"puntaje": 1, "cantidad": 11},
+            "f": {"puntaje": 4, "cantidad": 2},
+            "g": {"puntaje": 2, "cantidad": 2},
+            "h": {"puntaje": 4, "cantidad": 2},
+            "i": {"puntaje": 1, "cantidad": 6},
+            "j": {"puntaje": 6, "cantidad": 2},
+            "k": {"puntaje": 8, "cantidad": 1},
+            "l": {"puntaje": 1, "cantidad": 4},
+            "m": {"puntaje": 3, "cantidad": 3},
+            "n": {"puntaje": 1, "cantidad": 5},
+            "o": {"puntaje": 1, "cantidad": 8},
+            "p": {"puntaje": 3, "cantidad": 2},
+            "q": {"puntaje": 8, "cantidad": 1},
+            "r": {"puntaje": 1, "cantidad": 4},
+            "s": {"puntaje": 1, "cantidad": 7},
+            "t": {"puntaje": 1, "cantidad": 4},
+            "u": {"puntaje": 1, "cantidad": 6},
+            "v": {"puntaje": 4, "cantidad": 2},
+            "w": {"puntaje": 8, "cantidad": 1},
+            "x": {"puntaje": 8, "cantidad": 1},
+            "y": {"puntaje": 4, "cantidad": 1},
+            "z": {"puntaje": 10, "cantidad": 1}}
+
+def generar_archivo_config():
+    with open("config.cfg", "w") as config:
+        json.dump(config_por_defecto(), config, indent=4)
+
 def puntajes_por_defecto():
     puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
                 "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
@@ -209,10 +227,16 @@ def puntajes_por_defecto():
     return puntajes
 
 def cargar_puntajes_letra():
-    pass
-    # try:
-    #     with open("config.cfg") as config:
-    #         datos = json.load(config)
+    try:
+        with open("config.cfg") as config:
+            datos = json.load(config)
+            puntajes = {}
+            for x, y in datos.items():
+                puntajes[x] = y["puntaje"]
+
+            return puntajes
+    except FileNotFoundError:
+        sg.Popup("El archivo de configuración no ha sido encontrado!", title="Error Critico")
 
 
 def dar_fichas_maquina(bolsa):
@@ -255,13 +279,6 @@ def generar_ventana_de_juego(tj, dif):
     # fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
     cambiando_fichas = False
-    # estado_fichas = {"ficha_jugador_0": False,
-    # 			"ficha_jugador_1": False,
-    # 			"ficha_jugador_2": False,
-    # 			"ficha_jugador_3": False,
-    # 			"ficha_jugador_4": False,
-    # 			"ficha_jugador_5": False,
-    # 			"ficha_jugador_6": False}
 
     # bolsa de fichas
     bolsa = generar_bolsa()
@@ -340,7 +357,8 @@ def generar_ventana_de_juego(tj, dif):
                 break
         
         if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-            print("bbbbbb")
+            #cargar_puntajes_letra()
+            generar_archivo_config()
 
         if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
             if(cambios_jugador >= 3):
@@ -412,16 +430,16 @@ def mostrar_top10(puntajes):
 def mostrar_opciones(letras):
     '''Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo'''
 
-    def get_cant_letra(letra):
+    def get_datos_letra(letra):
         try:
             with open("config.cfg") as config:
                 datos = json.load(config)
                 return datos[letra]
 
         except FileNotFoundError:
-            return bolsa_por_defecto()[letra]
+            config_por_defecto()[letra]
 
-    def intefaz():
+    def interfaz():
         # Preparo la sublista
         lista = sorted(letras, reverse=False)
         lista.remove('?')
@@ -429,9 +447,9 @@ def mostrar_opciones(letras):
         primera = lista[:mitad]
         segunda = lista[mitad:]
 
-        colum_arriba = [[sg.Text("       CANTIDAD    "*2)]]
-        colum_izq = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_cant_letra(letra), size=(8, 3), key=('cant'+letra))] for letra in primera]
-        col_der = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_cant_letra(letra), size=(8, 3), key=('cant'+letra))] for letra in segunda]
+        colum_arriba = [[sg.Text("       CANTIDAD  PUNTAJE     "*2)]]
+        colum_izq = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in primera]
+        col_der = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in segunda]
         col_abajo = [[sg.Button('Guardar', button_color=('black', '#D9B382')), sg.Button('Restablecer', key='reset', pad=(24, 0), button_color=('black', '#D9B382')), sg.Button('Atras', button_color=('black', '#D9B382'))]]
 
         layout = [[sg.Column(colum_arriba)],
@@ -442,14 +460,20 @@ def mostrar_opciones(letras):
 
     def guardar_json(datos):
         temp_dic = {}
-        for key, _value in datos.items():
-            temp_dic[key.replace("cant", "")] = int(datos[key])
+        for key, value in datos.items():
+            # si no hay nada, ingresamos la cantidad, ya que es lo primero en datos
+            if(key[-1] not in temp_dic):
+                temp_dic[key[-1]] = {"cantidad": int(value)}
+
+            # una vez que ya esta creada la key digamos, solo falta ingresar el puntaje
+            else:
+                temp_dic[key[-1]]["puntaje"] = int(value)
         del datos
 
         with open("config.cfg", "w") as arc:
             json.dump(temp_dic, arc, indent=4)
 
-    window = sg.Window('Opciones avanzadas ', intefaz())
+    window = sg.Window('Opciones avanzadas', interfaz())
 
     while True:
         event, values = window.read()
@@ -463,10 +487,11 @@ def mostrar_opciones(letras):
             if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
                                 title='Aviso', button_color=('black', '#D9B382')) == 'OK':
                 for key, _valor in values.items():
-                    valor_nuevo = bolsa_por_defecto()["{}".format(key.replace("cant", ""))]
+                    valor_nuevo = config_por_defecto()[key[-1]][key[:-1]]
                     window[key].update(valor_nuevo)
                     values[key] = valor_nuevo
-                guardar_json(values)
+                # guardar_json(values) # no deberia guardar a no ser que apretemos "guardar" justamente pero si quieren lo dejamos
+                # estaria mal pero no tan mal?
 
         if event in (sg.WIN_CLOSED, 'Atras'):
             break
@@ -492,7 +517,6 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
-
 while True:
     event, values = window.Read()
 
@@ -521,5 +545,4 @@ while True:
 
     if event == "OPCIONES AVANZADAS":
         mostrar_opciones(letras.keys())
-
 window.Close()
