@@ -16,9 +16,8 @@ import os
 import json
 from random import shuffle, choice
 from time import time as now
-
 import PySimpleGUI as sg
-# from pattern.es import verbs, spelling, lexicon
+#from pattern.es import verbs, spelling, lexicon
 
 PATH_TABLERO = 'img/tablero'
 PATH_FICHAS = 'img/fichas'
@@ -104,7 +103,7 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 
 def dibujar_casilla(x, y, dif):
 	"""
-	Funcion que se encarga de devolver de que casillero
+	Función que se encarga de devolver de que casillero
 	se pinta cada casilla del tablero
 	"""
 	if dif == "Facil":
@@ -160,7 +159,7 @@ def dibujar_casilla(x, y, dif):
 
 def generar_bolsa():
 	"""
-	Funcion encargada de generar la bolsa de 98 fichas.
+	Función encargada de generar la bolsa de 98 fichas.
 	"""
 	string = ""
 	try:
@@ -181,7 +180,7 @@ def generar_bolsa():
 
 def bolsa_por_defecto():
 	"""
-	Funcion que devuelve el estado original pretendido
+	Función que devuelve el estado original pretendido
 	de la bolsa en caso de querer restablaecer a su valor
 	por defecto.
 	"""
@@ -197,7 +196,7 @@ def bolsa_por_defecto():
 
 def sacar_letra(bolsa):
 	"""
-	Funcion encargada de "sacar" una letra
+	Función encargada de "sacar" una letra
 	random de la bolsa.
 	"""
 	letra = choice(bolsa)
@@ -207,7 +206,7 @@ def sacar_letra(bolsa):
 
 def dar_fichas_maquina(bolsa):
 	"""
-	Funcion encargada de otorgar las 7 fichas random
+	Función encargada de otorgar las 7 fichas random
 	utilizando la funcion sacar_letra.
 	"""
 	return [sacar_letra(bolsa) for x in range(7)]
@@ -215,7 +214,7 @@ def dar_fichas_maquina(bolsa):
 
 def cambiar_fichas_maquina(bolsa, fm, cambios):
 	"""
-	Funcion encargada de cambiar las fichas de la maquina
+	Función encargada de cambiar las fichas de la maquina
 	"""
 	bolsa.extend(fm)
 	shuffle(bolsa)
@@ -226,7 +225,7 @@ def cambiar_fichas_maquina(bolsa, fm, cambios):
 def generar_tablero(dificultad):
 
 	"""
-	Funcion encargada de generar los 3 tableros con una dimesion de 15x15
+	Función encargada de generar los 3 tableros con una dimesion de 15x15
 	utilizando la funcion casillero_segun_color
 	"""
 	tablero = []
@@ -240,7 +239,7 @@ def generar_tablero(dificultad):
 def generar_ventana_de_juego(tj, dif):
 
 	"""
-	Funcion encargada de iniciar el juego,utilizando los procesos
+	Función encargada de iniciar el juego,utilizando los procesos
 	declarados anteriormente.Tambien se encarga de generar el cronometro.
 	"""
 	# cambio de fichas
@@ -283,7 +282,8 @@ def generar_ventana_de_juego(tj, dif):
 	letras_jugador = [sg.Text(" "*45)]
 	for i in range(0, 7):
 		letras_jugador.append(sg.Button(image_filename=letras[estado_fichas["ficha_jugador_{}".format(i)]["letra"]], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
-
+	letras_jugador.append(sg.Text(" "*37))
+	letras_jugador.append(sg.Button("VERIFICAR", button_color=('black', '#D9B382')))
 	col_jugador.append(letras_jugador)
 
 	# panel izquierdo:
@@ -293,7 +293,7 @@ def generar_ventana_de_juego(tj, dif):
 					[sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
 					[sg.Text("Tiempo restante: ?", key="cronometro")],
 					[sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
-					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"),sg.Button("VERIFICAR", button_color=('black', '#D9B382'))],
+					[sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"),sg.Button("PASAR", button_color=('black', '#D9B382'))],
 					[sg.Button("TERMINAR", button_color=('black', '#D9B382')),(sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
 
 	# panel derecho: (referencias)
@@ -389,7 +389,7 @@ def generar_ventana_de_juego(tj, dif):
 
 def mostrar_top10(puntajes):
 	"""
-	Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
+	Función encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
 	"""
 	ancho_columnas = (10, 10)
 	headings = ("Jugador", "Nivel", "Puntaje")
@@ -403,7 +403,7 @@ def mostrar_top10(puntajes):
 
 def mostrar_opciones(letras):
 	"""
-	Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
+	Esta función muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
 	"""
 
 	def get_cant_letra(letra):
@@ -472,7 +472,7 @@ def mostrar_opciones(letras):
 
 def popup_top10_vacio():
 	"""
-	Funcion encargada de mostrar una imagen
+	Función encargada de mostrar una imagen
 	en caso de que el top 10 este vacio
 	"""
 	sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(")
