@@ -3,6 +3,14 @@ Trabajo integrador de la materia Seminario de Lenguajes Opción Python
 
 Juego basado en el Scrabble original, con ciertos cambios en su reglamento.
 
+### Integrantes:
+
+Juan Sebastián Peña 
+
+Hernán Nahuel Ramos
+
+Felipe Verdugo
+
 ### Requerimientos:
 
 * Python 3.6 (es necesaria esta versión ya que pattern tiene problemas con versiones posteriores)
