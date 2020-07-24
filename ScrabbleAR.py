@@ -4,21 +4,22 @@
 ScrabbleAR.py: Trabajo integrador de la materia Seminario de Lenguajes Opción Python
 """
 
-__author__ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
-__credits__ = ["Juan Sebastián Peña", "Hernan Nahuel Ramos", "Felipe Verdugo"]
-__license__ = "GPL"
-__version__ = "3.0"
-__maintainer__ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
-__email__ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmail.com"
-__status__ = "Produccion"
+_author_ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
+_credits_ = ["Juan Sebastián Peña", "Hernan Nahuel Ramos", "Felipe Verdugo"]
+_license_ = "GPL"
+_version_ = "3.0"
+_maintainer_ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
+_email_ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmail.com"
+_status_ = "Produccion"
 
 import os
 import json
 from random import shuffle, choice
 from time import time as now
-
 import PySimpleGUI as sg
-# from pattern.es import verbs, spelling, lexicon
+# import pattern.es
+# from pattern.es import verbs, spelling, lexicon,parse
+import pattern.es
 
 PATH_TABLERO = 'img/tablero'
 PATH_FICHAS = 'img/fichas'
@@ -104,7 +105,7 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 
 def dibujar_casilla(x, y, dif):
     """
-    Funcion que se encarga de devolver de que casillero
+    Función que se encarga de devolver de que casillero
     se pinta cada casilla del tablero
     """
     if dif == "Facil":
@@ -159,9 +160,8 @@ def dibujar_casilla(x, y, dif):
 
 
 def generar_bolsa():
-
     """
-    Funcion encargada de generar la bolsa de 98 fichas.
+    Función encargada de generar la bolsa de 98 fichas.
     """
     string = ""
     try:
@@ -179,15 +179,15 @@ def generar_bolsa():
     shuffle(lista)
     return lista
 
-
 def sacar_letra(bolsa):
     """
-    Funcion encargada de "sacar" una letra
+    Función encargada de "sacar" una letra
     random de la bolsa.
     """
     letra = choice(bolsa)
     bolsa.remove(letra)
     return letra
+
 
 
 def config_por_defecto():
@@ -244,9 +244,8 @@ def cargar_puntajes_letra():
 
 
 def dar_fichas_maquina(bolsa):
-
     """
-    Funcion encargada de otorgar las 7 fichas random
+    Función encargada de otorgar las 7 fichas random
     utilizando la funcion sacar_letra.
     """
     return [sacar_letra(bolsa) for x in range(7)]
@@ -254,7 +253,7 @@ def dar_fichas_maquina(bolsa):
 
 def cambiar_fichas_maquina(bolsa, fm, cambios):
     """
-    Funcion encargada de cambiar las fichas de la maquina
+    Función encargada de cambiar las fichas de la maquina
     """
     bolsa.extend(fm)
     shuffle(bolsa)
@@ -263,8 +262,9 @@ def cambiar_fichas_maquina(bolsa, fm, cambios):
 
 
 def generar_tablero(dificultad):
+
     """
-    Funcion encargada de generar los 3 tableros con una dimesion de 15x15
+    Función encargada de generar los 3 tableros con una dimesion de 15x15
     utilizando la funcion casillero_segun_color
     """
     tablero = []
@@ -275,11 +275,10 @@ def generar_tablero(dificultad):
     return tablero
 
 
-
 def generar_ventana_de_juego(tj, dif):
 
     """
-    Funcion encargada de iniciar el juego,utilizando los procesos
+    Función encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
     """
     # cambio de fichas
@@ -296,7 +295,8 @@ def generar_ventana_de_juego(tj, dif):
     estado_fichas = {}
 
     for i in range(0, 7):
-        estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False}
+        estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando":False}
+    
 
     # cronometro related
     fin = now() + (tj * 60)
@@ -313,7 +313,10 @@ def generar_ventana_de_juego(tj, dif):
 
     # tablero de juego:
     col_tablero = generar_tablero(dif)
+    # crear tablero logico
+    tablero_logico  = [['' for j in range(15)] for i in range(15)]
 
+    
     # letras del jugador:
     fichas_seleccionadas = []
     col_jugador = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
@@ -321,6 +324,10 @@ def generar_ventana_de_juego(tj, dif):
     letras_jugador = [sg.Text(" "*45)]
     for i in range(0, 7):
         letras_jugador.append(sg.Button(image_filename=letras[estado_fichas["ficha_jugador_{}".format(i)]["letra"]], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
+
+
+    letras_jugador.append(sg.Text(" "*37))
+    letras_jugador.append(sg.Button("VERIFICAR", button_color=('black', '#D9B382')))
 
     col_jugador.append(letras_jugador)
 
@@ -331,8 +338,9 @@ def generar_ventana_de_juego(tj, dif):
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
-                    [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas")],
-                    [sg.Button("TERMINAR", button_color=('black', '#D9B382')), sg.Button("POSPONER", button_color=('black', '#D9B382'))]]
+                    [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"),sg.Button("PASAR", button_color=('black', '#D9B382'))],
+                    [sg.Button("TERMINAR", button_color=('black', '#D9B382')),(sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
+
 
     # panel derecho: (referencias)
 
@@ -345,6 +353,7 @@ def generar_ventana_de_juego(tj, dif):
                 [sg.Button(image_filename=casillas["descuento_x2"]), sg.Text("Resta 2 puntos")],
                 [sg.Button(image_filename=casillas["descuento_x3"]), sg.Text("Resta 3 puntos")]]
 
+
     layout = [[sg.Column(col_arriba)],
             [sg.Column(col_izquierda), sg.Column(col_tablero, element_justification="right"), sg.Column(col_derecha)],
             [sg.Column(col_jugador)]]
@@ -352,24 +361,64 @@ def generar_ventana_de_juego(tj, dif):
     window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
     # window.Maximize()
 
+    letra_selecionada = ''
+
+    palabra = []
+
     while True:
 
         # el "_" detras de una variable significa que no se usa, es para que no salte warning
         # cuando la usemos, le sacamos el "_"
-        event, _values = window.Read(timeout=10)
+        event, _values = window.Read()
+        # le saque el time out
 
         if event is None:
             break
 
-        if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+       
+            
+
+       
+  
+     
+        if type(event) is tuple:
+            if letra_selecionada is '':
+                print('no seleccionaste ninguna letra')
+            else:
+                window[event].update(image_filename=letras[letra_selecionada])
+                palabra.append(letra_selecionada)
+                letra_selecionada = '' 
+
+        
+        if event is 'VERIFICAR':
+            p = "".join(palabra)
+            s = pattern.es.parse(p).split()
+            for cada in s:
+                for pal in cada:
+                    if pal[1] == 'VB':
+                        print("{}: es un verbo".format(pal[0]))
+                    elif pal[1] ==  "NNS" or pal[1] ==  "NN":
+                        print("{}: es un sustantivo".format(pal[0]))
+                    elif pal[1] ==  "JJ":
+                        print("{}: es un adjetivo".format(pal[0]))
+                    else:
+                        print("{}: es otra palabra".format(pal[0]))
+            palabra = []
+
+
+        # # devuelve el valor del atril jugador
+        # print(estado_fichas[event]["letra"])
+
+        if event is "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
             exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
             if(exit == "OK"):
                 break
-        
-        if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+
+        if event is "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
             pass
 
-        if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+        if event is "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+
             if(cambios_jugador >= 3):
                 sg.Popup("Ya no tienes cambios de fichas restantes.")
             else:
@@ -401,6 +450,7 @@ def generar_ventana_de_juego(tj, dif):
                 window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
 
         if event in estado_fichas.keys():
+            letra_selecionada = estado_fichas[event]["letra"]
             if(cambiando_fichas):
                 if(not estado_fichas[event]["cambiando"]):
                     fichas_seleccionadas.append(estado_fichas[event]["letra"])
@@ -408,6 +458,7 @@ def generar_ventana_de_juego(tj, dif):
                     fichas_seleccionadas.remove(estado_fichas[event]["letra"])
                 window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
                 estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
+
 
         window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
@@ -425,7 +476,7 @@ def generar_ventana_de_juego(tj, dif):
 
 def mostrar_top10(puntajes):
     """
-    Funcion encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
+    Función encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
     """
     ancho_columnas = (10, 10)
     headings = ("Jugador", "Nivel", "Puntaje")
@@ -439,8 +490,9 @@ def mostrar_top10(puntajes):
 
 def mostrar_opciones(letras):
     """
-    Esta funcion muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
+    Esta función muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
     """
+
 
     def get_datos_letra(letra):
         try:
@@ -450,8 +502,9 @@ def mostrar_opciones(letras):
               
         except FileNotFoundError:
             config_por_defecto()[letra]
-
+            
     def interfaz():
+      
         # Preparo la sublista
         lista = sorted(letras, reverse=False)
         lista.remove('?')
@@ -459,9 +512,11 @@ def mostrar_opciones(letras):
         primera = lista[:mitad]
         segunda = lista[mitad:]
 
+
         colum_arriba = [[sg.Text("       CANTIDAD  PUNTAJE     "*2)]]
         colum_izq = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in primera]
         col_der = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in segunda]
+
         col_abajo = [[sg.Button('Guardar', button_color=('black', '#D9B382')), sg.Button('Restablecer', key='reset', pad=(24, 0), button_color=('black', '#D9B382')), sg.Button('Atras', button_color=('black', '#D9B382'))]]
 
         layout = [[sg.Column(colum_arriba)],
@@ -472,6 +527,7 @@ def mostrar_opciones(letras):
 
     def guardar_json(datos):
         temp_dic = {}
+
         for key, value in datos.items():
             # si no hay nada, ingresamos la cantidad, ya que es lo primero en datos
             if(key[-1] not in temp_dic):
@@ -480,15 +536,19 @@ def mostrar_opciones(letras):
             # una vez que ya esta creada la key digamos, solo falta ingresar el puntaje
             else:
                 temp_dic[key[-1]]["puntaje"] = int(value)
+
         del datos
 
         with open("config.cfg", "w") as arc:
             json.dump(temp_dic, arc, indent=4)
 
+
     window = sg.Window('Opciones avanzadas', interfaz())
+
 
     while True:
         event, values = window.read()
+
 
         if event == 'Guardar':
             guardar_json(values)
@@ -508,6 +568,7 @@ def mostrar_opciones(letras):
                 # estaria mal pero no tan mal?
 
         if event in (sg.WIN_CLOSED, 'Atras'):
+
             break
 
     window.close()
@@ -515,10 +576,11 @@ def mostrar_opciones(letras):
 
 def popup_top10_vacio():
     """
-    Funcion encargada de mostrar una imagen
+    Función encargada de mostrar una imagen
     en caso de que el top 10 este vacio
     """
     sg.popup_animated(image_source="img/vacioves.png", message="Esta vacio, ves? No hay puntajes aqui.", no_titlebar=False, title=":(")
+
 
 # comienzo de "main"
 
@@ -533,6 +595,7 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
 while True:
     event, values = window.Read()
+
 
     if event is None:
         break
@@ -556,6 +619,7 @@ while True:
 
         except FileNotFoundError:
             popup_top10_vacio()
+
 
     if event == "OPCIONES AVANZADAS":
         mostrar_opciones(letras.keys())
