@@ -4,20 +4,22 @@
 ScrabbleAR.py: Trabajo integrador de la materia Seminario de Lenguajes Opción Python
 """
 
-__author__ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
-__credits__ = ["Juan Sebastián Peña", "Hernan Nahuel Ramos", "Felipe Verdugo"]
-__license__ = "GPL"
-__version__ = "3.0"
-__maintainer__ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
-__email__ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmail.com"
-__status__ = "Produccion"
+_author_ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
+_credits_ = ["Juan Sebastián Peña", "Hernan Nahuel Ramos", "Felipe Verdugo"]
+_license_ = "GPL"
+_version_ = "3.0"
+_maintainer_ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
+_email_ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmail.com"
+_status_ = "Produccion"
 
 import os
 import json
 from random import shuffle, choice
 from time import time as now
 import PySimpleGUI as sg
-#from pattern.es import verbs, spelling, lexicon
+# import pattern.es
+# from pattern.es import verbs, spelling, lexicon,parse
+import pattern.es
 
 PATH_TABLERO = 'img/tablero'
 PATH_FICHAS = 'img/fichas'
@@ -293,8 +295,8 @@ def generar_ventana_de_juego(tj, dif):
     estado_fichas = {}
 
     for i in range(0, 7):
-        estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False}
-
+        estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando":False}
+    
 
     # cronometro related
     fin = now() + (tj * 60)
@@ -311,7 +313,10 @@ def generar_ventana_de_juego(tj, dif):
 
     # tablero de juego:
     col_tablero = generar_tablero(dif)
+    # crear tablero logico
+    tablero_logico  = [['' for j in range(15)] for i in range(15)]
 
+    
     # letras del jugador:
     fichas_seleccionadas = []
     col_jugador = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
@@ -356,15 +361,53 @@ def generar_ventana_de_juego(tj, dif):
     window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
     # window.Maximize()
 
+    letra_selecionada = ''
+
+    palabra = []
+
     while True:
 
         # el "_" detras de una variable significa que no se usa, es para que no salte warning
         # cuando la usemos, le sacamos el "_"
-        event, _values = window.Read(timeout=10)
+        event, _values = window.Read()
+        # le saque el time out
 
         if event is None:
             break
 
+       
+            
+
+       
+  
+     
+        if type(event) is tuple:
+            if letra_selecionada is '':
+                print('no seleccionaste ninguna letra')
+            else:
+                window[event].update(image_filename=letras[letra_selecionada])
+                palabra.append(letra_selecionada)
+                letra_selecionada = '' 
+
+        
+        if event is 'VERIFICAR':
+            p = "".join(palabra)
+            s = pattern.es.parse(p).split()
+            for cada in s:
+                for pal in cada:
+                    if pal[1] == 'VB':
+                        print("{}: es un verbo".format(pal[0]))
+                    elif pal[1] ==  "NNS" or pal[1] ==  "NN":
+                        print("{}: es un sustantivo".format(pal[0]))
+                    elif pal[1] ==  "JJ":
+                        print("{}: es un adjetivo".format(pal[0]))
+                    else:
+                        print("{}: es otra palabra".format(pal[0]))
+            palabra = []
+
+
+        # # devuelve el valor del atril jugador
+        # print(estado_fichas[event]["letra"])
 
         if event is "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
             exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
@@ -408,6 +451,7 @@ def generar_ventana_de_juego(tj, dif):
                 window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
 
         if event in estado_fichas.keys():
+            letra_selecionada = estado_fichas[event]["letra"]
             if(cambiando_fichas):
                 if(not estado_fichas[event]["cambiando"]):
                     fichas_seleccionadas.append(estado_fichas[event]["letra"])
