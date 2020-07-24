@@ -325,9 +325,9 @@ def generar_ventana_de_juego(tj, dif):
     col_jugador.append(letras_jugador)
 
     # panel izquierdo:
-    headings_tabla = ("Jugador", "Puntaje")
-    col_izquierda = [[sg.Text("Puntajes: ")],
-                    [sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
+    headings_tabla = ("Jugador", "Palabra", "Pts")
+    col_izquierda = [[sg.Text("Jugadas: ")],
+                    [sg.Table([], headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
@@ -367,8 +367,7 @@ def generar_ventana_de_juego(tj, dif):
                 break
         
         if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-            #cargar_puntajes_letra()
-            generar_archivo_config()
+            pass
 
         if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
             if(cambios_jugador >= 3):
@@ -496,9 +495,9 @@ def mostrar_opciones(letras):
             window.Close()
 
         if event == 'reset':
-        """
-        Se resetea por defecto los valores del tablero y el json
-        """
+            """
+            Se resetea por defecto los valores del tablero y el json
+            """
             if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
                                 title='Aviso', button_color=('black', '#D9B382')) == 'OK':
                 for key, _valor in values.items():
@@ -543,7 +542,7 @@ while True:
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
-        print("aaaaaaaaa")
+        pass
 
     if event == "TOP 10":
         try:
