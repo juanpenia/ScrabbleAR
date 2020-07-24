@@ -332,9 +332,9 @@ def generar_ventana_de_juego(tj, dif):
     col_jugador.append(letras_jugador)
 
     # panel izquierdo:
-    headings_tabla = ("Jugador", "Puntaje")
-    col_izquierda = [[sg.Text("Puntajes: ")],
-                    [sg.Table([], headings_tabla, select_mode="browse", col_widths=(10, 10), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
+    headings_tabla = ("Jugador", "Palabra", "Pts")
+    col_izquierda = [[sg.Text("Jugadas: ")],
+                    [sg.Table([], headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
@@ -413,7 +413,6 @@ def generar_ventana_de_juego(tj, dif):
             exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
             if(exit == "OK"):
                 break
-        
 
         if event is "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
             pass
