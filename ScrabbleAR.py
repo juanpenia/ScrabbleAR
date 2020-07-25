@@ -316,6 +316,8 @@ def generar_ventana_de_juego(tj, dif):
     # crear tablero logico
     tablero_logico  = [['' for j in range(15)] for i in range(15)]
 
+    tl2 = {}
+
     
     # letras del jugador:
     fichas_seleccionadas = []
@@ -364,12 +366,15 @@ def generar_ventana_de_juego(tj, dif):
     letra_selecionada = ''
 
     palabra = []
+    palabra2 = []
+
+    lista_aux = []
 
     while True:
 
         # el "_" detras de una variable significa que no se usa, es para que no salte warning
         # cuando la usemos, le sacamos el "_"
-        event, _values = window.Read()
+        event, _values = window.Read(timeout=10)
         # le saque el time out
 
         if event is None:
@@ -382,44 +387,91 @@ def generar_ventana_de_juego(tj, dif):
   
      
         if type(event) is tuple:
-            if letra_selecionada is '':
+            if letra_selecionada == '':
                 print('no seleccionaste ninguna letra')
             else:
+                lista_aux.append(event) if event not in lista_aux else lista_aux[lista_aux.index(event)] == event
+                x, coma, y = str(event).replace("(", "").replace(")", "").replace(" ", "").partition(",") # arreglar
+                tl2[(int(x),int(y))] = letra_selecionada
+                tablero_logico[int(x)][int(y)] = letra_selecionada
                 window[event].update(image_filename=letras[letra_selecionada])
                 palabra.append(letra_selecionada)
-                letra_selecionada = '' 
+                letra_selecionada = ''
 
         
-        if event is 'VERIFICAR':
-            p = "".join(palabra)
+        if event == 'VERIFICAR':
+            lista_aux = sorted(lista_aux)
+            if(len(lista_aux) == 1):
+                print(lista_aux[0])
+
+            # debug
+
+            for i in range(15): # horizontal
+                print(i, tablero_logico[lista_aux[0][0]][i] != "")
+
+            print("="*30)
+
+            for i in range(15): # vertical
+                print(i, tablero_logico[i][lista_aux[0][1]] != "")
+
+            # 14, 5
+
+
+
+
+
+
+
+
+            # verifica palabra
+            for i in range(len(lista_aux)):
+                palabra2.append(tablero_logico[int(lista_aux[i][0])][int(lista_aux[i][1])])
+
+
+
+            print(palabra2)
+
+            p = "".join(palabra2)
+            print(p)
             s = pattern.es.parse(p).split()
             for cada in s:
                 for pal in cada:
-                    if pal[1] == 'VB':
-                        print("{}: es un verbo".format(pal[0]))
-                    elif pal[1] ==  "NNS" or pal[1] ==  "NN":
-                        print("{}: es un sustantivo".format(pal[0]))
-                    elif pal[1] ==  "JJ":
-                        print("{}: es un adjetivo".format(pal[0]))
-                    else:
-                        print("{}: es otra palabra".format(pal[0]))
+                    # if pal[1] == 'VB':
+                    #     print("{}: es un verbo".format(pal[0]))
+                    # elif pal[1] ==  "NNS" or pal[1] ==  "NN":
+                    #     print("{}: es un sustantivo".format(pal[0]))
+                    # elif pal[1] ==  "JJ":
+                    #     print("{}: es un adjetivo".format(pal[0]))
+                    # else:
+                    #     print("{}: es otra palabra".format(pal[0]))
+                    ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
+            # print(ok)
+            # print("spelling:", p in pattern.es.spelling)
+            # print("lexicon:", p in pattern.es.lexicon)
+            # todo = ok and ((p in pattern.es.lexicon) or (p in pattern.es.spelling))
+            # print("all:", todo)
+            p = ""
             palabra = []
+            palabra2 = []
+            lista_aux = []
+            for row in tablero_logico:
+                print(row)
 
 
         # # devuelve el valor del atril jugador
         # print(estado_fichas[event]["letra"])
 
-        if event is "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+        if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
             exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
             if(exit == "OK"):
                 break
 
-        if event is "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+        if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
             pass
 
-        if event is "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+        if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
 
-            if(cambios_jugador >= 3):
+            if(cambios_jugador >= 999):
                 sg.Popup("Ya no tienes cambios de fichas restantes.")
             else:
                 if((cambiando_fichas) and len(fichas_seleccionadas)):
