@@ -354,6 +354,7 @@ def generar_ventana_de_juego(tj, dif):
                 [sg.Button(image_filename=casillas["descuento_x2"]), sg.Text("Resta 2 puntos")],
                 [sg.Button(image_filename=casillas["descuento_x3"]), sg.Text("Resta 3 puntos")]]
 
+
     layout = [[sg.Column(col_arriba)],
             [sg.Column(col_izquierda), sg.Column(col_tablero, element_justification="right"), sg.Column(col_derecha)],
             [sg.Column(col_jugador)]]
