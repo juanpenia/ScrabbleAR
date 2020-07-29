@@ -14,7 +14,7 @@ _status_ = "Produccion"
 
 import os
 import json
-from random import shuffle, choice
+from random import shuffle, choice, getrandbits
 from time import time as now
 import PySimpleGUI as sg
 from pattern.es import verbs, spelling, lexicon, parse
@@ -273,6 +273,14 @@ def generar_tablero(dificultad):
             tablero[i].append(sg.Button(image_filename=dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
     return tablero
 
+def turno_computadora(pj):
+    """...
+    Parametros:
+    pj: primera jugada
+    """
+    if pj:
+        pass
+
 
 def generar_ventana_de_juego(tj, dif):
 
@@ -287,6 +295,9 @@ def generar_ventana_de_juego(tj, dif):
     # fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
     cambiando_fichas = False
+
+    # turno de jugador
+    turno_jugador = bool(getrandbits(1))
 
     # bolsa de fichas
     bolsa = generar_bolsa()
@@ -362,7 +373,7 @@ def generar_ventana_de_juego(tj, dif):
     window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
     # window.Maximize()
 
-    letra_selecionada = ' '
+    letra_seleccionada = ' '
 
     palabra = []
     palabra2 = []
@@ -373,191 +384,185 @@ def generar_ventana_de_juego(tj, dif):
     cont = 0
     ficha_seleccionada = None
     llave_seleccionada = None
+    test_dic = {}
+    primera_jugada = True
 
     while True:
 
         # el "_" detras de una variable significa que no se usa, es para que no salte warning
         # cuando la usemos, le sacamos el "_"
         event, _values = window.Read(timeout=10)
-        # le saque el time out
 
-        if event is None:
-            break
-
-       
-            
-
-       
-  
-     
-        if type(event) is tuple:
-            if letra_selecionada == ' ':
-                print('no seleccionaste ninguna letra')
-            else:
-                #lista_aux.append(event) if event not in lista_aux else 
-                if event not in lista_aux:
-                    lista_aux.append(event)
-                else:
-                    lista_aux[lista_aux.index(event)] = event
-                tl2[event] = letra_selecionada
-                tablero_logico[event[0]][event[1]] = letra_selecionada
-                window[event].update(image_filename=letras[letra_selecionada])
-                palabra.append(letra_selecionada)
-                lista_aux2.append(ficha_seleccionada)
-                lista_aux3.append(llave_seleccionada)
-                letra_selecionada = ''
-                ficha_seleccionada = None
-                llave_seleccionada = None
-                window[lista_aux3[cont]].update(image_filename=letras["null"])
-                estado_fichas[lista_aux3[cont]] = {"letra": None, "cambiando": False, "colocando": False}
-                
-                cont += 1
-                
-
-        
-        if event == 'VERIFICAR':
-            if(len(lista_aux)):
-                lista_aux = sorted(lista_aux)
-                if(len(lista_aux) == 1):
-                    print(lista_aux[0])
-
-                # debug
-
-                #for i in range(15): # horizontal
-                #    print(i, tablero_logico[lista_aux[0][0]][i] != "")
-
-                print("="*30)
-
-                #for i in range(15): # vertical
-                #    print(i, tablero_logico[i][lista_aux[0][1]] != "")
-
-                # 14, 5
-
-
-
-
-
-
-
-
-                # verifica palabra
-                for i in range(len(lista_aux)):
-                    palabra2.append(tablero_logico[int(lista_aux[i][0])][int(lista_aux[i][1])])
-
-
-
-                print(palabra2)
-
-                p = "".join(palabra2)
-                print(p)
-                s = parse(p).split()
-                for cada in s:
-                    for pal in cada:
-                        # if pal[1] == 'VB':
-                        #     print("{}: es un verbo".format(pal[0]))
-                        # elif pal[1] ==  "NNS" or pal[1] ==  "NN":
-                        #     print("{}: es un sustantivo".format(pal[0]))
-                        # elif pal[1] ==  "JJ":
-                        #     print("{}: es un adjetivo".format(pal[0]))
-                        # else:
-                        #     print("{}: es otra palabra".format(pal[0]))
-                        ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
-                # print(ok)
-                # print("spelling:", p in spelling)
-                # print("lexicon:", p in lexicon)
-                todo = ok and ((p in lexicon) or (p in spelling))
-                print(todo)
-                # print("all:", todo)
-                if(todo):
-                    #print(lista_aux3)
-                    for i in range(cont):
-                        estado_fichas[lista_aux3[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False}
-                        window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]])
-                else:
-                    for i in range(cont):
-                        estado_fichas[lista_aux3[i]] = lista_aux2[i]
-                        window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]])
-                        for elem in lista_aux:
-                            window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif))
-                lista_aux3 = []
-                lista_aux2 = []
-                p = ""
-                palabra = []
-                palabra2 = []
-                lista_aux = []
-                for row in tablero_logico:
-                    print(row)
-                cont = 0
-            else:
-                sg.Popup("No se puso ninguna palabra en el tablero.")
-
-        # # devuelve el valor del atril jugador
-        # print(estado_fichas[event]["letra"])
-
-        if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
-            exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
-            if(exit == "OK"):
-                break
-
-        if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-            pass
-
-        if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
-
-            if(cambios_jugador >= 999):
-                sg.Popup("Ya no tienes cambios de fichas restantes.")
-            else:
-                if((cambiando_fichas) and len(fichas_seleccionadas)):
-                    salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
-                    if(salida == "OK"):
-                        bolsa.extend(fichas_seleccionadas)
-                        shuffle(bolsa)
-                        for _x in fichas_seleccionadas:
-                            letra = sacar_letra(bolsa)
-                            for i in range(7):
-                                if(estado_fichas["ficha_jugador_{}".format(i)]["cambiando"]):
-                                    estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
-                                    estado_fichas["ficha_jugador_{}".format(i)]["letra"] = letra
-                                    window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
-                                    break
-                        cambios_jugador += 1
-                    else:
-                        for i in range(7):
-                            estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
-                    fichas_seleccionadas = []
-                    window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
-                cambiando_fichas = not cambiando_fichas
-
-            # cambio de color del boton para indicar que el jugador esta realizando un cambio de fichas
-            if(cambiando_fichas):
-                window["cambiar_fichas"].Update(button_color=('white', '#008000'))
-            else:
-                window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
-
-        if event in estado_fichas.keys():
-            letra_selecionada = estado_fichas[event]["letra"]
-            ficha_seleccionada = estado_fichas[event]
-            llave_seleccionada = str(event)
-            
-            if(cambiando_fichas):
-                if(not estado_fichas[event]["cambiando"]):
-                    fichas_seleccionadas.append(estado_fichas[event]["letra"])
-                else:
-                    fichas_seleccionadas.remove(estado_fichas[event]["letra"])
-                window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
-                estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
-
-
-        window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
-
-        # cronometro
-
+        # tiempo de juego
         if now() < fin:
             # para mayor legibilidad
             # llegado de hacer la funcion de posponer, habria que guardar el tiempo restante
             min_restantes = int((fin - now()) // 60)
             seg_restantes = int((fin - now()) % 60)
             window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
+
+            if event is None:
+                break
+
+
+            if type(event) is tuple:
+                if letra_seleccionada == ' ':
+                    print('no seleccionaste ninguna letra')
+                else:
+                    #lista_aux.append(event) if event not in lista_aux else 
+                    if event not in lista_aux:
+                        lista_aux.append(event)
+                    else:
+                        lista_aux[lista_aux.index(event)] = event
+                    tl2[event] = letra_seleccionada
+                    #tablero_logico[event[0]][event[1]] = letra_seleccionada
+                    window[event].update(image_filename=letras[letra_seleccionada])
+                    palabra.append(letra_seleccionada)
+                    lista_aux2.append(ficha_seleccionada)
+                    lista_aux3.append(llave_seleccionada)
+                    test_dic[event] = letra_seleccionada
+                    letra_seleccionada = ' '
+                    ficha_seleccionada = None
+                    llave_seleccionada = None
+                    window[lista_aux3[cont]].update(image_filename=letras["vacio"])
+                    estado_fichas[lista_aux3[cont]] = {"letra": None, "cambiando": False, "colocando": False}
+                    
+                    cont += 1
+                    
+
+            
+            if event == 'VERIFICAR':
+                if(len(lista_aux)):
+                    lista_aux = sorted(lista_aux)
+                    test_dic = {k: test_dic[k] for k in sorted(test_dic)}
+                    print(test_dic)
+                    
+                    # debug
+
+                    #for i in range(15): # horizontal
+                    #    print(i, tablero_logico[lista_aux[0][0]][i] != "")
+
+                    print("="*30)
+
+                    #for i in range(15): # vertical
+                    #    print(i, tablero_logico[i][lista_aux[0][1]] != "")
+
+                    # 14, 5
+
+                    # verifica palabra
+                    #for i in range(len(lista_aux)):
+                    #    palabra2.append(tablero_logico[int(lista_aux[i][0])][int(lista_aux[i][1])])
+                    print("aaaaaaaaaaaaa")
+                    for value in test_dic.values():
+                        palabra2.append(value)
+
+
+
+                    print(palabra2)
+
+                    p = "".join(palabra2)
+                    print(p)
+                    s = parse(p).split()
+                    for cada in s:
+                        for pal in cada:
+                            ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
+                    todo = ok and ((p in lexicon) or (p in spelling))
+                    print(todo)
+
+
+
+                    if(todo):
+                        for i in range(cont):
+                            estado_fichas[lista_aux3[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
+                            window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
+                        for key, value in test_dic.items(): #if
+                            tablero_logico[key[0]][key[1]] = value #if
+                    else:
+                        for i in range(cont):
+                            estado_fichas[lista_aux3[i]] = lista_aux2[i]
+                            window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
+                        for elem in lista_aux: #else
+                            window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
+
+
+                    lista_aux3 = []
+                    lista_aux2 = []
+                    p = ""
+                    palabra = []
+                    palabra2 = []
+                    lista_aux = []
+                    test_dic = {}
+                    for row in tablero_logico:
+                        print(row)
+                    cont = 0
+                else:
+                    sg.Popup("No se puso ninguna palabra en el tablero.")
+
+            # # devuelve el valor del atril jugador
+            # print(estado_fichas[event]["letra"])
+
+            if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+                exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
+                if(exit == "OK"):
+                    break
+
+            if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+                pass
+
+            if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+
+                if(cambios_jugador >= 999):
+                    sg.Popup("Ya no tienes cambios de fichas restantes.")
+                else:
+                    if((cambiando_fichas) and len(fichas_seleccionadas)):
+                        salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
+                        if(salida == "OK"):
+                            bolsa.extend(fichas_seleccionadas)
+                            shuffle(bolsa)
+                            for _x in fichas_seleccionadas:
+                                letra = sacar_letra(bolsa)
+                                for i in range(7):
+                                    if(estado_fichas["ficha_jugador_{}".format(i)]["cambiando"]):
+                                        estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
+                                        estado_fichas["ficha_jugador_{}".format(i)]["letra"] = letra
+                                        window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
+                                        break
+                            cambios_jugador += 1
+                        else:
+                            for i in range(7):
+                                estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
+                        fichas_seleccionadas = []
+                        window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
+                    cambiando_fichas = not cambiando_fichas
+
+                # cambio de color del boton para indicar que el jugador esta realizando un cambio de fichas
+                if(cambiando_fichas):
+                    window["cambiar_fichas"].Update(button_color=('white', '#008000'))
+                else:
+                    window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
+
+            if event in estado_fichas.keys():
+                letra_seleccionada = estado_fichas[event]["letra"]
+                ficha_seleccionada = estado_fichas[event]
+                llave_seleccionada = str(event)
+                
+                if(cambiando_fichas):
+                    if(not estado_fichas[event]["cambiando"]):
+                        fichas_seleccionadas.append(estado_fichas[event]["letra"])
+                    else:
+                        fichas_seleccionadas.remove(estado_fichas[event]["letra"])
+                    window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
+                    estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
+
+
+            window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
+
+        else:
+            sg.Popup("Juego finalizado.")
+            #finalizar_juego()
+            break
+
+        
 
     window.Close()
 
@@ -596,6 +601,7 @@ def mostrar_opciones(letras):
         # Preparo la sublista
         lista = sorted(letras, reverse=False)
         lista.remove('?')
+        lista.remove("vacio")
         mitad = int(len(lista)/2)
         primera = lista[:mitad]
         segunda = lista[mitad:]
@@ -674,7 +680,7 @@ def popup_top10_vacio():
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
         [sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
         [sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((45, 0), (30, 0)))],
         [sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((80, 0), (30, 0)))]]
