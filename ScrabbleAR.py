@@ -102,7 +102,7 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
         "neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
 
 
-def dibujar_casilla(x, y, dif):
+def dibujar_casilla(x: int, y: int, dif: str) -> str:
     """
     Función que se encarga de devolver de que casillero
     se pinta cada casilla del tablero
@@ -158,7 +158,7 @@ def dibujar_casilla(x, y, dif):
             return casillas["neutro"]
 
 
-def generar_bolsa():
+def generar_bolsa() -> list:
     """
     Función encargada de generar la bolsa de 98 fichas.
     """
@@ -178,7 +178,7 @@ def generar_bolsa():
     shuffle(lista)
     return lista
 
-def sacar_letra(bolsa):
+def sacar_letra(bolsa: list) -> str:
     """
     Función encargada de "sacar" una letra
     random de la bolsa.
@@ -189,7 +189,7 @@ def sacar_letra(bolsa):
 
 
 
-def config_por_defecto():
+def config_por_defecto() -> dict:
     return {"a": {"puntaje": 1, "cantidad": 11},
             "b": {"puntaje": 3, "cantidad": 3},
             "c": {"puntaje": 2, "cantidad": 4},
@@ -221,7 +221,7 @@ def generar_archivo_config():
     with open("config.cfg", "w") as config:
         json.dump(config_por_defecto(), config, indent=4)
 
-def puntajes_por_defecto():
+def puntajes_por_defecto() -> dict:
     puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
                 "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
                 "k": 8, "l": 1, "m": 3, "n": 1, "o": 1,
@@ -229,7 +229,7 @@ def puntajes_por_defecto():
                 "u": 1, "v": 4, "w": 8, "x": 8, "y": 4, "z": 10}
     return puntajes
 
-def cargar_puntajes_letra():
+def cargar_puntajes_letra() -> dict:
     try:
         with open("config.cfg") as config:
             datos = json.load(config)
@@ -242,7 +242,7 @@ def cargar_puntajes_letra():
         sg.Popup("El archivo de configuración no ha sido encontrado!", title="Error Critico")
 
 
-def dar_fichas_maquina(bolsa):
+def dar_fichas_maquina(bolsa: list) -> list:
     """
     Función encargada de otorgar las 7 fichas random
     utilizando la funcion sacar_letra.
@@ -250,7 +250,7 @@ def dar_fichas_maquina(bolsa):
     return [sacar_letra(bolsa) for x in range(7)]
 
 
-def cambiar_fichas_maquina(bolsa, fm, cambios):
+def cambiar_fichas_maquina(bolsa: list, fm: list, cambios: int) -> tuple:
     """
     Función encargada de cambiar las fichas de la maquina
     """
@@ -260,7 +260,7 @@ def cambiar_fichas_maquina(bolsa, fm, cambios):
     return fm, cambios+1
 
 
-def generar_tablero(dificultad):
+def generar_tablero(dificultad: str) -> list:
 
     """
     Función encargada de generar los 3 tableros con una dimesion de 15x15
@@ -273,7 +273,7 @@ def generar_tablero(dificultad):
             tablero[i].append(sg.Button(image_filename=dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
     return tablero
 
-def turno_computadora(pj):
+def turno_computadora(pj: bool):
     """...
     Parametros:
     pj: primera jugada
@@ -281,8 +281,18 @@ def turno_computadora(pj):
     if pj:
         pass
 
+def sentido_palabra_actual(pos: list, actual: tuple, ultimo: int) -> str:
+    if(len(pos) > 1):
+        if pos[ultimo][0] == actual[0]:
+            return "Vertical"
+        elif pos[ultimo][1] == actual[1]: 
+            return "Horizontal"
+        else:
+            return "?" # no deberia pasar?
+    else:
+        return "Aun desconocido"
 
-def generar_ventana_de_juego(tj, dif):
+def generar_ventana_de_juego(tj: int, dif: str):
 
     """
     Función encargada de iniciar el juego,utilizando los procesos
@@ -567,7 +577,7 @@ def generar_ventana_de_juego(tj, dif):
     window.Close()
 
 
-def mostrar_top10(puntajes):
+def mostrar_top10(puntajes: list):
     """
     Función encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
     """
@@ -580,23 +590,22 @@ def mostrar_top10(puntajes):
         if event is None:
             break
 
-
-def mostrar_opciones(letras):
+def mostrar_opciones(letras: list): # recibe un dict_keys pero es la forma mas apropiada de definirlo
     """
     Esta función muestra al usuario las opciones avanzadas por defecto y permite la edicion del mismo
     """
 
 
-    def get_datos_letra(letra):
+    def get_datos_letra(letra: str) -> dict:
         try:
             with open("config.cfg") as config:
                 datos = json.load(config)
                 return datos[letra]
               
         except FileNotFoundError:
-            config_por_defecto()[letra]
+            return config_por_defecto()[letra]
             
-    def interfaz():
+    def interfaz() -> list:
       
         # Preparo la sublista
         lista = sorted(letras, reverse=False)
@@ -619,7 +628,7 @@ def mostrar_opciones(letras):
 
         return layout
 
-    def guardar_json(datos):
+    def guardar_json(datos: dict):
         temp_dic = {}
 
         for key, value in datos.items():
