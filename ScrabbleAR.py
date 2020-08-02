@@ -16,6 +16,9 @@ import os
 import json
 from random import shuffle, choice, getrandbits
 from time import time as now
+from typing import Union
+
+
 import PySimpleGUI as sg
 from pattern.es import verbs, spelling, lexicon, parse
 
@@ -62,6 +65,42 @@ CASILLEROS_LETRA_RESTA3_DIFICIL = ((1, 1), (1, 13), (5, 5), (5, 7), (5, 9), (7, 
 CASILLEROS_LETRA_X3_DIFICIL = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
 CASILLEROS_PALABRA_X2_DIFICIL = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
 CASILLEROS_PALABRA_X3_DIFICIL = ((3, 3), (3, 11), (11, 3), (11, 11))
+
+casilleros = {"facil": {
+                "letra_x2": ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14)),
+                "descuento_x1": ((2, 2), (2, 12), (12, 2), (12, 12)),
+                "descuento_x2": ((4, 4), (4, 10), (10, 4), (10, 10)),
+                "letra_x3": ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13)),
+                "palabra_x2": ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11)),
+                "palabra_x3": ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
+            },
+            "medio": {
+                "letra_x2": ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14)),
+                "descuento_x1": ((2, 2), (2, 12), (12, 2), (12, 12)),
+                "descuento_x2": ((4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (13, 7)),
+                "descuento_x3": ((5, 7), (7, 5), (7, 9), (9, 7)),
+                "letra_x3": ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13)),
+                "palabra_x2": ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11)),
+                "palabra_x3": ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
+            },
+            "dificil": {
+                "letra_x2": ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14)),
+                "descuento_x2": ((2, 2), (2, 12), (4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (12, 2), (12, 12), (13, 7)),
+                "descuento_x3": ((1, 1), (1, 13), (5, 5), (5, 7), (5, 9), (7, 5), (7, 9), (9, 5), (9, 7), (9, 9), (13, 1), (13, 13)),
+                "letra_x3": ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13)),
+                "palabra_x2": ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11)),
+                "palabra_x3": ((3, 3), (3, 11), (11, 3), (11, 11))
+            }
+        }
+
+# premios_descuentos = {"letra_x2": 
+#                 "descuento_x1": 
+#                 "descuento_x2": 
+#                 "descuento_x3": 
+#                 "letra_x3": 
+#                 "palabra_x2": 
+#                 "palabra_x3":}
+
 
 letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
         "b": os.path.join(PATH_FICHAS, "B.png"),
@@ -157,6 +196,26 @@ def dibujar_casilla(x: int, y: int, dif: str) -> str:
         else:
             return casillas["neutro"]
 
+def dibujar_casilla2(x: int, y: int, dif: str) -> str:
+    """
+    Función que se encarga de devolver de que casillero
+    se pinta cada casilla del tablero
+    """
+
+    for key, value in casilleros[dif.lower()].items(): 
+        if (x, y) in value:
+            return casillas[key]
+
+    return casillas["neutro"]
+
+
+def get_premio_descuento_casillero(pos, dif):
+    for key, value in casilleros[dif.lower()].items(): 
+        if pos in value:
+            return key
+
+    return "nada pues"
+
 
 def generar_bolsa() -> list:
     """
@@ -229,7 +288,7 @@ def puntajes_por_defecto() -> dict:
                 "u": 1, "v": 4, "w": 8, "x": 8, "y": 4, "z": 10}
     return puntajes
 
-def cargar_puntajes_letra() -> dict:
+def cargar_puntajes_letras() -> dict:
     try:
         with open("config.cfg") as config:
             datos = json.load(config)
@@ -281,16 +340,62 @@ def turno_computadora(pj: bool):
     if pj:
         pass
 
-def sentido_palabra_actual(pos: list, actual: tuple, ultimo: int) -> str:
+def sentido_palabra_actual(pos: list, ultimo: int) -> str:
     if(len(pos) > 1):
-        if pos[ultimo][0] == actual[0]:
-            return "Vertical"
-        elif pos[ultimo][1] == actual[1]: 
+        if pos[ultimo-1][0] == pos[ultimo-2][0]:
             return "Horizontal"
-        else:
-            return "?" # no deberia pasar?
+        elif pos[ultimo-1][1] == pos[ultimo-2][1]: 
+            return "Vertical"
     else:
-        return "Aun desconocido"
+        return "?"
+
+
+def get_sentido_correcto(pos, actual, ultimo):
+    if(len(pos) > 1):
+        if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
+            return True if actual[1] in (pos[0][1]-1, pos[ultimo-1][1]+1) else False
+        elif(sentido_palabra_actual(pos, ultimo) == "Vertical"): 
+            return True if actual[0] in (pos[0][0]-1, pos[ultimo-1][0]+1) else False
+    else:
+        return True
+
+def letra_cerca(pos: Union[None, list], actual, ultimo):
+    if(pos != None):
+        posibles = ((pos[0][0]-1, pos[0][1]),
+        (pos[ultimo-1][0]+1, pos[ultimo-1][1]), 
+        (pos[0][0], pos[0][1]-1), 
+        (pos[ultimo-1][0], pos[ultimo-1][1]+1))
+
+    return (("posibles" in locals()) and (actual in posibles)) or pos is None
+
+
+def calcular_puntaje_jugada(pos: list, dif: str, td: dict, pl:dict) -> int: # cambiar td por algo mejor, td es test_dic de abajo
+    total = 0
+     
+    for item in pos:
+        x = get_premio_descuento_casillero(item, dif) # para mayor prolijidad
+        if x == "letra_x2":
+            total += pl[td[item]]*2
+        elif x == "letra_x3":
+            total += pl[td[item]]*3
+        elif x == "descuento_x1":
+            total += pl[td[item]]-1
+        elif x == "descuento_x2":
+            total += pl[td[item]]-2
+        elif x == "descuento_x3":
+            total += pl[td[item]]-3
+        elif x == "palabra_x2":
+            total = (total + pl[td[item]]) * 2
+        elif x == "palabra_x3":
+            total = (total + pl[td[item]]) * 3
+        else:
+            total += pl[td[item]]
+
+    return total
+
+def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
+    pp.append([nombre, palabra, puntaje])
+    return pp
 
 def generar_ventana_de_juego(tj: int, dif: str):
 
@@ -298,6 +403,8 @@ def generar_ventana_de_juego(tj: int, dif: str):
     Función encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
     """
+    puntajes_letras = cargar_puntajes_letras()
+    puntajes_partida = []
     # cambio de fichas
     cambios_jugador = 0
     _cambios_maquina = 0 # todavia no se usa
@@ -356,7 +463,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     # panel izquierdo:
     headings_tabla = ("Jugador", "Palabra", "Pts")
     col_izquierda = [[sg.Text("Jugadas: ")],
-                    [sg.Table([], headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
+                    [sg.Table(puntajes_partida, headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
@@ -396,6 +503,9 @@ def generar_ventana_de_juego(tj: int, dif: str):
     llave_seleccionada = None
     test_dic = {}
     primera_jugada = True
+    ev_ant = ()
+    PA = True
+    ppa = [] # posiciones palabra actual (seria muy largo el nombre de la variable sino, como este commment :D)
 
     while True:
 
@@ -414,85 +524,106 @@ def generar_ventana_de_juego(tj: int, dif: str):
             if event is None:
                 break
 
-
             if type(event) is tuple:
                 if letra_seleccionada == ' ':
                     print('no seleccionaste ninguna letra')
                 else:
-                    #lista_aux.append(event) if event not in lista_aux else 
-                    if event not in lista_aux:
-                        lista_aux.append(event)
-                    else:
-                        lista_aux[lista_aux.index(event)] = event
-                    tl2[event] = letra_seleccionada
-                    #tablero_logico[event[0]][event[1]] = letra_seleccionada
-                    window[event].update(image_filename=letras[letra_seleccionada])
-                    palabra.append(letra_seleccionada)
-                    lista_aux2.append(ficha_seleccionada)
-                    lista_aux3.append(llave_seleccionada)
-                    test_dic[event] = letra_seleccionada
-                    letra_seleccionada = ' '
-                    ficha_seleccionada = None
-                    llave_seleccionada = None
-                    window[lista_aux3[cont]].update(image_filename=letras["vacio"])
-                    estado_fichas[lista_aux3[cont]] = {"letra": None, "cambiando": False, "colocando": False}
+                    print("\nevento actual:", event)
+                    if(get_sentido_correcto(ppa, event, cont)):
+                    #if True:
+                        if letra_cerca(ppa if len(ppa) else None, event, cont):
+                        #if True:
+                            if event not in lista_aux:
+                                lista_aux.append(event)
+                            else:
+                                lista_aux[lista_aux.index(event)] = event
+                            ev_ant = event
+                            ppa.append(event)
+                            ppa = sorted(ppa)
+                            tl2[event] = letra_seleccionada
+                            #tablero_logico[event[0]][event[1]] = letra_seleccionada
+                            window[event].update(image_filename=letras[letra_seleccionada])
+                            palabra.append(letra_seleccionada)
+                            lista_aux2.append(ficha_seleccionada)
+                            lista_aux3.append(llave_seleccionada)
+                            test_dic[event] = letra_seleccionada
+                            letra_seleccionada = ' '
+                            ficha_seleccionada = None
+                            llave_seleccionada = None
+                            window[lista_aux3[cont]].update(image_filename=letras["vacio"])
+                            estado_fichas[lista_aux3[cont]] = {"letra": None, "cambiando": False, "colocando": False}
+                            PA = False
+                            cont += 1
+                    #print("================")
                     
-                    cont += 1
-                    
+                    print("pos letras: ", end="", flush=True)
+                    for item in ppa:
+                        print("{}, ".format(item) if ppa.index(item) != cont-1 else "{}".format(item), end="", flush=True)
 
             
             if event == 'VERIFICAR':
                 if(len(lista_aux)):
                     lista_aux = sorted(lista_aux)
                     test_dic = {k: test_dic[k] for k in sorted(test_dic)}
-                    print(test_dic)
+                    #print(test_dic)
                     
                     # debug
 
                     #for i in range(15): # horizontal
-                    #    print(i, tablero_logico[lista_aux[0][0]][i] != "")
+                    #    #print(i, tablero_logico[lista_aux[0][0]][i] != " ")
 
-                    print("="*30)
+                    #print("="*30)
 
                     #for i in range(15): # vertical
-                    #    print(i, tablero_logico[i][lista_aux[0][1]] != "")
+                    #    #print(i, tablero_logico[i][lista_aux[0][1]] != " ")
 
                     # 14, 5
 
                     # verifica palabra
                     #for i in range(len(lista_aux)):
                     #    palabra2.append(tablero_logico[int(lista_aux[i][0])][int(lista_aux[i][1])])
-                    print("aaaaaaaaaaaaa")
+                    #print("aaaaaaaaaaaaa")
                     for value in test_dic.values():
                         palabra2.append(value)
 
 
 
-                    print(palabra2)
+                    #print(palabra2)
 
                     p = "".join(palabra2)
-                    print(p)
+                    #print(p)
                     s = parse(p).split()
                     for cada in s:
                         for pal in cada:
                             ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
                     todo = ok and ((p in lexicon) or (p in spelling))
-                    print(todo)
+                    #print(todo)
 
-
-
-                    if(todo):
-                        for i in range(cont):
-                            estado_fichas[lista_aux3[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
-                            window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
-                        for key, value in test_dic.items(): #if
-                            tablero_logico[key[0]][key[1]] = value #if
-                    else:
+                    if(primera_jugada and (7, 7) not in ppa):
                         for i in range(cont):
                             estado_fichas[lista_aux3[i]] = lista_aux2[i]
                             window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
                         for elem in lista_aux: #else
                             window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
+                        sg.Popup("La primera palabra tiene que contener una ficha en el centro del tablero.")
+                    else:
+                        if(todo):
+                            for i in range(cont):
+                                estado_fichas[lista_aux3[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
+                                window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
+                            for key, value in test_dic.items(): #if
+                                tablero_logico[key[0]][key[1]] = value #if
+                            if(primera_jugada):
+                                primera_jugada = False
+                            print("\nOTRO DEBUG PORQUE PUEDO Y QUIERO:", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
+                            puntajes_partida = agregar_puntaje_tabla(puntajes_partida, "penia", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
+                            window["tabla_puntos"].Update(values=puntajes_partida)
+                        else:
+                            for i in range(cont):
+                                estado_fichas[lista_aux3[i]] = lista_aux2[i]
+                                window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
+                            for elem in lista_aux: #else
+                                window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
 
 
                     lista_aux3 = []
@@ -500,16 +631,19 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     p = ""
                     palabra = []
                     palabra2 = []
-                    lista_aux = []
                     test_dic = {}
-                    for row in tablero_logico:
-                        print(row)
+                    #for row in tablero_logico:
+                    #    print(row)
                     cont = 0
+                    ev_ant = ()
+                    PA = True
+                    ppa = []
+                    lista_aux = []
                 else:
                     sg.Popup("No se puso ninguna palabra en el tablero.")
 
             # # devuelve el valor del atril jugador
-            # print(estado_fichas[event]["letra"])
+            # #print(estado_fichas[event]["letra"])
 
             if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
                 exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
@@ -538,6 +672,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
                                         window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
                                         break
                             cambios_jugador += 1
+                            #pasar_turno()
                         else:
                             for i in range(7):
                                 estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
@@ -568,13 +703,11 @@ def generar_ventana_de_juego(tj: int, dif: str):
             window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
 
         else:
-            sg.Popup("Juego finalizado.")
             #finalizar_juego()
             break
 
         
-
-    window.Close()
+    sg.Popup("Juego finalizado.")
 
 
 def mostrar_top10(puntajes: list):
