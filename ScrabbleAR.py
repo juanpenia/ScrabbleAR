@@ -15,15 +15,22 @@ _status_ = "Produccion"
 import os
 import json
 from random import shuffle, choice, getrandbits
-from time import time as now
+from time import time as now, sleep
 from typing import Union
 
 
 import PySimpleGUI as sg
 from pattern.es import verbs, spelling, lexicon, parse
+import pygame
+from playsound import playsound
+
+
+
 
 PATH_TABLERO = 'img/tablero'
 PATH_FICHAS = 'img/fichas'
+PATH_MUSICA = 'audio/musica'
+PATH_SFX = 'audio/sfx'
 
 sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
                                     'TEXT': '#D9B382', # BEIGE
@@ -139,6 +146,18 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
         "descuento_x2": os.path.join(PATH_TABLERO, "resta2.png"),
         "descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
         "neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
+
+sfx = {"correcto": os.path.join(PATH_SFX, "421002__eponn__correct.wav"),
+    "incorrecto": os.path.join(PATH_SFX, "243700__ertfelda__incorrect.wav")}
+
+lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
+        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
+        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
+        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
+        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
+        os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
+        os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
+shuffle(lista_musica)
 
 
 def dibujar_casilla(x: int, y: int, dif: str) -> str:
@@ -403,6 +422,15 @@ def generar_ventana_de_juego(tj: int, dif: str):
     Función encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
     """
+    # settings musica:
+    musica_muteada = False
+    pygame.mixer.init()
+    pygame.mixer.music.load(lista_musica[0])
+    for i in range(1, len(lista_musica)):
+        pygame.mixer.music.queue(lista_musica[i])
+    pygame.mixer.music.play()
+    # fin musica
+
     puntajes_letras = cargar_puntajes_letras()
     puntajes_partida = []
     # cambio de fichas
@@ -437,7 +465,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)), sg.Text(" "*10)]]
     for i in range(7):
         col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=('black', '#191970')))
-
+    col_arriba[0].extend([sg.Text(" "*93), sg.Button("MUSIC: ON", button_color=('black', '#D9B382'), key="music_toggle")])
     # tablero de juego:
     col_tablero = generar_tablero(dif)
     # crear tablero logico
@@ -467,8 +495,8 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
-                    [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"),sg.Button("PASAR", button_color=('black', '#D9B382'))],
-                    [sg.Button("TERMINAR", button_color=('black', '#D9B382')),(sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
+                    [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"), sg.Button("PASAR", button_color=('black', '#D9B382'))],
+                    [sg.Button("TERMINAR", button_color=('black', '#D9B382')), (sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
 
 
     # panel derecho: (referencias)
@@ -618,12 +646,14 @@ def generar_ventana_de_juego(tj: int, dif: str):
                             print("\nOTRO DEBUG PORQUE PUEDO Y QUIERO:", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
                             puntajes_partida = agregar_puntaje_tabla(puntajes_partida, "penia", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
                             window["tabla_puntos"].Update(values=puntajes_partida)
+                            playsound(sfx["correcto"], False)
                         else:
                             for i in range(cont):
                                 estado_fichas[lista_aux3[i]] = lista_aux2[i]
                                 window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
                             for elem in lista_aux: #else
                                 window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
+                            playsound(sfx["incorrecto"], False)
 
 
                     lista_aux3 = []
@@ -652,6 +682,15 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
             if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
                 pass
+            
+            if event == "music_toggle":
+                if(musica_muteada):
+                    pygame.mixer.music.set_volume(0.3)
+                    window["music_toggle"].Update("MUSIC: ON")
+                else:
+                    pygame.mixer.music.set_volume(0)
+                    window["music_toggle"].Update("MUSIC: OFF")
+                musica_muteada = not musica_muteada
 
             if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
 
@@ -822,7 +861,7 @@ def popup_top10_vacio():
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(5, 20, 40, 60), default_value=5, key="tiempo")],
         [sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
         [sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((45, 0), (30, 0)))],
         [sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((80, 0), (30, 0)))]]
