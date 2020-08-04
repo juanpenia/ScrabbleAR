@@ -14,9 +14,11 @@ _status_ = "Produccion"
 
 import os
 import json
-from random import shuffle, choice, getrandbits
+from random import shuffle, choice, getrandbits, randint as random
 from time import time as now, sleep
 from typing import Union
+from sys import platform
+print(platform)
 
 
 import PySimpleGUI as sg
@@ -45,33 +47,6 @@ sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
 
 sg.theme('Fachero') # tiene que ser cambiado
 
-# casilleros del tablero en dificultad facil
-
-CASILLEROS_LETRA_X2_FACIL = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
-CASILLEROS_LETRA_RESTA1_FACIL = ((2, 2), (2, 12), (12, 2), (12, 12))
-CASILLEROS_LETRA_RESTA2_FACIL = ((4, 4), (4, 10), (10, 4), (10, 10))
-CASILLEROS_LETRA_X3_FACIL = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-CASILLEROS_PALABRA_X2_FACIL = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
-CASILLEROS_PALABRA_X3_FACIL = ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
-
-# casilleros del tablero en dificultad medio
-
-CASILLEROS_LETRA_X2_MEDIO = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
-CASILLEROS_LETRA_RESTA1_MEDIO = ((2, 2), (2, 12), (12, 2), (12, 12))
-CASILLEROS_LETRA_RESTA2_MEDIO = ((4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (13, 7))
-CASILLEROS_LETRA_RESTA3_MEDIO = ((5, 7), (7, 5), (7, 9), (9, 7))
-CASILLEROS_LETRA_X3_MEDIO = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-CASILLEROS_PALABRA_X2_MEDIO = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
-CASILLEROS_PALABRA_X3_MEDIO = ((1, 1), (1, 13), (3, 3), (3, 11), (5, 5), (5, 9), (9, 5), (9, 9), (11, 3), (11, 11), (13, 1), (13, 13))
-
-# casilleros del tablero en dificultad dificil
-
-CASILLEROS_LETRA_X2_DIFICIL = ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14))
-CASILLEROS_LETRA_RESTA2_DIFICIL = ((2, 2), (2, 12), (4, 4), (4, 10), (1, 7), (7, 1), (7, 13), (10, 4), (10, 10), (12, 2), (12, 12), (13, 7))
-CASILLEROS_LETRA_RESTA3_DIFICIL = ((1, 1), (1, 13), (5, 5), (5, 7), (5, 9), (7, 5), (7, 9), (9, 5), (9, 7), (9, 9), (13, 1), (13, 13))
-CASILLEROS_LETRA_X3_DIFICIL = ((1, 5), (1, 9), (13, 9), (13, 5), (6, 6), (6, 8), (8, 6), (8, 8), (5, 1), (9, 1), (5, 13), (9, 13))
-CASILLEROS_PALABRA_X2_DIFICIL = ((0, 3), (0, 11), (2, 6), (2, 8), (3, 0), (3, 7), (3, 14), (6, 2), (7, 3), (8, 2), (6, 12), (7, 11), (8, 12), (11, 0), (11, 7), (11, 14), (12, 6), (12, 8), (14, 3), (14, 11))
-CASILLEROS_PALABRA_X3_DIFICIL = ((3, 3), (3, 11), (11, 3), (11, 11))
 
 casilleros = {"facil": {
                 "letra_x2": ((0, 0), (0, 7), (0, 14), (7, 0), (7, 7), (7, 14), (14, 0), (14, 7), (14, 14)),
@@ -99,14 +74,6 @@ casilleros = {"facil": {
                 "palabra_x3": ((3, 3), (3, 11), (11, 3), (11, 11))
             }
         }
-
-# premios_descuentos = {"letra_x2": 
-#                 "descuento_x1": 
-#                 "descuento_x2": 
-#                 "descuento_x3": 
-#                 "letra_x3": 
-#                 "palabra_x2": 
-#                 "palabra_x3":}
 
 
 letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
@@ -161,61 +128,6 @@ shuffle(lista_musica)
 
 
 def dibujar_casilla(x: int, y: int, dif: str) -> str:
-    """
-    Función que se encarga de devolver de que casillero
-    se pinta cada casilla del tablero
-    """
-    if dif == "Facil":
-        if (x, y) in CASILLEROS_LETRA_X2_FACIL:
-            return casillas["letra_x2"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA1_FACIL:
-            return casillas["descuento_x1"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA2_FACIL:
-            return casillas["descuento_x2"]
-        elif (x, y) in CASILLEROS_LETRA_X3_FACIL:
-            return casillas["letra_x3"]
-        elif (x, y) in CASILLEROS_PALABRA_X2_FACIL:
-            return casillas["palabra_x2"]
-        elif (x, y) in CASILLEROS_PALABRA_X3_FACIL:
-            return casillas["palabra_x3"]
-        else:
-            return casillas["neutro"]
-
-    elif dif == "Medio":
-        if (x, y) in CASILLEROS_LETRA_X2_MEDIO:
-            return casillas["letra_x2"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA1_MEDIO:
-            return casillas["descuento_x1"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA2_MEDIO:
-            return casillas["descuento_x2"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA3_MEDIO:
-            return casillas["descuento_x3"]
-        elif (x, y) in CASILLEROS_LETRA_X3_MEDIO:
-            return casillas["letra_x3"]
-        elif (x, y) in CASILLEROS_PALABRA_X2_MEDIO:
-            return casillas["palabra_x2"]
-        elif (x, y) in CASILLEROS_PALABRA_X3_MEDIO:
-            return casillas["palabra_x3"]
-        else:
-            return casillas["neutro"]
-
-    elif dif == "Dificil":
-        if (x, y) in CASILLEROS_LETRA_X2_DIFICIL:
-            return casillas["letra_x2"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA2_DIFICIL:
-            return casillas["descuento_x2"]
-        elif (x, y) in CASILLEROS_LETRA_RESTA3_DIFICIL:
-            return casillas["descuento_x3"]
-        elif (x, y) in CASILLEROS_LETRA_X3_DIFICIL:
-            return casillas["letra_x3"]
-        elif (x, y) in CASILLEROS_PALABRA_X2_DIFICIL:
-            return casillas["palabra_x2"]
-        elif (x, y) in CASILLEROS_PALABRA_X3_DIFICIL:
-            return casillas["palabra_x3"]
-        else:
-            return casillas["neutro"]
-
-def dibujar_casilla2(x: int, y: int, dif: str) -> str:
     """
     Función que se encarga de devolver de que casillero
     se pinta cada casilla del tablero
@@ -317,7 +229,7 @@ def cargar_puntajes_letras() -> dict:
 
             return puntajes
     except FileNotFoundError:
-        sg.Popup("El archivo de configuración no ha sido encontrado!", title="Error Critico")
+        sg.Popup("El archivo de configuración no ha sido enlength_palabrarado!", title="Error Critico")
 
 
 def dar_fichas_maquina(bolsa: list) -> list:
@@ -351,16 +263,110 @@ def generar_tablero(dificultad: str) -> list:
             tablero[i].append(sg.Button(image_filename=dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
     return tablero
 
-def turno_computadora(pj: bool):
+def verificar_palabra(palabra: Union[list, dict]):
+    p = "".join(palabra.values() if type(palabra) == dict else palabra)
+    s = parse(p).split()
+    for cada in s:
+        for pal in cada:
+            ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
+    return ok and ((p in lexicon) or (p in spelling))
+
+def ordenar_dic(dic: dict) -> dict:
+    return {key: dic[key] for key in sorted(dic)}
+    
+     
+def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window, bolsa, pp, dif, pl):
     """...
     Parametros:
     pj: primera jugada
     """
+    # FALTA:
+    # ajustar lo del puntaje, que actualize
+    # cambiar fichas si no encuentra combo 3 veces
+    # despues en verificar a lo ultimo, turnocomputadora
+
+
+    # esto tiene dos etapas: encontrar combo valido y encontrar lugar
+    found = False
+    # encontrar palabra
+    for i in range(50):
+        palabra = []
+        copia_bolsa = fm.copy() 
+        for j in range(random(2, len(copia_bolsa))):
+            letra_random = choice(copia_bolsa)
+            palabra.append(letra_random)
+            copia_bolsa.remove(letra_random)
+        print("{}:".format(i), "".join(palabra), verificar_palabra(palabra)) # debug
+        if(verificar_palabra(palabra)):
+            found = True
+            break
+    # si not found, then if intentos fallidos > 3 o 5, cambiar fichas, no? we should
+    # buscar lugar disponible con sample, chequear si desde lugar en ambos sentidos la palabra se puede colocar
+    if found:
+        while True:
+            pos = tuple([random(0, 14) for i in range(2)])
+            if(tablero_logico[pos[0]][pos[1]] == " "):
+                todo_libre = True
+                nose2 = random(0, 1)
+                nose4 = 0 # pos actual
+                if(pos[nose2] + len(palabra) > 14):
+                    continue
+
+                for nose in range(pos[nose2], pos[nose2]+len(palabra)):
+                    if nose2 == 0:
+                        if tablero_logico[nose][pos[1]] != " ":
+                            todo_libre = False
+                            break
+                    else:
+                        if tablero_logico[pos[0]][nose] != " ":
+                            todo_libre = False
+                            break
+
+                if todo_libre:
+                    for nose in range(pos[nose2], pos[nose2]+len(palabra)):
+                        tupla = (nose, pos[1]) if nose2 == 0 else (pos[0], nose)
+                        window[tupla].Update(image_filename=letras[palabra[nose4]])
+                        tablero_logico[tupla[0]][tupla[1]] = palabra[nose4]
+                        nose4+=1
+                        # aca
+                    p = "".join(palabra) # cambiar a palabra formada or something
+                    #agregar_puntaje_tabla(pp, "CPU", p, calcular_puntaje_jugada([(x, pos[1]) for x in range(pos[0], pos[0]+len(palabra))], dif, palabra, pl))
+                    #window["tabla_puntos"].Update(values=pp)
+                    window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
+                    try:
+                        for nose5 in palabra:
+                            fm[fm.index(nose5)] = sacar_letra(bolsa)
+                    except IndexError:
+                        sg.Popup("Termino la wea")
+                        # deberia ser terminar_juego()
+
+                    break
+                else:
+                    continue
+            
+    else:
+        sg.Popup("la pc paso")
+
+    # ahora la parte de colocar la palabra
+    # for i in range(palabra):
+    #     fm[fm.index(i)] = sacar_letra(bolsa)
+    #     tablero_logico[key[0]][key[1]] = i # key[0] key[1] valores de donde irian que encontramos disponibles
+    #     
+    # if(primera_jugada):
+    #     primera_jugada = False
+    # p = "".join(palabra) # cambiar a palabra formada or something
+    # agregar_puntaje_tabla(puntajes_partida, "CPU", p, calcular_puntaje_jugada(palabra_actual.keys(), dif, palabra, puntajes_letras))
+    # window["tabla_puntos"].Update(values=puntajes_partida)
+    
     if pj:
+        # return el pj o hacerlo que cambie alla
+        pass
+    else:
         pass
 
 def sentido_palabra_actual(pos: list, ultimo: int) -> str:
     if(len(pos) > 1):
+        pos = [x for x in pos]
         if pos[ultimo-1][0] == pos[ultimo-2][0]:
             return "Horizontal"
         elif pos[ultimo-1][1] == pos[ultimo-2][1]: 
@@ -371,6 +377,7 @@ def sentido_palabra_actual(pos: list, ultimo: int) -> str:
 
 def get_sentido_correcto(pos, actual, ultimo):
     if(len(pos) > 1):
+        pos = [x for x in pos]
         if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
             return True if actual[1] in (pos[0][1]-1, pos[ultimo-1][1]+1) else False
         elif(sentido_palabra_actual(pos, ultimo) == "Vertical"): 
@@ -380,6 +387,7 @@ def get_sentido_correcto(pos, actual, ultimo):
 
 def letra_cerca(pos: Union[None, list], actual, ultimo):
     if(pos != None):
+        pos = [x for x in pos]
         posibles = ((pos[0][0]-1, pos[0][1]),
         (pos[ultimo-1][0]+1, pos[ultimo-1][1]), 
         (pos[0][0], pos[0][1]-1), 
@@ -388,7 +396,7 @@ def letra_cerca(pos: Union[None, list], actual, ultimo):
     return (("posibles" in locals()) and (actual in posibles)) or pos is None
 
 
-def calcular_puntaje_jugada(pos: list, dif: str, td: dict, pl:dict) -> int: # cambiar td por algo mejor, td es test_dic de abajo
+def calcular_puntaje_jugada(pos: list, dif: str, td: dict, pl:dict) -> int: # cambiar td por algo mejor, td es palabra_actual de abajo
     total = 0
      
     for item in pos:
@@ -414,7 +422,7 @@ def calcular_puntaje_jugada(pos: list, dif: str, td: dict, pl:dict) -> int: # ca
 
 def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
     pp.append([nombre, palabra, puntaje])
-    return pp
+    #return pp
 
 def generar_ventana_de_juego(tj: int, dif: str):
 
@@ -428,6 +436,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     pygame.mixer.music.load(lista_musica[0])
     for i in range(1, len(lista_musica)):
         pygame.mixer.music.queue(lista_musica[i])
+    pygame.mixer.music.set_volume(0.05)
     pygame.mixer.music.play()
     # fin musica
 
@@ -435,14 +444,14 @@ def generar_ventana_de_juego(tj: int, dif: str):
     puntajes_partida = []
     # cambio de fichas
     cambios_jugador = 0
-    _cambios_maquina = 0 # todavia no se usa
+    cambios_maquina = 0 # todavia no se usa
     # la idea es que en algun momento de la logica del cpu se use asi:
-    # fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
+    #fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
 
     cambiando_fichas = False
 
     # turno de jugador
-    turno_jugador = bool(getrandbits(1))
+    turno_jugador = bool(random(0, 1))
 
     # bolsa de fichas
     bolsa = generar_bolsa()
@@ -457,7 +466,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     fin = now() + (tj * 60)
 
     # fichas de la maquina:
-    _fichas_maquina = dar_fichas_maquina(bolsa)
+    fichas_maquina = dar_fichas_maquina(bolsa)
 
     # columnas:
 
@@ -523,16 +532,13 @@ def generar_ventana_de_juego(tj: int, dif: str):
     palabra = []
     palabra2 = []
 
-    lista_aux = [] # coords de letras
-    lista_aux2 = [] # originales
-    lista_aux3 = [] # 
-    cont = 0
-    ficha_seleccionada = None
-    llave_seleccionada = None
-    test_dic = {}
+    fichas_seleccionadas = [] # originales
+    llaves_seleccionadas = [] # 
+    length_palabra = 0
+    ficha_actual = None
+    llave_actual = None
+    palabra_actual = {}
     primera_jugada = True
-    ev_ant = ()
-    PA = True
     ppa = [] # posiciones palabra actual (seria muy largo el nombre de la variable sino, como este commment :D)
 
     while True:
@@ -556,117 +562,89 @@ def generar_ventana_de_juego(tj: int, dif: str):
                 if letra_seleccionada == ' ':
                     print('no seleccionaste ninguna letra')
                 else:
-                    print("\nevento actual:", event)
-                    if(get_sentido_correcto(ppa, event, cont)):
+                    if(get_sentido_correcto(palabra_actual.keys(), event, length_palabra)):
                     #if True:
-                        if letra_cerca(ppa if len(ppa) else None, event, cont):
+                        if letra_cerca(palabra_actual.keys() if len(palabra_actual) else None, event, length_palabra):
                         #if True:
-                            if event not in lista_aux:
-                                lista_aux.append(event)
-                            else:
-                                lista_aux[lista_aux.index(event)] = event
-                            ev_ant = event
-                            ppa.append(event)
-                            ppa = sorted(ppa)
+                            #if event not in ppa:
+                            #    palabra_actual.keys().append(event)
+                            #else:
+                            #    palabra_actual.keys()[ppa.index(event)] = event
+                            #ppa.append(event)
+                            #ppa = sorted(ppa)
                             tl2[event] = letra_seleccionada
                             #tablero_logico[event[0]][event[1]] = letra_seleccionada
                             window[event].update(image_filename=letras[letra_seleccionada])
                             palabra.append(letra_seleccionada)
-                            lista_aux2.append(ficha_seleccionada)
-                            lista_aux3.append(llave_seleccionada)
-                            test_dic[event] = letra_seleccionada
+                            fichas_seleccionadas.append(ficha_actual)
+                            llaves_seleccionadas.append(llave_actual)
+                            palabra_actual[event] = letra_seleccionada
                             letra_seleccionada = ' '
-                            ficha_seleccionada = None
-                            llave_seleccionada = None
-                            window[lista_aux3[cont]].update(image_filename=letras["vacio"])
-                            estado_fichas[lista_aux3[cont]] = {"letra": None, "cambiando": False, "colocando": False}
-                            PA = False
-                            cont += 1
+                            ficha_actual = None
+                            llave_actual = None
+                            window[llaves_seleccionadas[length_palabra]].update(image_filename=letras["vacio"])
+                            estado_fichas[llaves_seleccionadas[length_palabra]] = {"letra": None, "cambiando": False, "colocando": False}
+                            length_palabra += 1
                     #print("================")
                     
-                    print("pos letras: ", end="", flush=True)
-                    for item in ppa:
-                        print("{}, ".format(item) if ppa.index(item) != cont-1 else "{}".format(item), end="", flush=True)
+
 
             
             if event == 'VERIFICAR':
-                if(len(lista_aux)):
-                    lista_aux = sorted(lista_aux)
-                    test_dic = {k: test_dic[k] for k in sorted(test_dic)}
-                    #print(test_dic)
-                    
-                    # debug
-
-                    #for i in range(15): # horizontal
-                    #    #print(i, tablero_logico[lista_aux[0][0]][i] != " ")
-
-                    #print("="*30)
-
-                    #for i in range(15): # vertical
-                    #    #print(i, tablero_logico[i][lista_aux[0][1]] != " ")
-
-                    # 14, 5
-
-                    # verifica palabra
-                    #for i in range(len(lista_aux)):
-                    #    palabra2.append(tablero_logico[int(lista_aux[i][0])][int(lista_aux[i][1])])
-                    #print("aaaaaaaaaaaaa")
-                    for value in test_dic.values():
-                        palabra2.append(value)
-
-
-
-                    #print(palabra2)
-
-                    p = "".join(palabra2)
-                    #print(p)
-                    s = parse(p).split()
-                    for cada in s:
-                        for pal in cada:
-                            ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
-                    todo = ok and ((p in lexicon) or (p in spelling))
+                if(len(palabra_actual)):
+                    #2lista_aux = sorted(lista_aux)
+                    palabra_actual = ordenar_dic(palabra_actual)
+                    todo = verificar_palabra(palabra_actual)
+                    # ta aca
                     #print(todo)
 
-                    if(primera_jugada and (7, 7) not in ppa):
-                        for i in range(cont):
-                            estado_fichas[lista_aux3[i]] = lista_aux2[i]
-                            window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
-                        for elem in lista_aux: #else
+                    if(primera_jugada and (7, 7) not in palabra_actual.keys()):
+                        # de aca
+                        for i in range(length_palabra):
+                            estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
+                            window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
+                        for elem in palabra_actual.keys(): #else
                             window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
-                        sg.Popup("La primera palabra tiene que contener una ficha en el centro del tablero.")
+                        # a aca, se puede transformar en una funcion. ej: devolver_fichas() o restaurar_fichas()
+                        sg.Popup("La primera palabra tiene que tener una ficha en el centro del tablero.")
                     else:
                         if(todo):
-                            for i in range(cont):
-                                estado_fichas[lista_aux3[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
-                                window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
-                            for key, value in test_dic.items(): #if
+                            try:
+                                for i in range(length_palabra):
+                                    estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
+                                    window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
+                            except IndexError:
+                                #terminar_juego()
+                                sg.Popup("Aca deberia terminar el juego, pues no more fixas bro")
+                            for key, value in palabra_actual.items(): #if
                                 tablero_logico[key[0]][key[1]] = value #if
                             if(primera_jugada):
                                 primera_jugada = False
-                            print("\nOTRO DEBUG PORQUE PUEDO Y QUIERO:", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
-                            puntajes_partida = agregar_puntaje_tabla(puntajes_partida, "penia", p, calcular_puntaje_jugada(ppa, dif, test_dic, puntajes_letras))
+                            p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
+                            agregar_puntaje_tabla(puntajes_partida, "penia", p, calcular_puntaje_jugada(palabra_actual.keys(), dif, palabra_actual, puntajes_letras))
                             window["tabla_puntos"].Update(values=puntajes_partida)
                             playsound(sfx["correcto"], False)
                         else:
-                            for i in range(cont):
-                                estado_fichas[lista_aux3[i]] = lista_aux2[i]
-                                window[lista_aux3[i]].update(image_filename=letras[estado_fichas[lista_aux3[i]]["letra"]]) # repite
-                            for elem in lista_aux: #else
+                            for i in range(length_palabra):
+                                estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
+                                window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
+                            for elem in palabra_actual.keys(): #else
                                 window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
                             playsound(sfx["incorrecto"], False)
 
-
-                    lista_aux3 = []
-                    lista_aux2 = []
+                    print("ppa",ppa)
+                    print("l2",fichas_seleccionadas)
+                    print("l3",llaves_seleccionadas)
+                    print("td", palabra_actual)
+                    llaves_seleccionadas = []
+                    fichas_seleccionadas = []
                     p = ""
                     palabra = []
                     palabra2 = []
-                    test_dic = {}
+                    palabra_actual = {}
                     #for row in tablero_logico:
                     #    print(row)
-                    cont = 0
-                    ev_ant = ()
-                    PA = True
+                    length_palabra = 0
                     ppa = []
                     lista_aux = []
                 else:
@@ -680,12 +658,12 @@ def generar_ventana_de_juego(tj: int, dif: str):
                 if(exit == "OK"):
                     break
 
-            if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para continuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea continuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-                pass
+            if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para length_palabrainuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea length_palabrainuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+                turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras)
             
             if event == "music_toggle":
                 if(musica_muteada):
-                    pygame.mixer.music.set_volume(0.3)
+                    pygame.mixer.music.set_volume(0.05)
                     window["music_toggle"].Update("MUSIC: ON")
                 else:
                     pygame.mixer.music.set_volume(0)
@@ -727,8 +705,8 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
             if event in estado_fichas.keys():
                 letra_seleccionada = estado_fichas[event]["letra"]
-                ficha_seleccionada = estado_fichas[event]
-                llave_seleccionada = str(event)
+                ficha_actual = estado_fichas[event]
+                llave_actual = str(event)
                 
                 if(cambiando_fichas):
                     if(not estado_fichas[event]["cambiando"]):
