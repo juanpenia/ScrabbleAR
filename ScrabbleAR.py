@@ -469,6 +469,21 @@ def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
     """
     pp.append([nombre, palabra, puntaje])
     #return pp
+def guardar_puntaje_finalizado(nombre,dif,punt):
+    """
+    Función encargada de guardar la partida del jugador al terminar 
+    """
+    try:
+        with open("puntajes.json") as arc:
+            datos = list(json.load(arc))
+            datos.append([nombre,dif,punt])
+            datos = sorted(datos, reverse=True, key=lambda x: x[2])[:10]
+            with open("puntajes.json", "w") as p:        
+                json.dump(datos,p) 
+    except FileNotFoundError:
+        with open("puntajes.json", "w") as p:
+            json.dump([[nombre,dif,punt]],p)
+
 
 def generar_ventana_de_juego(tj: int, dif: str):
 
@@ -487,7 +502,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
         pygame.mixer.music.queue(lista_musica[i])
     pygame.mixer.music.set_volume(0.05)
     pygame.mixer.music.play()
-    # fin musica
+    fin musica
 
     puntajes_letras = cargar_puntajes_letras()
     puntajes_partida = []
@@ -718,16 +733,21 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
             if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
                 exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
+                print()
                 if(exit == "OK"):
+                    guardar_puntaje_finalizado(nombre_jugador,dif,puntos_jugador)
                     break
             
             if event == "PASAR":
                 turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
 
             if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para length_palabrainuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea length_palabrainuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+                print(nombre_jugador)
+                tiempo_finalizado =("{}:{}").format(min_restantes,seg_restantes)
+                print(tiempo_finalizado)
+                print(puntos_jugador)
+                print(dif)
                 #turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras)
-                pass
-            
             if event == "music_toggle":
                 if(musica_muteada):
                     pygame.mixer.music.set_volume(0.05)
@@ -794,18 +814,26 @@ def generar_ventana_de_juego(tj: int, dif: str):
     sg.Popup("Juego finalizado.")
 
 
-def mostrar_top10(puntajes: list):
+def mostrar_top10():
     """
     Función encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
     """
-    ancho_columnas = (10, 10)
-    headings = ("Jugador", "Nivel", "Puntaje")
-    layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
-    window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
-    while True:
-        event, _values = window.read()
-        if event is None:
-            break
+    try:
+        with open("puntajes.json") as arc:
+            datos = json.load(arc)
+            if not datos:
+                popup_top10_vacio()
+            else:
+                ancho_columnas = (10, 10)
+                headings = ("Jugador", "Nivel", "Puntaje")
+                layout = [[sg.Table(datos, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
+                window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
+                while True:
+                    event, _values = window.read()
+                    if event is None:
+                        break
+    except FileNotFoundError:
+        popup_top10_vacio()
 
 def mostrar_opciones(letras: list): # recibe un dict_keys pero es la forma mas apropiada de definirlo
     """
@@ -925,24 +953,13 @@ while True:
         window.Close()
         nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre')
 
-
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
         pass
 
     if event == "TOP 10":
-        try:
-            with open("puntajes.json") as arc:
-                datos = json.load(arc)
-                if not datos:
-                    popup_top10_vacio()
-                else:
-                    puntajes = sorted(datos, reverse=True, key=lambda x: x[2])
-                    mostrar_top10(puntajes)
-
-        except FileNotFoundError:
-            popup_top10_vacio()
+        mostrar_top10()
 
 
     if event == "OPCIONES AVANZADAS":
