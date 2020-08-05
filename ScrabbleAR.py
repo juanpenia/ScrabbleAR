@@ -179,6 +179,10 @@ def sacar_letra(bolsa: list) -> str:
 
 
 def config_por_defecto() -> dict:
+    """
+    Función encargada de otorgar el puntaje y la cantidad de fichas
+    por defecto.
+    """
     return {"a": {"puntaje": 1, "cantidad": 11},
             "b": {"puntaje": 3, "cantidad": 3},
             "c": {"puntaje": 2, "cantidad": 4},
@@ -207,10 +211,18 @@ def config_por_defecto() -> dict:
             "z": {"puntaje": 10, "cantidad": 1}}
 
 def generar_archivo_config():
+    """
+    Función encargada de guardar en un archivo JSON la
+    configuración por defecto.
+    """
     with open("config.cfg", "w") as config:
         json.dump(config_por_defecto(), config, indent=4)
 
 def puntajes_por_defecto() -> dict:
+    """
+    Función encargada de generar el diccionario con 
+    el puntaje de cada letra.
+    """
     puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
                 "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
                 "k": 8, "l": 1, "m": 3, "n": 1, "o": 1,
@@ -219,6 +231,10 @@ def puntajes_por_defecto() -> dict:
     return puntajes
 
 def cargar_puntajes_letras() -> dict:
+    """
+    Función encargada de guardar en un archivo JSON
+    los puntajes por defecto de cada letra.
+    """
     try:
         with open("config.cfg") as config:
             datos = json.load(config)
@@ -263,6 +279,10 @@ def generar_tablero(dificultad: str) -> list:
     return tablero
 
 def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None, str] = None) -> bool:
+    """
+    Función encargada de verificar si la palabra colocada en el tablero
+    está en la lista de palabras de la libreria Pattern.
+    """
     p = "".join(palabra.values() if type(palabra) == dict else palabra)
     s = parse(p).split()
     for cada in s:
@@ -361,7 +381,7 @@ def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window,
                         continue
             
     else:
-        sg.Popup("la pc paso")
+        sg.Popup("El CPU pasó de turno")
 
     # ahora la parte de colocar la palabra
     # for i in range(palabra):
@@ -381,6 +401,10 @@ def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window,
         pass
 
 def sentido_palabra_actual(pos: list, ultimo: int) -> str:
+    """
+    Función encargada de verificar si la palabra que se ingreso esta
+    horizontal o vertical
+    """
     if(len(pos) > 1):
         pos = [x for x in pos]
         if pos[ultimo-1][0] == pos[ultimo-2][0]:
@@ -413,6 +437,9 @@ def letra_cerca(pos: Union[None, list], actual, ultimo):
 
 
 def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: # cambiar td por algo mejor, td es palabra_actual de abajo
+    """
+    Función encargada de calcular el puntaje de la jugada.
+    """
     total = 0
     for key, value in data.items():
         x = get_premio_descuento_casillero(key, dif) # para mayor prolijidad
@@ -436,6 +463,10 @@ def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: # cambiar td 
     return total
 
 def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
+    """
+    Función encargada de agregar a la tabla ,el puntaje,el nombre del usuario
+    y la palabra.
+    """
     pp.append([nombre, palabra, puntaje])
     #return pp
 
@@ -515,13 +546,17 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
     col_jugador.append(letras_jugador)
 
+    puntos_jugador=0
+    puntos_maquina=0
     # panel izquierdo:
     headings_tabla = ("Jugador", "Palabra", "Pts")
     col_izquierda = [[sg.Text("Jugadas: ")],
                     [sg.Table(puntajes_partida, headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
+                    [sg.Frame(layout=[[sg.Text("{}           CPU\n\n{}           {}".format(nombre_jugador, puntos_jugador, puntos_maquina), size=(10, 5))]],
+                     title='Puntaje Total:')],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
-                    [sg.Text("\n\n\n\n\n\n\n\n\n\n", pad=(None, 7))],
+                    [sg.Text("\n\n\n", pad=(None, 5))],
                     [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"), sg.Button("PASAR", button_color=('black', '#D9B382'))],
                     [sg.Button("TERMINAR", button_color=('black', '#D9B382')), (sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
 
@@ -648,7 +683,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
                             p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
                             print("a:", palabra_actual.keys())
                             print("b:", palabra_actual.values())
-                            agregar_puntaje_tabla(puntajes_partida, "penia", p, calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras))
+                            agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras))
                             window["tabla_puntos"].Update(values=sorted(puntajes_partida, reverse=True))
                             playsound(sfx["correcto"], False)
                             turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
@@ -878,6 +913,7 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
+
 while True:
     event, values = window.Read()
 
@@ -887,6 +923,9 @@ while True:
 
     if event == "INICIAR":
         window.Close()
+        nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre')
+
+
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
