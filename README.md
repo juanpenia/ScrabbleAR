@@ -33,8 +33,10 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
-* Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk`
+* Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk libmysqlclient-dev`
 * Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern`
+
+(Pattern necesita de libmysqlclient-dev, de otra forma no se podrá instalar)
 
 Una vez descargado el codigo fuente, se debera ejecutar invocando al interprete con el nombre del archivo.
 
