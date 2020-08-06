@@ -13,11 +13,18 @@ Felipe Verdugo
 
 ### Requerimientos:
 
-* Python 3.6+ *
+* Python 3.6+ (1)
 * PySimpleGUI 4.19.0+
 * Pattern 3.6
+* Pygame
+* Playsound (2)
+* Sounddevice (3)
 
-* Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
+(1) Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
+
+(2) Solo en Windows.
+
+(3) Solo en Linux.
 
 ### Como ejecutar:
 
@@ -28,7 +35,7 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 ### Windows:
 
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
-* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
+* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern playsound pygame`
 
 ### Linux*:
 
