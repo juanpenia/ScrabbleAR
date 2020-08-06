@@ -29,7 +29,7 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
 * En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
 
-### Linux:
+### Linux*:
 
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
@@ -37,6 +37,8 @@ Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero 
 * Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern`
 
 (Pattern necesita de libmysqlclient-dev, de otra forma no se podrá instalar)
+
+***** Probado solo en Ubuntu 18.04 y 20.04.
 
 Una vez descargado el codigo fuente, se debera ejecutar invocando al interprete con el nombre del archivo.
 
