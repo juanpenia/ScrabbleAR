@@ -15,7 +15,7 @@ _status_ = "Produccion"
 import os
 import json
 from random import shuffle, choice, randint
-from time import time as now, sleep
+from time import time
 from typing import Union
 from sys import platform
 
@@ -124,6 +124,7 @@ lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healin
         os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
         os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
 shuffle(lista_musica)
+
 
 
 def dibujar_casilla(x: int, y: int, dif: str) -> str:
@@ -297,18 +298,28 @@ def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None
 
 def ordenar_dic(dic: dict) -> dict:
     return {key: dic[key] for key in sorted(dic)}
-    
+
      
-def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window, bolsa, pp, dif, pl, cat_azar=None):
+def turno_computadora(pj: bool, 
+                    fm: list, 
+                    cm: int, 
+                    tablero_logico: list, 
+                    window: sg.PySimpleGUI.Window, 
+                    bolsa: list, 
+                    pp, 
+                    dif, 
+                    pl, 
+                    intentos_fallidos_maquina,
+                    cat_azar=None):
     """...
     Parametros:
     pj: primera jugada
     """
     # FALTA:
-    # ajustar lo del puntaje, que actualize
-    # cambiar fichas si no encuentra combo 3 veces
-    # que se fije si esta pegado a una palabra, y de ultima tambien que busque como acomodarse mejor
-    # despues en verificar a lo ultimo, turnocomputadora
+    # ajustar lo del puntaje, que actualize TA
+    # cambiar fichas si no encuentra combo 3 veces seguidas TA
+    # que se fije si esta pegado a una palabra, y de ultima tambien que busque como acomodarse mejor NO TA
+    # despues en verificar a lo ultimo, turnocomputadora TA
 
 
     # esto tiene dos etapas: encontrar combo valido y encontrar lugar
@@ -317,11 +328,10 @@ def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window,
     for i in range(50):
         palabra = []
         copia_bolsa = fm.copy() 
-        for j in range(randint(2, len(copia_bolsa))):
+        for _j in range(randint(2, len(copia_bolsa))):
             letra_random = choice(copia_bolsa)
             palabra.append(letra_random)
             copia_bolsa.remove(letra_random)
-        print("{}:".format(i), "".join(palabra), verificar_palabra(palabra, dif, cat_azar), cat_azar) # debug
         if(verificar_palabra(palabra, dif, cat_azar)):
             found = True
             break
@@ -330,75 +340,67 @@ def turno_computadora(pj: bool, fm: list, cm: int, tablero_logico: list, window,
     posiciones_afectadas = {}
     if found:
         if(pj):
-            nose2 = randint(0, 1)
-            for nose in range(7, 7+len(palabra)):
-                tupla = (nose, 7) if nose2 == 0 else (nose, 7)
-                window[tupla].Update(image_filename=letras[palabra[nose-7]])
-                tablero_logico[tupla[0]][tupla[1]] = palabra[nose-7]
-                posiciones_afectadas[tupla] = palabra[nose-7]
+            sentido = randint(0, 1)
+            for i in range(7, 7+len(palabra)):
+                tupla = (i, 7) if sentido == 0 else (i, 7)
+                window[tupla].Update(image_filename=letras[palabra[i-7]])
+                tablero_logico[tupla[0]][tupla[1]] = palabra[i-7]
+                posiciones_afectadas[tupla] = palabra[i-7]
         else:
             while True:
-                pos = tuple([randint(0, 14) for i in range(2)])
-                if(tablero_logico[pos[0]][pos[1]] == " "):
+                posiciones = tuple([randint(0, 14) for i in range(2)])
+                if(tablero_logico[posiciones[0]][posiciones[1]] == " "):
                     todo_libre = True
-                    nose2 = randint(0, 1)
-                    nose4 = 0 # pos actual
-                    if(pos[nose2] + len(palabra) > 14):
+                    sentido = randint(0, 1)
+                    pos_actual = 0 # pos actual
+                    if(posiciones[sentido] + len(palabra) > 14):
                         continue
 
-                    for nose in range(pos[nose2], pos[nose2]+len(palabra)):
-                        if nose2 == 0:
-                            if tablero_logico[nose][pos[1]] != " ":
+                    for i in range(posiciones[sentido], posiciones[sentido]+len(palabra)):
+                        if sentido == 0:
+                            if tablero_logico[i][posiciones[1]] != " ":
                                 todo_libre = False
                                 break
                         else:
-                            if tablero_logico[pos[0]][nose] != " ":
+                            if tablero_logico[posiciones[0]][i] != " ":
                                 todo_libre = False
                                 break
 
                     if todo_libre:
-                        for nose in range(pos[nose2], pos[nose2]+len(palabra)):
-                            tupla = (nose, pos[1]) if nose2 == 0 else (pos[0], nose)
-                            window[tupla].Update(image_filename=letras[palabra[nose4]])
-                            tablero_logico[tupla[0]][tupla[1]] = palabra[nose4]
-                            posiciones_afectadas[tupla] = palabra[nose4]
-                            nose4+=1
-                            # aca
-                        p = "".join(palabra) # cambiar a palabra formada or something
-                        #agregar_puntaje_tabla(pp, "CPU", p, calcular_puntaje_jugada([(x, pos[1]) for x in range(pos[0], pos[0]+len(palabra))], dif, palabra, pl))
-                        agregar_puntaje_tabla(pp, "CPU", p, calcular_puntaje_jugada(posiciones_afectadas, dif, pl))
-                        window["tabla_puntos"].Update(values=pp)
-                        window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
-                        try:
-                            for nose5 in palabra:
-                                fm[fm.index(nose5)] = sacar_letra(bolsa)
-                        except IndexError:
-                            sg.Popup("Termino la wea")
-                            # deberia ser terminar_juego()
-
+                        for i in range(posiciones[sentido], posiciones[sentido]+len(palabra)):
+                            tupla = (i, posiciones[1]) if sentido == 0 else (posiciones[0], i)
+                            window[tupla].Update(image_filename=letras[palabra[pos_actual]])
+                            tablero_logico[tupla[0]][tupla[1]] = palabra[pos_actual]
+                            posiciones_afectadas[tupla] = palabra[pos_actual]
+                            pos_actual+=1
                         break
                     else:
                         continue
+        p = "".join(palabra) # cambiar a palabra formada or something
+        #agregar_puntaje_tabla(pp, "CPU", p, calcular_puntaje_jugada([(x, posiciones[1]) for x in range(posiciones[0], posiciones[0]+len(palabra))], dif, palabra, pl))
+        puntos_obtenidos = calcular_puntaje_jugada(posiciones_afectadas, dif, pl)
+        agregar_puntaje_tabla(pp, "CPU", p, puntos_obtenidos)
+        global puntos_maquina
+        puntos_maquina += puntos_obtenidos
+        window["tabla_puntos"].Update(values=pp)
+        window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
+        window["puntajes_totales"].Update("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina))
+        try:
+            for i in palabra:
+                fm[fm.index(i)] = sacar_letra(bolsa)
+        except IndexError:
+            sg.Popup("Termino la wea")
+            # deberia ser terminar_juego()
+        intentos_fallidos_maquina = 0
             
     else:
         sg.Popup("El CPU pasó de turno")
-
-    # ahora la parte de colocar la palabra
-    # for i in range(palabra):
-    #     fm[fm.index(i)] = sacar_letra(bolsa)
-    #     tablero_logico[key[0]][key[1]] = i # key[0] key[1] valores de donde irian que encontramos disponibles
-    #     
-    # if(primera_jugada):
-    #     primera_jugada = False
-    # p = "".join(palabra) # cambiar a palabra formada or something
-    # agregar_puntaje_tabla(puntajes_partida, "CPU", p, calcular_puntaje_jugada(palabra_actual.keys(), dif, palabra, puntajes_letras))
-    # window["tabla_puntos"].Update(values=puntajes_partida)
+        intentos_fallidos_maquina += 1
+        if(intentos_fallidos_maquina == 3):
+            intentos_fallidos_maquina = 0
     
-    if pj:
-        # return el pj o hacerlo que cambie alla
-        pass
-    else:
-        pass
+    return intentos_fallidos_maquina
+
 
 def sentido_palabra_actual(pos: list, ultimo: int) -> str:
     """
@@ -416,6 +418,10 @@ def sentido_palabra_actual(pos: list, ultimo: int) -> str:
 
 
 def get_sentido_correcto(pos, actual, ultimo):
+    """
+    Función que revisa si la proxima letra a ingresar esta
+    siendo insertada correctamente.
+    """
     if(len(pos) > 1):
         pos = [x for x in pos]
         if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
@@ -469,6 +475,21 @@ def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
     """
     pp.append([nombre, palabra, puntaje])
     #return pp
+def guardar_puntaje_finalizado(nombre,dif,punt):
+    """
+    Función encargada de guardar la partida del jugador al terminar 
+    """
+    try:
+        with open("puntajes.json") as arc:
+            datos = list(json.load(arc))
+            datos.append([nombre,dif,punt])
+            datos = sorted(datos, reverse=True, key=lambda x: x[2])[:10]
+            with open("puntajes.json", "w") as p:        
+                json.dump(datos,p) 
+    except FileNotFoundError:
+        with open("puntajes.json", "w") as p:
+            json.dump([[nombre,dif,punt]],p)
+
 
 def generar_ventana_de_juego(tj: int, dif: str):
 
@@ -487,7 +508,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
         pygame.mixer.music.queue(lista_musica[i])
     pygame.mixer.music.set_volume(0.05)
     pygame.mixer.music.play()
-    # fin musica
+    fin musica
 
     puntajes_letras = cargar_puntajes_letras()
     puntajes_partida = []
@@ -512,10 +533,11 @@ def generar_ventana_de_juego(tj: int, dif: str):
     
 
     # cronometro related
-    fin = now() + (tj * 60)
+    fin = time() + (tj * 60)
 
     # fichas de la maquina:
     fichas_maquina = dar_fichas_maquina(bolsa)
+    intentos_fallidos_maquina = 0
 
     # columnas:
 
@@ -529,7 +551,6 @@ def generar_ventana_de_juego(tj: int, dif: str):
     # crear tablero logico
     tablero_logico  = [[' ' for j in range(15)] for i in range(15)]
 
-    tl2 = {}
 
     
     # letras del jugador:
@@ -546,14 +567,14 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
     col_jugador.append(letras_jugador)
 
-    puntos_jugador=0
-    puntos_maquina=0
+    global puntos_jugador
+    global puntos_maquina
     # panel izquierdo:
     headings_tabla = ("Jugador", "Palabra", "Pts")
     col_izquierda = [[sg.Text("Jugadas: ")],
                     [sg.Table(puntajes_partida, headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
-                    [sg.Frame(layout=[[sg.Text("{}           CPU\n\n{}           {}".format(nombre_jugador, puntos_jugador, puntos_maquina), size=(10, 5))]],
-                     title='Puntaje Total:')],
+                    #[sg.Frame(layout=[[sg.Text("{}{}CPU\n\n {}{}           {}".format(nombre_jugador, " "*(15-len(nombre_jugador)), puntos_jugador, " "*15, puntos_maquina), size=(20, 5), font=("Arial Bold", 10))]], title='Puntaje Total:')],
+                    [sg.Frame(layout=[[sg.Text("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina), size=(20, 5), font=("Arial Bold", 10), key="puntajes_totales")]], title='Puntaje Total:')],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
                     [sg.Text("Nivel: {}".format(dif))],
@@ -593,11 +614,10 @@ def generar_ventana_de_juego(tj: int, dif: str):
     llave_actual = None
     palabra_actual = {}
     primera_jugada = True
-    ppa = [] # posiciones palabra actual (seria muy largo el nombre de la variable sino, como este commment :D)
 
     while True:
         if(not primer_turno_jugador):
-            turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
+            intentos_fallidos_maquina = turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
             primer_turno_jugador = True
             primera_jugada = False
 
@@ -606,11 +626,11 @@ def generar_ventana_de_juego(tj: int, dif: str):
         event, _values = window.Read(timeout=10)
 
         # tiempo de juego
-        if now() < fin:
+        if time() < fin:
             # para mayor legibilidad
             # llegado de hacer la funcion de posponer, habria que guardar el tiempo restante
-            min_restantes = int((fin - now()) // 60)
-            seg_restantes = int((fin - now()) % 60)
+            min_restantes = int((fin - time()) // 60)
+            seg_restantes = int((fin - time()) % 60)
             window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
 
             if event is None:
@@ -624,17 +644,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
                         playsound(sfx["incorrecto"], True)
                     else:
                         if(get_sentido_correcto(palabra_actual.keys(), event, length_palabra)):
-                        #if True:
                             if letra_cerca(palabra_actual.keys() if len(palabra_actual) else None, event, length_palabra):
-                            #if True:
-                                #if event not in ppa:
-                                #    palabra_actual.keys().append(event)
-                                #else:
-                                #    palabra_actual.keys()[ppa.index(event)] = event
-                                #ppa.append(event)
-                                #ppa = sorted(ppa)
-                                tl2[event] = letra_seleccionada
-                                #tablero_logico[event[0]][event[1]] = letra_seleccionada
                                 window[event].update(image_filename=letras[letra_seleccionada])
                                 palabra.append(letra_seleccionada)
                                 fichas_seleccionadas.append(ficha_actual)
@@ -646,7 +656,6 @@ def generar_ventana_de_juego(tj: int, dif: str):
                                 window[llaves_seleccionadas[length_palabra]].update(image_filename=letras["vacio"])
                                 estado_fichas[llaves_seleccionadas[length_palabra]] = {"letra": None, "cambiando": False, "colocando": False}
                                 length_palabra += 1
-                        #print("================")
                     
 
 
@@ -684,10 +693,13 @@ def generar_ventana_de_juego(tj: int, dif: str):
                             p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
                             print("a:", palabra_actual.keys())
                             print("b:", palabra_actual.values())
-                            agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras))
-                            window["tabla_puntos"].Update(values=sorted(puntajes_partida, reverse=True))
+                            puntos_obtenidos = calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras)
+                            puntos_jugador += puntos_obtenidos
+                            agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, puntos_obtenidos)
+                            window["tabla_puntos"].Update(values=puntajes_partida)
                             playsound(sfx["correcto"], False)
-                            turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
+                            window["puntajes_totales"].Update("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina))
+                            intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                         else:
                             for i in range(length_palabra):
                                 estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
@@ -696,10 +708,6 @@ def generar_ventana_de_juego(tj: int, dif: str):
                                 window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
                             playsound(sfx["incorrecto"], False)
 
-                    print("ppa",ppa)
-                    print("l2",fichas_seleccionadas)
-                    print("l3",llaves_seleccionadas)
-                    print("td", palabra_actual)
                     llaves_seleccionadas = []
                     fichas_seleccionadas = []
                     p = ""
@@ -709,7 +717,6 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     #for row in tablero_logico:
                     #    print(row)
                     length_palabra = 0
-                    ppa = []
                     lista_aux = []
                 else:
                     sg.Popup("No se puso ninguna palabra en el tablero.")
@@ -719,16 +726,21 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
             if event == "TERMINAR": # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
                 exit = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="!")
+                print()
                 if(exit == "OK"):
+                    guardar_puntaje_finalizado(nombre_jugador,dif,puntos_jugador)
                     break
             
             if event == "PASAR":
-                turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
+                intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
 
             if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para length_palabrainuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea length_palabrainuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
+                print(nombre_jugador)
+                tiempo_finalizado =("{}:{}").format(min_restantes,seg_restantes)
+                print(tiempo_finalizado)
+                print(puntos_jugador)
+                print(dif)
                 #turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras)
-                pass
-            
             if event == "music_toggle":
                 if(musica_muteada):
                     pygame.mixer.music.set_volume(0.05)
@@ -757,7 +769,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
                                         window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
                                         break
                             cambios_jugador += 1
-                            turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, cat_azar if "cat_azar" in locals() else None)
+                            intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                         else:
                             for i in range(7):
                                 estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
@@ -795,18 +807,26 @@ def generar_ventana_de_juego(tj: int, dif: str):
     sg.Popup("Juego finalizado.")
 
 
-def mostrar_top10(puntajes: list):
+def mostrar_top10():
     """
     Función encargada de visualizar un top 10 con los puntajes obtenidos del tipo: fecha + puntaje + nivel.
     """
-    ancho_columnas = (10, 10)
-    headings = ("Jugador", "Nivel", "Puntaje")
-    layout = [[sg.Table(puntajes, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
-    window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
-    while True:
-        event, _values = window.read()
-        if event is None:
-            break
+    try:
+        with open("puntajes.json") as arc:
+            datos = json.load(arc)
+            if not datos:
+                popup_top10_vacio()
+            else:
+                ancho_columnas = (10, 10)
+                headings = ("Jugador", "Nivel", "Puntaje")
+                layout = [[sg.Table(datos, headings, select_mode="browse", col_widths=ancho_columnas, num_rows=10, auto_size_columns=False)]]
+                window = sg.Window("TOP 10", layout, resizable=True, finalize=True).Finalize()
+                while True:
+                    event, _values = window.read()
+                    if event is None:
+                        break
+    except FileNotFoundError:
+        popup_top10_vacio()
 
 def mostrar_opciones(letras: list): # recibe un dict_keys pero es la forma mas apropiada de definirlo
     """
@@ -905,6 +925,11 @@ def popup_top10_vacio():
 
 # comienzo de "main"
 
+# is this bad?
+
+puntos_jugador = 0
+puntos_maquina = 0
+
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
         [sg.Text("Tiempo de juego:"), sg.Combo(values=(5, 20, 40, 60), default_value=5, key="tiempo")],
@@ -927,7 +952,6 @@ while True:
         window.Close()
         nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre' , button_color=('black', '#D9B382'))
 
-
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
@@ -937,17 +961,7 @@ while True:
         sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=('black', '#D9B382'))
 
     if event == "TOP 10":
-        try:
-            with open("puntajes.json") as arc:
-                datos = json.load(arc)
-                if not datos:
-                    popup_top10_vacio()
-                else:
-                    puntajes = sorted(datos, reverse=True, key=lambda x: x[2])
-                    mostrar_top10(puntajes)
-
-        except FileNotFoundError:
-            popup_top10_vacio()
+        mostrar_top10()
 
 
     if event == "OPCIONES AVANZADAS":
