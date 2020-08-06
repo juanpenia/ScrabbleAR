@@ -520,7 +520,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     # columnas:
 
     # fichas computadora:
-    col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)), sg.Text(" "*10)]]
+    col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)), sg.Text(" "*13)]]
     for i in range(7):
         col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=('black', '#191970')))
     col_arriba[0].extend([sg.Text(" "*93), sg.Button("MUSIC: ON", button_color=('black', '#D9B382'), key="music_toggle")])
@@ -534,14 +534,14 @@ def generar_ventana_de_juego(tj: int, dif: str):
     
     # letras del jugador:
     fichas_seleccionadas = []
-    col_jugador = [[sg.Text(" "*45), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
+    col_jugador = [[sg.Text(" "*49), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
 
-    letras_jugador = [sg.Text(" "*45)]
+    letras_jugador = [sg.Text(" "*49)]
     for i in range(0, 7):
         letras_jugador.append(sg.Button(image_filename=letras[estado_fichas["ficha_jugador_{}".format(i)]["letra"]], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
 
 
-    letras_jugador.append(sg.Text(" "*37))
+    letras_jugador.append(sg.Text(" "*33))
     letras_jugador.append(sg.Button("VERIFICAR", button_color=('black', '#D9B382')))
 
     col_jugador.append(letras_jugador)
@@ -556,7 +556,8 @@ def generar_ventana_de_juego(tj: int, dif: str):
                      title='Puntaje Total:')],
                     [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
-                    [sg.Text("\n\n\n", pad=(None, 5))],
+                    [sg.Text("Nivel: {}".format(dif))],
+                    [sg.Text("\n", pad=(None, 5))],
                     [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"), sg.Button("PASAR", button_color=('black', '#D9B382'))],
                     [sg.Button("TERMINAR", button_color=('black', '#D9B382')), (sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
 
@@ -908,8 +909,9 @@ layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
         [sg.Text("Tiempo de juego:"), sg.Combo(values=(5, 20, 40, 60), default_value=5, key="tiempo")],
         [sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
-        [sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((45, 0), (30, 0)))],
-        [sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((80, 0), (30, 0)))]]
+        [sg.Button('REGLAMENTO', button_color=('black', '#D9B382'), pad=((64, 0), (5, 0)))],
+        [sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((43, 0), (15, 0)))],
+        [sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((83, 0), (15, 0)))]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
@@ -923,13 +925,16 @@ while True:
 
     if event == "INICIAR":
         window.Close()
-        nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre')
+        nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre' , button_color=('black', '#D9B382'))
 
 
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
         pass
+    
+    if event == "REGLAMENTO":
+        sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=('black', '#D9B382'))
 
     if event == "TOP 10":
         try:
