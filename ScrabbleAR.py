@@ -14,10 +14,12 @@ _status_ = "Produccion"
 
 import os
 import json
+import pickle
 from random import shuffle, choice, randint
 from time import time
 from typing import Union
 from sys import platform
+from datetime import datetime
 
 import PySimpleGUI as sg
 from pattern.es import spelling, lexicon, parse
@@ -287,17 +289,18 @@ def cambiar_fichas_maquina(bolsa: list, fm: list):
     fm = dar_fichas_maquina(bolsa)
 
 
-def generar_tablero(dificultad: str) -> list:
+def generar_tablero(dificultad: str, pr: bool, tl: Union[list, None] = None) -> list:
 
     """
     Función encargada de generar los 3 tableros con una dimesion de 15x15
     utilizando la funcion casillero_segun_color
     """
+    # aca posponer_partida
     tablero = []
     for i in range(15):
         tablero.append([])
         for j in range(15):
-            tablero[i].append(sg.Button(image_filename=dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
+            tablero[i].append(sg.Button(image_filename=letras[tl[i][j]] if (tl is not None and tl[i][j] != " ") else dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
     return tablero
 
 def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None, str] = None) -> bool:
@@ -559,14 +562,20 @@ def get_cat_azar(cat: str) -> str:
     elif cat == "JJ":
         return "Adjetivos"
 
-def generar_ventana_de_juego(tj: int, dif: str):
+def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, dpr: Union[dict, None] = None):
 
     """
     Función encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
     """
-    if dif == "Dificil":
-        cat_azar = choice(["VB", ("NNS", "NN"), "JJ"])
+    if(pr):
+        dif = dpr["dificultad"]
+        cat_azar = dpr["cat_azar"]
+    else:
+        if dif == "Dificil":
+            cat_azar = choice(["VB", ("NNS", "NN"), "JJ"])
+        else:
+            cat_azar = None
     
 
     # settings musica:
@@ -579,31 +588,33 @@ def generar_ventana_de_juego(tj: int, dif: str):
     pygame.mixer.music.play()
     #fin musica
 
+    # esto se va a poner feo
     puntajes_letras = cargar_puntajes_letras()
-    puntajes_partida = []
-    # cambio de fichas
-    cambios_jugador = 0
-    cambios_maquina = 0 # todavia no se usa
+    puntajes_partida = [] if not pr else dpr["lista_jugadas"]
+
+    cambios_jugador = 0 if not pr else dpr["cambios_jugador"]
+    cambios_maquina = 0 if not pr else dpr["cambios_maquina"]
     cambiando_fichas = False
 
     # turno de jugador
-    primer_turno_jugador = bool(randint(0, 1))
+    primer_turno_jugador = bool(randint(0, 1)) if not pr else dpr["primer_turno_jugador"]
 
     # bolsa de fichas
-    bolsa = generar_bolsa()
+    bolsa = generar_bolsa() if not pr else dpr["bolsa"]
 
-    estado_fichas = {}
+    estado_fichas = {} if not pr else dpr["fichas_jugador"]
 
-    for i in range(0, 7):
-        estado_fichas[f"ficha_jugador_{i}"] = {"letra": sacar_letra(bolsa), "cambiando": False}
+    if not pr:
+        for i in range(0, 7):
+            estado_fichas[f"ficha_jugador_{i}"] = {"letra": sacar_letra(bolsa), "cambiando": False}
     
 
     # cronometro related
-    fin = time() + (tj * 60)
+    fin = time() + (tj * 60) if not pr else time() + dpr["tiempo_restante"]
 
     # fichas de la maquina:
-    fichas_maquina = dar_fichas_maquina(bolsa)
-    intentos_fallidos_maquina = 0
+    fichas_maquina = dar_fichas_maquina(bolsa) if not pr else dpr["fichas_maquina"]
+    intentos_fallidos_maquina = 0 if not pr else dpr["intentos_fallidos_maquina"]
 
     # columnas:
 
@@ -613,9 +624,9 @@ def generar_ventana_de_juego(tj: int, dif: str):
         col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=("black", "#191970"), key=f"fichas_maquina{i}"))
     col_arriba[0].extend([sg.Text(" "*91), sg.Button("MUSIC: ON", button_color=("black", "#D9B382"), key="music_toggle")])
     # tablero de juego:
-    col_tablero = generar_tablero(dif)
+    col_tablero = generar_tablero(dif, pr, dpr["estado_tablero"] if pr else None)
     # crear tablero logico
-    tablero_logico  = [[" " for j in range(15)] for i in range(15)]
+    tablero_logico  = [[" " for j in range(15)] for i in range(15)] if not pr else dpr["estado_tablero"]
 
 
     
@@ -633,10 +644,17 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
     col_jugador.append(letras_jugador)
 
-    global puntos_jugador
-    global puntos_maquina
+    if not pr:
+        global nombre_jugador
+        global puntos_jugador
+        global puntos_maquina
+    else:
+        nombre_jugador = dpr["nombre_jugador"]
+        puntos_jugador = dpr["puntos_jugador"]
+        puntos_maquina = dpr["puntos_maquina"]
     # panel izquierdo:
     headings_tabla = ("Jugador", "Palabra", "Pts")
+    # if ...
     col_izquierda = [[sg.Text("Jugadas: ")],
                     [sg.Table(puntajes_partida, headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
                     [sg.Frame(layout=[[sg.Text(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}", size=(20, 5), font=("Arial Bold", 10), key="puntajes_totales")]], title="Puntaje Total:")],
@@ -646,6 +664,8 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     [sg.Text("\n", pad=(None, 5))],
                     [sg.Button("Cambiar Fichas", button_color=("black", "#D9B382"), key="cambiar_fichas"), sg.Button("PASAR", button_color=("black", "#D9B382"))],
                     [sg.Button("TERMINAR", button_color=("black", "#D9B382")), (sg.Button("POSPONER", button_color=("black", "#D9B382")))]]
+    # else: ...
+
 
 
     # panel derecho: (referencias)
@@ -779,7 +799,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
             # # devuelve el valor del atril jugador
 
             if event == "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
-                salida = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="Aviso")
+                salida = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="Aviso", button_color=("black", "#D9B382"))
                 if(salida == "OK"):
                     terminar_juego(window, fichas_maquina, estado_fichas, dif)
                     #break
@@ -794,7 +814,38 @@ def generar_ventana_de_juego(tj: int, dif: str):
                 print(tiempo_finalizado)
                 print(puntos_jugador)
                 print(dif)
-                #turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras)
+                if(hay_partida_guardada()):
+                    salida = sg.PopupOKCancel("Ya hay una partida guardada. ¿Desea posponer la partida actual?", 
+                                        "De ser asi, perderá la ultima partida guardada.", 
+                                        title="Aviso", 
+                                        button_color=("black", "#D9B382"))
+                else:
+                    salida = sg.PopupOKCancel("¿Está seguro que desea posponer esta partida?", title="Aviso", button_color=("black", "#D9B382"))
+                if(salida == "OK"):
+                    fecha = str(datetime.fromtimestamp(time()))
+                    fecha_formateada = (f"{fecha[8:10]}/{fecha[5:7]}/{fecha[0:4]} - {fecha[11:13]}:{fecha[14:16]}:{fecha[17:19]}")
+                    datos_partida = {"dificultad": dif,
+                        "cat_azar": cat_azar,
+                        "bolsa": bolsa,
+                        "tiempo_restante": fin - time(),
+                        "estado_tablero": tablero_logico,
+                        "lista_jugadas": puntajes_partida,
+                        "nombre_jugador": nombre_jugador,
+                        "fichas_jugador": estado_fichas,
+                        "puntos_jugador": puntos_jugador,
+                        "cambios_jugador": cambios_jugador,
+                        "primer_turno_jugador": primer_turno_jugador,
+                        "fichas_maquina": fichas_maquina,
+                        "puntos_maquina": puntos_maquina,
+                        "cambios_maquina": cambios_maquina,
+                        "intentos_fallidos_maquina": intentos_fallidos_maquina,
+                        "fecha": fecha_formateada}
+                    posponer_partida(datos_partida)
+                    pygame.mixer.music.stop()
+                    sg.Popup("Tu partida ha sido pospuesta con exito. Hasta la proxima!", title="Enhorabuena!", button_color=("black", "#D9B382"))
+                    break
+                    
+
             if event == "music_toggle":
                 if(musica_muteada):
                     pygame.mixer.music.set_volume(0.05)
@@ -806,11 +857,11 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
             if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
 
-                if(cambios_jugador >= 1):
+                if(cambios_jugador >= 3):
                     sg.Popup("Ya no tienes cambios de fichas restantes.", title="Aviso", non_blocking=True)
                 else:
                     if((cambiando_fichas) and len(fichas_seleccionadas)):
-                        salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!")
+                        salida = sg.PopupOKCancel("Esta seguro que desea cambiar las fichas?", title="!!", button_color=("black", "#D9B382"))
                         if(salida == "OK"):
                             bolsa.extend(fichas_seleccionadas)
                             shuffle(bolsa)
@@ -858,6 +909,10 @@ def generar_ventana_de_juego(tj: int, dif: str):
             terminar_juego(window, fichas_maquina, estado_fichas, dif)
             #break
 
+def posponer_partida(datos_partida: dict):
+    with open("partida_guardada.dat", "wb") as arc:
+        pickle.dump(datos_partida, arc)
+
 def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict, dif: str):
     global puntos_maquina
     global puntos_jugador
@@ -879,6 +934,13 @@ def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict,
         sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
     exit()
 
+def hay_partida_guardada():
+    try:
+        with open("partida_guardada.dat", "rb") as arc:
+            data = pickle.load(arc)
+            return bool(len(data))
+    except FileNotFoundError:
+        return False
 
 def mostrar_top10():
     """
@@ -999,7 +1061,25 @@ while True:
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
-        pass
+        try:
+            with open("partida_guardada.dat", "rb") as arc:
+                data = pickle.load(arc)
+        except FileNotFoundError:
+            data = {}
+
+        if not len(data):
+            sg.Popup("No hay partida guardada.", title="Aviso", button_color=("black", "#D9B382"))
+        else:
+            salida = sg.PopupOKCancel("Desea restaurar la partida guardada?", 
+                        "Nombre: {}".format(data["nombre_jugador"]), 
+                        "Dificultad: {}".format(data["dificultad"]) if data["dificultad"] != "Dificil" else "Dificultad: Dificil ({})".format(get_cat_azar(data["cat_azar"])),
+                        "Fecha: {}".format(data["fecha"]),
+                        button_color=("black", "#D9B382"))
+            if salida == "OK":
+                window.Close()
+                generar_ventana_de_juego(pr=True, dpr=data)
+                with open("partida_guardada.dat", "wb") as arc:
+                    pickle.dump({}, arc)
     
     if event == "REGLAMENTO":
         sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=("black", "#D9B382"))
