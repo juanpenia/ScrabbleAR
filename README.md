@@ -13,10 +13,11 @@ Felipe Verdugo
 
 ### Requerimientos:
 
-* Python 3.6 (es necesaria esta versión ya que pattern tiene problemas con versiones posteriores)
+* Python 3.6+ *
 * PySimpleGUI 4.19.0+
 * Pattern 3.6
 
+* Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
 
 ### Como ejecutar:
 
