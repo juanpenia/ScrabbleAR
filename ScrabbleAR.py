@@ -19,37 +19,35 @@ from time import time
 from typing import Union
 from sys import platform
 
-
 import PySimpleGUI as sg
-from pattern.es import verbs, spelling, lexicon, parse
-
+from pattern.es import spelling, lexicon, parse
+import pygame
 
 if platform == "win32":
-    import pygame
     from playsound import playsound
-    audio_disponible = True
     
-else:
-    audio_disponible = False
+elif platform == "linux":
+    import sounddevice as sd
+    import soundfile as sf
+    
 
+PATH_TABLERO = "img/tablero"
+PATH_FICHAS = "img/fichas"
+PATH_MUSICA = "audio/musica"
+PATH_SFX = "audio/sfx"
 
-PATH_TABLERO = 'img/tablero'
-PATH_FICHAS = 'img/fichas'
-PATH_MUSICA = 'audio/musica'
-PATH_SFX = 'audio/sfx'
-
-sg.LOOK_AND_FEEL_TABLE['Fachero'] = {'BACKGROUND': '#191970', # midnight blue
-                                    'TEXT': '#D9B382', # BEIGE
-                                    'INPUT': '#D9B382',
-                                    'TEXT_INPUT': '#191970',
-                                    'SCROLL': '#c7e78b',
-                                    # 'BUTTON': ('black', '#D9B382'),
-                                    'BUTTON': ('black', '#d1d6d7'),
-                                    'PROGRESS': ('#01826B', '#D0D0D0'),
-                                    'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
+sg.LOOK_AND_FEEL_TABLE["Fachero"] = {"BACKGROUND": "#191970", # midnight blue
+                                    "TEXT": "#D9B382", # BEIGE
+                                    "INPUT": "#D9B382",
+                                    "TEXT_INPUT": "#191970",
+                                    "SCROLL": "#c7e78b",
+                                    # "BUTTON": ("black", "#D9B382"),
+                                    "BUTTON": ("black", "#d1d6d7"),
+                                    "PROGRESS": ("#01826B", "#D0D0D0"),
+                                    "BORDER": 1, "SLIDER_DEPTH": 0, "PROGRESS_DEPTH": 0,
                                 }
 
-sg.theme('Fachero') # tiene que ser cambiado
+sg.theme("Fachero") # tiene que ser cambiado
 
 
 casilleros = {"facil": {
@@ -109,9 +107,9 @@ letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
         "?": os.path.join(PATH_FICHAS, "question_mark.png"),
         "vacio": os.path.join(PATH_FICHAS, "vacio.png")}
 
-casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambiar, no precisamente son esas
+casillas = {"palabra_x2": os.path.join(PATH_TABLERO, "beta_verde2.png"), # cambiar, no precisamente son esas
         "palabra_x3": os.path.join(PATH_TABLERO, "amarelo.png"),
-        "letra_x2": os.path.join(PATH_TABLERO, 'beta_marron.png'),
+        "letra_x2": os.path.join(PATH_TABLERO, "beta_marron.png"),
         "letra_x3": os.path.join(PATH_TABLERO, "beta_azul2.png"),
         "descuento_x1": os.path.join(PATH_TABLERO, "resta1.png"),
         "descuento_x2": os.path.join(PATH_TABLERO, "resta2.png"),
@@ -121,16 +119,24 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, 'beta_verde2.png'), # cambi
 sfx = {"correcto": os.path.join(PATH_SFX, "421002__eponn__correct.wav"),
     "incorrecto": os.path.join(PATH_SFX, "243700__ertfelda__incorrect.wav")}
 
-lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
-        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
-        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
-        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
-        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
-        os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
-        os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
+# lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
+#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
+#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
+#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
+#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
+#         os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
+#         os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
+lista_musica = ["R:\\ACDC - Thunderstruck (Live At River Plate, December 2009).mp3",
+            "R:\\ACDC - Shoot to Thrill (Live At River Plate, December 2009).mp3"]
 shuffle(lista_musica)
 
+def reproducir_sonido(archivo: str):
+    if platform == "win32":
+        playsound(archivo, False)
 
+    elif platform == "linux":
+        data, fs = sf.read(archivo, dtype='float32')  
+        sd.play(data, fs)
 
 def dibujar_casilla(x: int, y: int, dif: str) -> str:
     """
@@ -146,6 +152,7 @@ def dibujar_casilla(x: int, y: int, dif: str) -> str:
 
 
 def get_premio_descuento_casillero(pos, dif):
+    #falta docstring
     for key, value in casilleros[dif.lower()].items(): 
         if pos in value:
             return key
@@ -153,6 +160,7 @@ def get_premio_descuento_casillero(pos, dif):
     return "nada pues"
 
 def get_datos_letra(letra: str) -> dict:
+    #falta docstring
         try:
             with open("config.cfg") as config:
                 datos = json.load(config)
@@ -270,14 +278,13 @@ def dar_fichas_maquina(bolsa: list) -> list:
     return [sacar_letra(bolsa) for x in range(7)]
 
 
-def cambiar_fichas_maquina(bolsa: list, fm: list, cambios: int) -> tuple:
+def cambiar_fichas_maquina(bolsa: list, fm: list):
     """
     Función encargada de cambiar las fichas de la maquina
     """
     bolsa.extend(fm)
     shuffle(bolsa)
     fm = dar_fichas_maquina(bolsa)
-    return fm, cambios+1
 
 
 def generar_tablero(dificultad: str) -> list:
@@ -303,14 +310,15 @@ def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None
     for cada in s:
         for pal in cada:
             if dif == "Facil":
-                ok = pal[1] in ('VB', 'NNS', 'NN', 'JJ')
+                ok = pal[1] in ("VB", "NNS", "NN", "JJ")
             elif dif == "Medio":
-                ok = pal[1] in ('VB', 'NNS', 'NN')
+                ok = pal[1] in ("VB", "NNS", "NN")
             elif dif == "Dificil":
                 ok = pal[1] in cat_azar
     return ok and ((p in lexicon) or (p in spelling))
 
 def ordenar_dic(dic: dict) -> dict:
+    # falta docstring
     return {key: dic[key] for key in sorted(dic)}
 
      
@@ -339,7 +347,7 @@ def turno_computadora(pj: bool,
     # esto tiene dos etapas: encontrar combo valido y encontrar lugar
     found = False
     # encontrar palabra
-    for i in range(5):
+    for i in range(100):
         palabra = []
         copia_bolsa = fichas_maquina.copy() 
         for _j in range(randint(2, len(copia_bolsa))):
@@ -360,6 +368,7 @@ def turno_computadora(pj: bool,
                 window[tupuntajes_letrasa].Update(image_filename=letras[palabra[i-7]])
                 tablero_logico[tupuntajes_letrasa[0]][tupuntajes_letrasa[1]] = palabra[i-7]
                 posiciones_afectadas[tupuntajes_letrasa] = palabra[i-7]
+            pj = False
         else:
             while True:
                 posiciones = tuple([randint(0, 14) for i in range(2)])
@@ -396,26 +405,29 @@ def turno_computadora(pj: bool,
         global puntos_maquina
         puntos_maquina += puntos_obtenidos
         window["tabla_puntos"].Update(values=puntajes_partida)
-        window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
-        window["puntajes_totales"].Update("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina))
+        window["bolsa_fichas"].Update(value=f"Fichas restantes: {len(bolsa)}")
+        window["puntajes_totales"].Update(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}")
         try:
             for i in palabra:
                 fichas_maquina[fichas_maquina.index(i)] = sacar_letra(bolsa)
         except IndexError:
-            sg.Popup("Termino la wea")
-            # deberia ser terminar_juego()
+            pass
         intentos_fallidos_maquina = 0
             
     else:
         intentos_fallidos_maquina += 1
         if(intentos_fallidos_maquina == 3):
-            fichas_maquina, cambios_maquina = cambiar_fichas_maquina(bolsa, fichas_maquina, cambios_maquina)
-            intentos_fallidos_maquina = 0
-            sg.Popup("El CPU pasó de turno y realizó un cambio de fichas.", title="Aviso", non_blocking=True)
+            if(cambios_maquina < 3):
+                cambiar_fichas_maquina(bolsa, fichas_maquina)
+                cambios_maquina += 1
+                sg.Popup("El CPU pasó de turno y realizó un cambio de fichas.", title="Aviso", non_blocking=True)
+                intentos_fallidos_maquina = 0
+            else:
+                sg.Popup("El CPU pasó de turno.", title="Aviso", non_blocking=True)
         else:
             sg.Popup("El CPU pasó de turno.", title="Aviso", non_blocking=True)
     
-    return cambios_maquina, intentos_fallidos_maquina
+    return pj, cambios_maquina, intentos_fallidos_maquina
 
 
 def sentido_palabra_actual(pos: list, ultimo: int) -> str:
@@ -448,6 +460,7 @@ def get_sentido_correcto(pos, actual, ultimo):
         return True
 
 def letra_cerca(pos: Union[None, list], actual, ultimo):
+    # falta docstring
     if(pos != None):
         pos = [x for x in pos]
         posibles = ((pos[0][0]-1, pos[0][1]),
@@ -490,7 +503,6 @@ def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
     y la palabra.
     """
     pp.append([nombre, palabra, puntaje])
-    #return pp
 
 def guardar_puntaje_finalizado(nombre,dif,punt):
     """
@@ -525,6 +537,27 @@ def guardar_json(datos: dict):
     with open("config.cfg", "w") as arc:
         json.dump(temp_dic, arc, indent=4)
 
+def devolver_fichas(window: sg.PySimpleGUI.Window, 
+                largo_palabra: int, 
+                estado_fichas: dict, 
+                llaves_seleccionadas: list, 
+                fichas_seleccionadas: list, 
+                palabra_actual: dict,
+                dif: str):
+
+    for i in range(largo_palabra):
+        estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
+        window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
+    for elem in palabra_actual.keys(): #else
+        window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
+
+def get_cat_azar(cat: str) -> str:
+    if cat == "VB":
+        return "Verbos"
+    elif cat == ("NNS", "NN"):
+        return "Sustantivos"
+    elif cat == "JJ":
+        return "Adjetivos"
 
 def generar_ventana_de_juego(tj: int, dif: str):
 
@@ -533,19 +566,17 @@ def generar_ventana_de_juego(tj: int, dif: str):
     declarados anteriormente.Tambien se encarga de generar el cronometro.
     """
     if dif == "Dificil":
-        cat_azar = choice(['VB', ('NNS', 'NN'), 'JJ'])
-        print(cat_azar)
+        cat_azar = choice(["VB", ("NNS", "NN"), "JJ"])
     
 
     # settings musica:
-    if audio_disponible:
-        musica_muteada = False
-        pygame.mixer.init()
-        pygame.mixer.music.load(lista_musica[0])
-        for i in range(1, len(lista_musica)):
-            pygame.mixer.music.queue(lista_musica[i])
-        pygame.mixer.music.set_volume(0.25)
-        pygame.mixer.music.play()
+    cant_canciones = len(lista_musica)
+    cancion_actual = 0
+    musica_muteada = False
+    pygame.mixer.init()
+    pygame.mixer.music.load(lista_musica[cancion_actual])
+    pygame.mixer.music.set_volume(0.25)
+    pygame.mixer.music.play()
     #fin musica
 
     puntajes_letras = cargar_puntajes_letras()
@@ -564,7 +595,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     estado_fichas = {}
 
     for i in range(0, 7):
-        estado_fichas["ficha_jugador_{}".format(i)] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando":False}
+        estado_fichas[f"ficha_jugador_{i}"] = {"letra": sacar_letra(bolsa), "cambiando": False}
     
 
     # cronometro related
@@ -579,13 +610,12 @@ def generar_ventana_de_juego(tj: int, dif: str):
     # fichas computadora:
     col_arriba = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18)), sg.Text(" "*13)]]
     for i in range(7):
-        col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=('black', '#191970')))
-    if(audio_disponible):
-        col_arriba[0].extend([sg.Text(" "*93), sg.Button("MUSIC: ON", button_color=('black', '#D9B382'), key="music_toggle")])
+        col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=("black", "#191970"), key=f"fichas_maquina{i}"))
+    col_arriba[0].extend([sg.Text(" "*91), sg.Button("MUSIC: ON", button_color=("black", "#D9B382"), key="music_toggle")])
     # tablero de juego:
     col_tablero = generar_tablero(dif)
     # crear tablero logico
-    tablero_logico  = [[' ' for j in range(15)] for i in range(15)]
+    tablero_logico  = [[" " for j in range(15)] for i in range(15)]
 
 
     
@@ -595,11 +625,11 @@ def generar_ventana_de_juego(tj: int, dif: str):
 
     letras_jugador = [sg.Text(" "*49)]
     for i in range(0, 7):
-        letras_jugador.append(sg.Button(image_filename=letras[estado_fichas["ficha_jugador_{}".format(i)]["letra"]], button_color=('black', '#191970'), border_width=0, key="ficha_jugador_{}".format(i)))
+        letras_jugador.append(sg.Button(image_filename=letras[estado_fichas[f"ficha_jugador_{i}"]["letra"]], button_color=("black", "#191970"), border_width=0, key=f"ficha_jugador_{i}"))
 
 
     letras_jugador.append(sg.Text(" "*33))
-    letras_jugador.append(sg.Button("VERIFICAR", button_color=('black', '#D9B382')))
+    letras_jugador.append(sg.Button("VERIFICAR", button_color=("black", "#D9B382")))
 
     col_jugador.append(letras_jugador)
 
@@ -609,14 +639,13 @@ def generar_ventana_de_juego(tj: int, dif: str):
     headings_tabla = ("Jugador", "Palabra", "Pts")
     col_izquierda = [[sg.Text("Jugadas: ")],
                     [sg.Table(puntajes_partida, headings_tabla, select_mode="browse", col_widths=(8, 8, 4), num_rows=10, auto_size_columns=False, key="tabla_puntos")],
-                    #[sg.Frame(layout=[[sg.Text("{}{}CPU\n\n {}{}           {}".format(nombre_jugador, " "*(15-len(nombre_jugador)), puntos_jugador, " "*15, puntos_maquina), size=(20, 5), font=("Arial Bold", 10))]], title='Puntaje Total:')],
-                    [sg.Frame(layout=[[sg.Text("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina), size=(20, 5), font=("Arial Bold", 10), key="puntajes_totales")]], title='Puntaje Total:')],
-                    [sg.Text("Fichas restantes: {}".format(len(bolsa)), key="bolsa_fichas")],
+                    [sg.Frame(layout=[[sg.Text(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}", size=(20, 5), font=("Arial Bold", 10), key="puntajes_totales")]], title="Puntaje Total:")],
+                    [sg.Text(f"Fichas restantes: {len(bolsa)}", key="bolsa_fichas")],
                     [sg.Text("Tiempo restante: ?", key="cronometro")],
-                    [sg.Text("Nivel: {}".format(dif))],
+                    [sg.Text(f"Nivel: {dif}" if dif != "Dificil" else f"Nivel: {dif} ({get_cat_azar(cat_azar)})")],
                     [sg.Text("\n", pad=(None, 5))],
-                    [sg.Button("Cambiar Fichas", button_color=('black', '#D9B382'), key="cambiar_fichas"), sg.Button("PASAR", button_color=('black', '#D9B382'))],
-                    [sg.Button("TERMINAR", button_color=('black', '#D9B382')), (sg.Button("POSPONER", button_color=('black', '#D9B382')))]]
+                    [sg.Button("Cambiar Fichas", button_color=("black", "#D9B382"), key="cambiar_fichas"), sg.Button("PASAR", button_color=("black", "#D9B382"))],
+                    [sg.Button("TERMINAR", button_color=("black", "#D9B382")), (sg.Button("POSPONER", button_color=("black", "#D9B382")))]]
 
 
     # panel derecho: (referencias)
@@ -638,7 +667,7 @@ def generar_ventana_de_juego(tj: int, dif: str):
     window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
     # window.Maximize()
 
-    letra_seleccionada = ' '
+    letra_seleccionada = " "
 
     fichas_seleccionadas = [] # originales
     llaves_seleccionadas = [] # 
@@ -649,15 +678,17 @@ def generar_ventana_de_juego(tj: int, dif: str):
     primera_jugada = True
 
     while True:
-        if(not primer_turno_jugador):
-            cambios_maquina, intentos_fallidos_maquina = turno_computadora(True, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
-            primer_turno_jugador = True
-            if not intentos_fallidos_maquina:
-                primera_jugada = False
-
         # el "_" detras de una variable significa que no se usa, es para que no salte warning
         # cuando la usemos, le sacamos el "_"
         event, _values = window.Read(timeout=10)
+
+        if not(len(bolsa)):
+            terminar_juego(window, fichas_maquina, estado_fichas, dif)
+            #break
+        if (pygame.mixer.music.get_busy() == 0) and (cancion_actual < cant_canciones):
+            cancion_actual += 1
+            pygame.mixer.music.load(lista_musica[cancion_actual])
+            pygame.mixer.music.play()
 
         # tiempo de juego
         if time() < fin:
@@ -670,13 +701,16 @@ def generar_ventana_de_juego(tj: int, dif: str):
             if event is None:
                 break
 
+            if(not primer_turno_jugador):
+                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                primer_turno_jugador = True
+
             if type(event) is tuple:
-                if letra_seleccionada == ' ':
-                    print('no seleccionaste ninguna letra')
+                if letra_seleccionada == " ":
+                    sg.Popup("No has seleccionado ninguna letra.", title="Aviso", non_blocking=True)
                 else:
                     if(tablero_logico[event[0]][event[1]] != " "):
-                        if audio_disponible:
-                            playsound(sfx["incorrecto"], True)
+                        reproducir_sonido(sfx["incorrecto"])
                     else:
                         if(get_sentido_correcto(palabra_actual.keys(), event, length_palabra)):
                             if letra_cerca(palabra_actual.keys() if len(palabra_actual) else None, event, length_palabra):
@@ -684,63 +718,52 @@ def generar_ventana_de_juego(tj: int, dif: str):
                                 fichas_seleccionadas.append(ficha_actual)
                                 llaves_seleccionadas.append(llave_actual)
                                 palabra_actual[event] = letra_seleccionada
-                                letra_seleccionada = ' '
+                                letra_seleccionada = " "
                                 ficha_actual = None
                                 llave_actual = None
                                 window[llaves_seleccionadas[length_palabra]].update(image_filename=letras["vacio"])
-                                estado_fichas[llaves_seleccionadas[length_palabra]] = {"letra": None, "cambiando": False, "colocando": False}
+                                estado_fichas[llaves_seleccionadas[length_palabra]] = {"letra": None, "cambiando": False}
                                 length_palabra += 1
                     
             
-            if event == 'VERIFICAR':
+            if event == "VERIFICAR":
                 if(len(palabra_actual)):
-                    #2lista_aux = sorted(lista_aux)
                     palabra_actual = ordenar_dic(palabra_actual)
                     todo = verificar_palabra(palabra_actual, dif, cat_azar if "cat_azar" in locals() else None)
-                    # ta aca
-                    #print(todo)
 
                     if(primera_jugada and (7, 7) not in palabra_actual.keys()):
-                        # de aca
-                        for i in range(length_palabra):
-                            estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
-                            window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
-                        for elem in palabra_actual.keys(): #else
-                            window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
-                        # a aca, se puede transformar en una funcion. ej: devolver_fichas() o restaurar_fichas()
+                        devolver_fichas(window, length_palabra, estado_fichas, llaves_seleccionadas, fichas_seleccionadas, palabra_actual, dif)
                         sg.Popup("La primera palabra tiene que tener una ficha en el centro del tablero.", non_blocking=True)
                     else:
-                        if(todo):
-                            try:
-                                for i in range(length_palabra):
-                                    estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False, "colocando": False} #if
-                                    window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
-                            except IndexError:
-                                #terminar_juego()
-                                sg.Popup("Aca deberia terminar el juego, pues no more fixas bro", non_blocking=True)
-                            for key, value in palabra_actual.items(): #if
-                                tablero_logico[key[0]][key[1]] = value #if
-                            if(primera_jugada):
-                                primera_jugada = False
-                            p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
-                            print("a:", palabra_actual.keys())
-                            print("b:", palabra_actual.values())
-                            puntos_obtenidos = calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras)
-                            puntos_jugador += puntos_obtenidos
-                            agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, puntos_obtenidos)
-                            window["tabla_puntos"].Update(values=puntajes_partida)
-                            if audio_disponible:
-                                playsound(sfx["correcto"], False)
-                            window["puntajes_totales"].Update("{}: {}\n\nCPU: {}".format(nombre_jugador, puntos_jugador, puntos_maquina))
-                            cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                        if(len(palabra_actual) >= 2):
+                            if(todo):
+                                try:
+                                    for i in range(length_palabra):
+                                        estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False} #if
+                                        window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
+                                except IndexError:
+                                    terminar_juego(window, fichas_maquina, estado_fichas, dif)
+                                    #break
+                                for key, value in palabra_actual.items(): #if
+                                    tablero_logico[key[0]][key[1]] = value #if
+                                if(primera_jugada):
+                                    primera_jugada = False
+                                p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
+                                puntos_obtenidos = calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras)
+                                puntos_jugador += puntos_obtenidos
+                                agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, puntos_obtenidos)
+                                window["tabla_puntos"].Update(values=puntajes_partida)
+                                reproducir_sonido(sfx["correcto"])
+                                window["puntajes_totales"].Update(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}")
+                                if(len(bolsa)):
+                                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                            else:
+                                devolver_fichas(window, length_palabra, estado_fichas, llaves_seleccionadas, fichas_seleccionadas, palabra_actual, dif)
+                                reproducir_sonido(sfx["incorrecto"])
                         else:
-                            for i in range(length_palabra):
-                                estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
-                                window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
-                            for elem in palabra_actual.keys(): #else
-                                window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
-                            if audio_disponible:    
-                                playsound(sfx["incorrecto"], False)
+                            devolver_fichas(window, length_palabra, estado_fichas, llaves_seleccionadas, fichas_seleccionadas, palabra_actual, dif)
+                            sg.Popup("La palabra debe contener al menos dos letras.", title="Aviso", non_blocking=True)
+                            reproducir_sonido(sfx["incorrecto"])
 
                     llaves_seleccionadas = []
                     fichas_seleccionadas = []
@@ -754,19 +777,16 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     sg.Popup("No se puso ninguna palabra en el tablero.", non_blocking=True)
 
             # # devuelve el valor del atril jugador
-            # #print(estado_fichas[event]["letra"])
 
-            if event == "TERMINAR": #ver lo de cerrar ventana: # cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+            if event == "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
                 salida = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="Aviso")
                 if(salida == "OK"):
-                    if(puntos_jugador):
-                        guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
-                        print("Puntaje guardado con exito!")
-                        # todo esto deberia estar en la funcion terminar_juego
-                    break
+                    terminar_juego(window, fichas_maquina, estado_fichas, dif)
+                    #break
             
             if event == "PASAR":
-                cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                if(len(bolsa)):
+                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
 
             if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para length_palabrainuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea length_palabrainuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
                 print(nombre_jugador)
@@ -797,25 +817,26 @@ def generar_ventana_de_juego(tj: int, dif: str):
                             for _x in fichas_seleccionadas:
                                 letra = sacar_letra(bolsa)
                                 for i in range(7):
-                                    if(estado_fichas["ficha_jugador_{}".format(i)]["cambiando"]):
-                                        estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
-                                        estado_fichas["ficha_jugador_{}".format(i)]["letra"] = letra
-                                        window["ficha_jugador_{}".format(i)].Update(image_filename=letras[letra])
+                                    if(estado_fichas[f"ficha_jugador_{i}"]["cambiando"]):
+                                        estado_fichas[f"ficha_jugador_{i}"]["cambiando"] = False
+                                        estado_fichas[f"ficha_jugador_{i}"]["letra"] = letra
+                                        window[f"ficha_jugador_{i}"].Update(image_filename=letras[letra])
                                         break
                             cambios_jugador += 1
-                            cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                            if(len(bolsa)):
+                                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                         else:
                             for i in range(7):
-                                estado_fichas["ficha_jugador_{}".format(i)]["cambiando"] = False
+                                estado_fichas[f"ficha_jugador_{i}"]["cambiando"] = False
                         fichas_seleccionadas = []
                         window["letras_selecc"].Update(value="Letras seleccionadas: {}".format(" ".join(fichas_seleccionadas).upper()))
                     cambiando_fichas = not cambiando_fichas
 
                 # cambio de color del boton para indicar que el jugador esta realizando un cambio de fichas
                 if(cambiando_fichas):
-                    window["cambiar_fichas"].Update(button_color=('white', '#008000'))
+                    window["cambiar_fichas"].Update(button_color=("white", "#008000"))
                 else:
-                    window["cambiar_fichas"].Update(button_color=('black', '#D9B382'))
+                    window["cambiar_fichas"].Update(button_color=("black", "#D9B382"))
 
             if event in estado_fichas.keys():
                 letra_seleccionada = estado_fichas[event]["letra"]
@@ -831,13 +852,32 @@ def generar_ventana_de_juego(tj: int, dif: str):
                     estado_fichas[event]["cambiando"] = not estado_fichas[event]["cambiando"]
 
 
-            window["bolsa_fichas"].Update(value="Fichas restantes: {}".format(len(bolsa)))
+            window["bolsa_fichas"].Update(value=f"Fichas restantes: {len(bolsa)}")
             
         else:
-            #finalizar_juego()
-            break
+            terminar_juego(window, fichas_maquina, estado_fichas, dif)
+            #break
 
-        
+def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict, dif: str):
+    global puntos_maquina
+    global puntos_jugador
+    restantes_maquina = 0
+    restantes_jugador = 0
+    for i in range(0, 7):
+        restantes_maquina += get_datos_letra(fm[i])["puntaje"]
+        window[f"fichas_maquina{i}"].Update(image_filename=letras[fm[i]])
+        print(estado_fichas[f"ficha_jugador_{i}"])
+        restantes_jugador += get_datos_letra(estado_fichas[f"ficha_jugador_{i}"]["letra"])["puntaje"] if estado_fichas[f"ficha_jugador_{i}"]["letra"] != None else 0
+    puntos_maquina -= restantes_maquina
+    puntos_jugador -= restantes_jugador
+    if(puntos_jugador > 0):
+        guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
+        print("Puntaje guardado con exito!")
+    if(puntos_jugador > puntos_maquina):
+        sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Enhorabuena!")
+    else:
+        sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
+    exit()
 
 
 def mostrar_top10():
@@ -870,7 +910,7 @@ def mostrar_opciones_avanzadas(letras: list): # recibe un dict_keys pero es la f
     """ 
     # Preparo la sublista
     lista = sorted(letras, reverse=False)
-    lista.remove('?')
+    lista.remove("?")
     lista.remove("vacio")
     mitad = int(len(lista)/2)
     primera = lista[:mitad]
@@ -878,34 +918,34 @@ def mostrar_opciones_avanzadas(letras: list): # recibe un dict_keys pero es la f
 
 
     colum_arriba = [[sg.Text("       CANTIDAD  PUNTAJE     "*2)]]
-    colum_izq = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in primera]
-    col_der = [[sg.Text(letra.upper()+':', key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=('cantidad'+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=('puntaje'+letra))] for letra in segunda]
+    colum_izq = [[sg.Text(letra.upper()+":", key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=("cantidad"+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=("puntaje"+letra))] for letra in primera]
+    col_der = [[sg.Text(letra.upper()+":", key=letra, size=(2, 1)), sg.InputText(default_text=get_datos_letra(letra)["cantidad"], size=(8, 3), key=("cantidad"+letra)), sg.InputText(default_text=get_datos_letra(letra)["puntaje"], size=(8, 3), key=("puntaje"+letra))] for letra in segunda]
 
-    col_abajo = [[sg.Button('Guardar', button_color=('black', '#D9B382')), sg.Button('Restablecer', key='reset', pad=(24, 0), button_color=('black', '#D9B382')), sg.Button('Atras', button_color=('black', '#D9B382'))]]
+    col_abajo = [[sg.Button("Guardar", button_color=("black", "#D9B382")), sg.Button("Restablecer", key="reset", pad=(24, 0), button_color=("black", "#D9B382")), sg.Button("Atras", button_color=("black", "#D9B382"))]]
 
     layout = [[sg.Column(colum_arriba)],
             [sg.Column(colum_izq), sg.Column(col_der)],
             [sg.Column(col_abajo)]]
 
-    window = sg.Window('Opciones avanzadas', layout)
+    window = sg.Window("Opciones avanzadas", layout)
 
 
     while True:
         event, values = window.read()
 
-        if event == 'Guardar':
+        if event == "Guardar":
             guardar_json(values)
             window.Close()
 
-        if event == 'reset':
-            if sg.PopupOKCancel('Seguro que quieres restablecer los  valores de fabrica?',
-                                title='Aviso', button_color=('black', '#D9B382')) == 'OK':
+        if event == "reset":
+            if sg.PopupOKCancel("Seguro que quieres restablecer los  valores de fabrica?",
+                                title="Aviso", button_color=("black", "#D9B382")) == "OK":
                 for key, _valor in values.items():
                     valor_nuevo = config_por_defecto()[key[-1]][key[:-1]]
                     window[key].update(valor_nuevo)
                     values[key] = valor_nuevo
 
-        if event in (sg.WIN_CLOSED, 'Atras'):
+        if event in (sg.WIN_CLOSED, "Atras"):
 
             break
 
@@ -929,14 +969,15 @@ puntos_maquina = 0
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(5, 20, 40, 60), default_value=5, key="tiempo")],
-        [sg.Button("TOP 10", button_color=('black', '#D9B382')), sg.Button("OPCIONES AVANZADAS", button_color=('black', '#D9B382'))],
-        [sg.Button('REGLAMENTO', button_color=('black', '#D9B382'), pad=((64, 0), (5, 0)))],
-        [sg.Button('CONTINUAR PARTIDA', button_color=('black', '#D9B382'), pad=((43, 0), (15, 0)))],
-        [sg.Button('INICIAR', button_color=('black', '#D9B382'), pad=((83, 0), (15, 0)))]]
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
+        [sg.Button("TOP 10", button_color=("black", "#D9B382")), sg.Button("OPCIONES AVANZADAS", button_color=("black", "#D9B382"))],
+        [sg.Button("REGLAMENTO", button_color=("black", "#D9B382"), pad=((64, 0), (5, 0)))],
+        [sg.Button("CONTINUAR PARTIDA", button_color=("black", "#D9B382"), pad=((43, 0), (15, 0)))],
+        [sg.Button("INICIAR", button_color=("black", "#D9B382"), pad=((83, 0), (15, 0)))]]
 
 
 window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
+
 
 while True:
     event, values = window.Read()
@@ -949,7 +990,7 @@ while True:
         window.Close()
 
         while True:
-            nombre_jugador = sg.popup_get_text('Por favor, ingrese su nombre: ', 'Nombre')
+            nombre_jugador = sg.popup_get_text("Por favor, ingrese su nombre: ", "Nombre" , button_color=("black", "#D9B382"))
             if(nombre_jugador is None):
                 exit()
             elif(len(nombre_jugador)):
@@ -961,7 +1002,7 @@ while True:
         pass
     
     if event == "REGLAMENTO":
-        sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=('black', '#D9B382'))
+        sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=("black", "#D9B382"))
 
     if event == "TOP 10":
         mostrar_top10()
