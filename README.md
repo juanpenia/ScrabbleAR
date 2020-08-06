@@ -13,10 +13,11 @@ Felipe Verdugo
 
 ### Requerimientos:
 
-* Python 3.6 (es necesaria esta versión ya que pattern tiene problemas con versiones posteriores)
+* Python 3.6+ *
 * PySimpleGUI 4.19.0+
 * Pattern 3.6
 
+* Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
 
 ### Como ejecutar:
 
@@ -29,7 +30,7 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
 * En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
 
-### Linux:
+### Linux*:
 
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
@@ -37,6 +38,8 @@ Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero 
 * Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern`
 
 (Pattern necesita de libmysqlclient-dev, de otra forma no se podrá instalar)
+
+***** Probado solo en Ubuntu 18.04 y 20.04.
 
 Una vez descargado el codigo fuente, se debera ejecutar invocando al interprete con el nombre del archivo.
 
