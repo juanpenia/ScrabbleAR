@@ -49,7 +49,7 @@ sg.LOOK_AND_FEEL_TABLE["Fachero"] = {"BACKGROUND": "#191970", # midnight blue
                                     "BORDER": 1, "SLIDER_DEPTH": 0, "PROGRESS_DEPTH": 0,
                                 }
 
-sg.theme("Fachero") # tiene que ser cambiado
+sg.theme("Fachero") # ta fachero no?
 
 
 casilleros = {"facil": {
@@ -109,14 +109,14 @@ letras = {"a": os.path.join(PATH_FICHAS, "A.png"),
         "?": os.path.join(PATH_FICHAS, "question_mark.png"),
         "vacio": os.path.join(PATH_FICHAS, "vacio.png")}
 
-casillas = {"palabra_x2": os.path.join(PATH_TABLERO, "beta_verde2.png"), # cambiar, no precisamente son esas
+casillas = {"palabra_x2": os.path.join(PATH_TABLERO, "verde.png"),
         "palabra_x3": os.path.join(PATH_TABLERO, "amarelo.png"),
-        "letra_x2": os.path.join(PATH_TABLERO, "beta_marron.png"),
-        "letra_x3": os.path.join(PATH_TABLERO, "beta_azul2.png"),
+        "letra_x2": os.path.join(PATH_TABLERO, "marron.png"),
+        "letra_x3": os.path.join(PATH_TABLERO, "azul.png"),
         "descuento_x1": os.path.join(PATH_TABLERO, "resta1.png"),
         "descuento_x2": os.path.join(PATH_TABLERO, "resta2.png"),
         "descuento_x3": os.path.join(PATH_TABLERO, "resta3.png"),
-        "neutro": os.path.join(PATH_TABLERO, "fondo3.png")}
+        "neutro": os.path.join(PATH_TABLERO, "fondo.png")}
 
 sfx = {"correcto": os.path.join(PATH_SFX, "421002__eponn__correct.wav"),
     "incorrecto": os.path.join(PATH_SFX, "243700__ertfelda__incorrect.wav")}
@@ -805,31 +805,21 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                     fichas_seleccionadas = []
                     p = ""
                     palabra_actual = {}
-                    #for row in tablero_logico:
-                    #    print(row)
                     length_palabra = 0
                     lista_aux = []
                 else:
-                    sg.Popup("No se puso ninguna palabra en el tablero.", non_blocking=True)
+                    sg.Popup("No se puso ninguna palabra en el tablero.", title="Aviso", non_blocking=True)
 
-            # # devuelve el valor del atril jugador
-
-            if event == "TERMINAR": #cuando finaliza :   En ese momento se muestran las fichas que posee cada jugador y se recalcula el puntaje restando al mismo el valor de dichas fichas
+            if event == "TERMINAR": 
                 salida = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="Aviso", button_color=("black", "#D9B382"))
                 if(salida == "OK"):
                     terminar_juego(window, fichas_maquina, estado_fichas, dif)
-                    #break
             
             if event == "PASAR":
                 if(len(bolsa)):
                     primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
 
-            if event == "POSPONER": # Al elegir esta opción se podrá guardar la partida para length_palabrainuarla luego. En este caso, se podrá guardar la partida actual teniendo en cuenta la información del tablero y el tiempo restante. Al momento de iniciar el juego, se pedirá si se desea length_palabrainuar con la partida guardada (si es que hay una) o iniciar una nueva. En cualquier caso siempre habrá una única partida guardada.
-                print(nombre_jugador)
-                tiempo_finalizado =("{}:{}").format(min_restantes,seg_restantes)
-                print(tiempo_finalizado)
-                print(puntos_jugador)
-                print(dif)
+            if event == "POSPONER":
                 if(hay_partida_guardada()):
                     salida = sg.PopupOKCancel("Ya hay una partida guardada. ¿Desea posponer la partida actual?", 
                                         "De ser asi, perderá la ultima partida guardada.", 
@@ -945,13 +935,11 @@ def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict,
     for i in range(0, 7):
         restantes_maquina += get_datos_letra(fm[i])["puntaje"]
         window[f"fichas_maquina{i}"].Update(image_filename=letras[fm[i]])
-        print(estado_fichas[f"ficha_jugador_{i}"])
         restantes_jugador += get_datos_letra(estado_fichas[f"ficha_jugador_{i}"]["letra"])["puntaje"] if estado_fichas[f"ficha_jugador_{i}"]["letra"] != None else 0
     puntos_maquina -= restantes_maquina
     puntos_jugador -= restantes_jugador
     if(puntos_jugador > 0):
         guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
-        print("Puntaje guardado con exito!")
     if(puntos_jugador > puntos_maquina):
         sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Enhorabuena!")
     else:
@@ -1067,14 +1055,14 @@ puntos_maquina = 0
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
         [sg.Button("TOP 10", button_color=("black", "#D9B382")), sg.Button("OPCIONES AVANZADAS", button_color=("black", "#D9B382"))],
         [sg.Button("REGLAMENTO", button_color=("black", "#D9B382"), pad=((64, 0), (5, 0)))],
         [sg.Button("CONTINUAR PARTIDA", button_color=("black", "#D9B382"), pad=((43, 0), (15, 0)))],
         [sg.Button("INICIAR", button_color=("black", "#D9B382"), pad=((83, 0), (15, 0)))]]
 
 
-window = sg.Window("ScrabbleAR", layout, size=(250, 250)).Finalize()
+window = sg.Window("ScrabbleAR", layout, size=(280, 280) if platform == "linux" else (250, 250)).Finalize()
 
 
 while True:
@@ -1096,7 +1084,7 @@ while True:
 
         generar_ventana_de_juego(values["tiempo"], values["nivel"])
 
-    if event == "CONTINUAR PARTIDA": # Se debe poder seguir la partida que fue pospuesta anteriormente.
+    if event == "CONTINUAR PARTIDA":
         try:
             with open("partida_guardada.dat", "rb") as arc:
                 data = pickle.load(arc)
