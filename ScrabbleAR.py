@@ -121,16 +121,19 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, "beta_verde2.png"), # cambi
 sfx = {"correcto": os.path.join(PATH_SFX, "421002__eponn__correct.wav"),
     "incorrecto": os.path.join(PATH_SFX, "243700__ertfelda__incorrect.wav")}
 
-# lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
-#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
-#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
-#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
-#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
-#         os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
-#         os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
-lista_musica = ["R:\\ACDC - Thunderstruck (Live At River Plate, December 2009).mp3",
-            "R:\\ACDC - Shoot to Thrill (Live At River Plate, December 2009).mp3"]
+lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
+        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
+        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
+        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
+        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
+        os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
+        os.path.join(PATH_MUSICA, "Chad_Crouch_-_Coral.mp3"), 
+        os.path.join(PATH_MUSICA, "Chad_Crouch_-_Charcoal.mp3"), 
+        os.path.join(PATH_MUSICA, "Chad_Crouch_-_Taut.mp3"), 
+        os.path.join(PATH_MUSICA, "Chad_Crouch_-_Ruby.mp3"),
+        os.path.join(PATH_MUSICA, "Chad_Crouch_-_Tuscan_Sun.mp3")]
 shuffle(lista_musica)
+lista_musica.extend(lista_musica) # un cheat para que dure mas jeje
 
 def reproducir_sonido(archivo: str):
     """
