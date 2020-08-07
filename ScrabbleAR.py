@@ -147,6 +147,12 @@ def reproducir_sonido(archivo: str):
         data, fs = sf.read(archivo, dtype='float32')  
         sd.play(data, fs)
 
+def ordenar_dic(dic: dict) -> dict:
+    """
+    Simple función que se encarga de ordenar un diccionario.
+    """
+    return {key: dic[key] for key in sorted(dic)}
+
 def dibujar_casilla(x: int, y: int, dif: str) -> str:
     """
     Función que se encarga de devolver de que casillero
@@ -214,7 +220,33 @@ def sacar_letra(bolsa: list) -> str:
     bolsa.remove(letra)
     return letra
 
+def puntajes_por_defecto() -> dict:
+    """
+    Función encargada de generar el diccionario con 
+    el puntaje de cada letra.
+    """
+    puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
+                "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
+                "k": 8, "l": 1, "m": 3, "n": 1, "o": 1,
+                "p": 3, "q": 8, "r": 1, "s": 1, "t": 1,
+                "u": 1, "v": 4, "w": 8, "x": 8, "y": 4, "z": 10}
+    return puntajes
 
+def cargar_puntajes_letras() -> dict:
+    """
+    Función encargada de guardar en un archivo JSON
+    los puntajes por defecto de cada letra.
+    """
+    try:
+        with open("config.cfg") as config:
+            datos = json.load(config)
+            puntajes = {}
+            for x, y in datos.items():
+                puntajes[x] = y["puntaje"]
+
+            return puntajes
+    except FileNotFoundError:
+        sg.Popup("El archivo de configuración no ha sido encontrado!", title="Error Critico")
 
 def config_por_defecto() -> dict:
     """
@@ -256,35 +288,6 @@ def generar_archivo_config():
     with open("config.cfg", "w") as config:
         json.dump(config_por_defecto(), config, indent=4)
 
-def puntajes_por_defecto() -> dict:
-    """
-    Función encargada de generar el diccionario con 
-    el puntaje de cada letra.
-    """
-    puntajes = {"a": 1, "b": 3, "c": 2, "d": 2, "e": 1,
-                "f": 4, "g": 2, "h": 4, "i": 1, "j": 6, 
-                "k": 8, "l": 1, "m": 3, "n": 1, "o": 1,
-                "p": 3, "q": 8, "r": 1, "s": 1, "t": 1,
-                "u": 1, "v": 4, "w": 8, "x": 8, "y": 4, "z": 10}
-    return puntajes
-
-def cargar_puntajes_letras() -> dict:
-    """
-    Función encargada de guardar en un archivo JSON
-    los puntajes por defecto de cada letra.
-    """
-    try:
-        with open("config.cfg") as config:
-            datos = json.load(config)
-            puntajes = {}
-            for x, y in datos.items():
-                puntajes[x] = y["puntaje"]
-
-            return puntajes
-    except FileNotFoundError:
-        sg.Popup("El archivo de configuración no ha sido encontrado!", title="Error Critico")
-
-
 def dar_fichas_maquina(bolsa: list) -> list:
     """
     Función encargada de otorgar las 7 fichas random
@@ -300,19 +303,6 @@ def cambiar_fichas_maquina(bolsa: list, fm: list):
     bolsa.extend(fm)
     shuffle(bolsa)
     fm = dar_fichas_maquina(bolsa)
-
-
-def generar_tablero(dificultad: str, pr: bool, tl: Union[list, None] = None) -> list:
-    """
-    Función encargada de generar los 3 tableros con una dimesion de 15x15
-    utilizando la funcion casillero_segun_color
-    """
-    tablero = []
-    for i in range(15):
-        tablero.append([])
-        for j in range(15):
-            tablero[i].append(sg.Button(image_filename=letras[tl[i][j]] if (tl is not None and tl[i][j] != " ") else dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
-    return tablero
 
 def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None, str] = None) -> bool:
     """
@@ -331,13 +321,91 @@ def verificar_palabra(palabra: Union[list, dict], dif: str, cat_azar: Union[None
                 ok = pal[1] in cat_azar
     return ok and ((p in lexicon) or (p in spelling))
 
-def ordenar_dic(dic: dict) -> dict:
+def sentido_palabra_actual(pos: list, ultimo: int) -> str:
     """
-    Simple función que se encarga de ordenar un diccionario.
+    Función encargada de verificar si la palabra que se ingreso esta
+    horizontal o vertical
     """
-    return {key: dic[key] for key in sorted(dic)}
+    if(len(pos) > 1):
+        pos = [x for x in pos]
+        if pos[ultimo-1][0] == pos[ultimo-2][0]:
+            return "Horizontal"
+        elif pos[ultimo-1][1] == pos[ultimo-2][1]: 
+            return "Vertical"
+    else:
+        return "?"
 
-     
+
+def get_sentido_correcto(pos: tuple, actual: tuple, ultimo: int) -> bool:
+    """
+    Función que revisa si la proxima letra a ingresar esta
+    siendo insertada correctamente.
+    """
+    if(len(pos) > 1):
+        pos = [x for x in pos]
+        if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
+            return True if actual[1] in (pos[0][1]-1, pos[ultimo-1][1]+1) else False
+        elif(sentido_palabra_actual(pos, ultimo) == "Vertical"): 
+            return True if actual[0] in (pos[0][0]-1, pos[ultimo-1][0]+1) else False
+    else:
+        return True
+
+def letra_cerca(pos: Union[None, list], actual: tuple, ultimo: int) -> bool:
+    """
+    Función que se encarga de verificar letras cercanas
+    para determinar que la palabra se esta colocando
+    de forma correcta.
+    """
+    if(pos != None):
+        pos = [x for x in pos]
+        posibles = ((pos[0][0]-1, pos[0][1]),
+        (pos[ultimo-1][0]+1, pos[ultimo-1][1]), 
+        (pos[0][0], pos[0][1]-1), 
+        (pos[ultimo-1][0], pos[ultimo-1][1]+1))
+
+    return (("posibles" in locals()) and (actual in posibles)) or pos is None
+
+
+def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: 
+    """
+    Función encargada de calcular el puntaje de la jugada.
+    """
+    total = 0
+    for key, value in data.items():
+        x = get_premio_descuento_casillero(key, dif) # para mayor prolijidad
+        if x == "letra_x2":
+            total += pl[value]*2
+        elif x == "letra_x3":
+            total += pl[value]*3
+        elif x == "descuento_x1":
+            total += pl[value]-1
+        elif x == "descuento_x2":
+            total += pl[value]-2
+        elif x == "descuento_x3":
+            total += pl[value]-3
+        elif x == "palabra_x2":
+            total = (total + pl[value]) * 2
+        elif x == "palabra_x3":
+            total = (total + pl[value]) * 3
+        else:
+            total += pl[value]
+
+    return total
+
+def get_cat_azar(cat: str) -> str:
+    """
+    Función que devuelve de una forma mas legible
+    la categoria al azar a jugar en la dificultad
+    Dificil.
+    """
+    if cat == "VB":
+        return "Verbos"
+    elif cat == ("NNS", "NN"):
+        return "Sustantivos"
+    elif cat == "JJ":
+        return "Adjetivos"
+
+
 def turno_computadora(pj: bool, 
                     fichas_maquina: list, 
                     cambios_maquina: int, 
@@ -435,77 +503,6 @@ def turno_computadora(pj: bool,
     return pj, cambios_maquina, intentos_fallidos_maquina
 
 
-def sentido_palabra_actual(pos: list, ultimo: int) -> str:
-    """
-    Función encargada de verificar si la palabra que se ingreso esta
-    horizontal o vertical
-    """
-    if(len(pos) > 1):
-        pos = [x for x in pos]
-        if pos[ultimo-1][0] == pos[ultimo-2][0]:
-            return "Horizontal"
-        elif pos[ultimo-1][1] == pos[ultimo-2][1]: 
-            return "Vertical"
-    else:
-        return "?"
-
-
-def get_sentido_correcto(pos: tuple, actual: tuple, ultimo: int) -> bool:
-    """
-    Función que revisa si la proxima letra a ingresar esta
-    siendo insertada correctamente.
-    """
-    if(len(pos) > 1):
-        pos = [x for x in pos]
-        if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
-            return True if actual[1] in (pos[0][1]-1, pos[ultimo-1][1]+1) else False
-        elif(sentido_palabra_actual(pos, ultimo) == "Vertical"): 
-            return True if actual[0] in (pos[0][0]-1, pos[ultimo-1][0]+1) else False
-    else:
-        return True
-
-def letra_cerca(pos: Union[None, list], actual: tuple, ultimo: int) -> bool:
-    """
-    Función que se encarga de verificar letras cercanas
-    para determinar que la palabra se esta colocando
-    de forma correcta.
-    """
-    if(pos != None):
-        pos = [x for x in pos]
-        posibles = ((pos[0][0]-1, pos[0][1]),
-        (pos[ultimo-1][0]+1, pos[ultimo-1][1]), 
-        (pos[0][0], pos[0][1]-1), 
-        (pos[ultimo-1][0], pos[ultimo-1][1]+1))
-
-    return (("posibles" in locals()) and (actual in posibles)) or pos is None
-
-
-def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: 
-    """
-    Función encargada de calcular el puntaje de la jugada.
-    """
-    total = 0
-    for key, value in data.items():
-        x = get_premio_descuento_casillero(key, dif) # para mayor prolijidad
-        if x == "letra_x2":
-            total += pl[value]*2
-        elif x == "letra_x3":
-            total += pl[value]*3
-        elif x == "descuento_x1":
-            total += pl[value]-1
-        elif x == "descuento_x2":
-            total += pl[value]-2
-        elif x == "descuento_x3":
-            total += pl[value]-3
-        elif x == "palabra_x2":
-            total = (total + pl[value]) * 2
-        elif x == "palabra_x3":
-            total = (total + pl[value]) * 3
-        else:
-            total += pl[value]
-
-    return total
-
 def agregar_puntaje_tabla(pp: list, nombre: str, palabra: str, puntaje: int):
     """
     Función encargada de agregar a la tabla ,el puntaje,el nombre del usuario
@@ -569,18 +566,60 @@ def devolver_fichas(window: sg.PySimpleGUI.Window,
     for elem in palabra_actual.keys(): 
         window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) 
 
-def get_cat_azar(cat: str) -> str:
+def posponer_partida(datos_partida: dict):
     """
-    Función que devuelve de una forma mas legible
-    la categoria al azar a jugar en la dificultad
-    Dificil.
+    Función encargada de guardar los datos
+    en formato pickle de la partida pospuesta.
     """
-    if cat == "VB":
-        return "Verbos"
-    elif cat == ("NNS", "NN"):
-        return "Sustantivos"
-    elif cat == "JJ":
-        return "Adjetivos"
+    # uso pickle para que el jugador no haga "trampa" y mire ni modifique las fichas que le quedan a la maquina, bolsa, etc
+    with open("partida_guardada.dat", "wb") as arc:
+        pickle.dump(datos_partida, arc)
+
+def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict, dif: str):
+    """
+    Función encargada de finalizar el juego.
+    """
+    global puntos_maquina
+    global puntos_jugador
+    restantes_maquina = 0
+    restantes_jugador = 0
+    for i in range(0, 7):
+        restantes_maquina += get_datos_letra(fm[i])["puntaje"]
+        window[f"fichas_maquina{i}"].Update(image_filename=letras[fm[i]])
+        restantes_jugador += get_datos_letra(estado_fichas[f"ficha_jugador_{i}"]["letra"])["puntaje"] if estado_fichas[f"ficha_jugador_{i}"]["letra"] != None else 0
+    puntos_maquina -= restantes_maquina
+    puntos_jugador -= restantes_jugador
+    if(puntos_jugador > 0):
+        guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
+    if(puntos_jugador > puntos_maquina):
+        sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Enhorabuena!")
+    else:
+        sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
+    exit()
+
+def hay_partida_guardada():
+    """
+    Función que se encarga de retornar
+    si hay una partida guardada o no.
+    """
+    try:
+        with open("partida_guardada.dat", "rb") as arc:
+            data = pickle.load(arc)
+            return bool(len(data))
+    except FileNotFoundError:
+        return False
+
+def generar_tablero(dificultad: str, pr: bool, tl: Union[list, None] = None) -> list:
+    """
+    Función encargada de generar los 3 tableros con una dimesion de 15x15
+    utilizando la funcion casillero_segun_color
+    """
+    tablero = []
+    for i in range(15):
+        tablero.append([])
+        for j in range(15):
+            tablero[i].append(sg.Button(image_filename=letras[tl[i][j]] if (tl is not None and tl[i][j] != " ") else dibujar_casilla(i, j, dificultad), image_size=(32, 32), key=(i, j), pad=(0, 0)))
+    return tablero
 
 def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, dpr: Union[dict, None] = None):
     """
@@ -908,48 +947,6 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
         else:
             terminar_juego(window, fichas_maquina, estado_fichas, dif)
 
-def posponer_partida(datos_partida: dict):
-    """
-    Función encargada de guardar los datos
-    en formato pickle de la partida pospuesta.
-    """
-    # uso pickle para que el jugador no haga "trampa" y mire ni modifique las fichas que le quedan a la maquina, bolsa, etc
-    with open("partida_guardada.dat", "wb") as arc:
-        pickle.dump(datos_partida, arc)
-
-def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict, dif: str):
-    """
-    Función encargada de finalizar el juego.
-    """
-    global puntos_maquina
-    global puntos_jugador
-    restantes_maquina = 0
-    restantes_jugador = 0
-    for i in range(0, 7):
-        restantes_maquina += get_datos_letra(fm[i])["puntaje"]
-        window[f"fichas_maquina{i}"].Update(image_filename=letras[fm[i]])
-        restantes_jugador += get_datos_letra(estado_fichas[f"ficha_jugador_{i}"]["letra"])["puntaje"] if estado_fichas[f"ficha_jugador_{i}"]["letra"] != None else 0
-    puntos_maquina -= restantes_maquina
-    puntos_jugador -= restantes_jugador
-    if(puntos_jugador > 0):
-        guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
-    if(puntos_jugador > puntos_maquina):
-        sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Enhorabuena!")
-    else:
-        sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
-    exit()
-
-def hay_partida_guardada():
-    """
-    Función que se encarga de retornar
-    si hay una partida guardada o no.
-    """
-    try:
-        with open("partida_guardada.dat", "rb") as arc:
-            data = pickle.load(arc)
-            return bool(len(data))
-    except FileNotFoundError:
-        return False
 
 def mostrar_top10():
     """
