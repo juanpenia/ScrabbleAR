@@ -121,13 +121,15 @@ casillas = {"palabra_x2": os.path.join(PATH_TABLERO, "beta_verde2.png"), # cambi
 sfx = {"correcto": os.path.join(PATH_SFX, "421002__eponn__correct.wav"),
     "incorrecto": os.path.join(PATH_SFX, "243700__ertfelda__incorrect.wav")}
 
-lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
-        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
-        os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
-        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
-        os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
-        os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
-        os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
+# lista_musica = [os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_05_-_The_Healing.mp3"), 
+#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_04_-_Northern_Lullaby.mp3"), 
+#         os.path.join(PATH_MUSICA, "Sergey_Cheremisinov_-_01_-_Gray_Drops.mp3"), 
+#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_Waves.mp3"), 
+#         os.path.join(PATH_MUSICA, "Pictures_of_the_Floating_World_-_01_-_Canada.mp3"), 
+#         os.path.join(PATH_MUSICA, "Kai_Engel_-_05_-_Great_Expectations.mp3"), 
+#         os.path.join(PATH_MUSICA, "Kai_Engel_-_07_-_Interception.mp3")]
+lista_musica = ["R:\\ACDC - Thunderstruck (Live At River Plate, December 2009).mp3",
+            "R:\\ACDC - Shoot to Thrill (Live At River Plate, December 2009).mp3"]
 shuffle(lista_musica)
 
 def reproducir_sonido(archivo: str):
@@ -582,7 +584,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
     musica_muteada = False
     pygame.mixer.init()
     pygame.mixer.music.load(lista_musica[cancion_actual])
-    pygame.mixer.music.set_volume(0.25)
+    pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.play()
     #fin musica
 
@@ -994,8 +996,16 @@ def mostrar_opciones_avanzadas(letras: list): # recibe un dict_keys pero es la f
         event, values = window.read()
 
         if event == "Guardar":
-            guardar_json(values)
-            window.Close()
+            esta_mal = False
+            for k, v in values.items():
+                if(k[:-1] == "cantidad" and int(v) <= 0):
+                    esta_mal = True
+                    break
+            if(esta_mal):
+                sg.Popup("No se puede guardar una cantidad de fichas igual o menor a 0. Por favor, corrija esto.", title="Error!", button_color=("black", "#D9B382"))
+            else:
+                guardar_json(values)
+                window.Close()
 
         if event == "reset":
             if sg.PopupOKCancel("Seguro que quieres restablecer los  valores de fabrica?",
