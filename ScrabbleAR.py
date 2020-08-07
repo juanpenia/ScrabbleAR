@@ -307,7 +307,6 @@ def generar_tablero(dificultad: str, pr: bool, tl: Union[list, None] = None) -> 
     Función encargada de generar los 3 tableros con una dimesion de 15x15
     utilizando la funcion casillero_segun_color
     """
-    # aca posponer_partida
     tablero = []
     for i in range(15):
         tablero.append([])
@@ -381,7 +380,7 @@ def turno_computadora(pj: bool,
                 if(tablero_logico[posiciones[0]][posiciones[1]] == " "):
                     todo_libre = True
                     sentido = randint(0, 1)
-                    pos_actual = 0 # pos actual
+                    pos_actual = 0
                     if(posiciones[sentido] + len(palabra) > 14):
                         continue
 
@@ -481,7 +480,7 @@ def letra_cerca(pos: Union[None, list], actual, ultimo):
     return (("posibles" in locals()) and (actual in posibles)) or pos is None
 
 
-def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: # cambiar td por algo mejor, td es palabra_actual de abajo
+def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int: 
     """
     Función encargada de calcular el puntaje de la jugada.
     """
@@ -566,9 +565,9 @@ def devolver_fichas(window: sg.PySimpleGUI.Window,
 
     for i in range(largo_palabra):
         estado_fichas[llaves_seleccionadas[i]] = fichas_seleccionadas[i]
-        window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
-    for elem in palabra_actual.keys(): #else
-        window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) #else
+        window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) 
+    for elem in palabra_actual.keys(): 
+        window[elem].Update(image_filename=dibujar_casilla(elem[0], elem[1], dif)) 
 
 def get_cat_azar(cat: str) -> str:
     """
@@ -606,7 +605,6 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
     pygame.mixer.music.load(lista_musica[cancion_actual])
     pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.play()
-    #fin musica
 
     # esto se va a poner feo
     puntajes_letras = cargar_puntajes_letras()
@@ -643,13 +641,13 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
     for i in range(7):
         col_arriba[0].append(sg.Button(image_filename=letras["?"], border_width=0, pad=((9, 0), (10, 0)), button_color=("black", "#191970"), key=f"fichas_maquina{i}"))
     col_arriba[0].extend([sg.Text(" "*91), sg.Button("MUSIC: ON", button_color=("black", "#D9B382"), key="music_toggle")])
+
     # tablero de juego:
     col_tablero = generar_tablero(dif, pr, dpr["estado_tablero"] if pr else None)
+
     # crear tablero logico
     tablero_logico  = [[" " for j in range(15)] for i in range(15)] if not pr else dpr["estado_tablero"]
 
-
-    
     # letras del jugador:
     fichas_seleccionadas = []
     col_jugador = [[sg.Text(" "*49), sg.Text("Letras seleccionadas: ", key="letras_selecc", size=(180, None))]]
@@ -672,6 +670,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
         nombre_jugador = dpr["nombre_jugador"]
         puntos_jugador = dpr["puntos_jugador"]
         puntos_maquina = dpr["puntos_maquina"]
+
     # panel izquierdo:
     headings_tabla = ("Jugador", "Palabra", "Pts")
     col_izquierda = [[sg.Text("Jugadas: ")],
@@ -701,12 +700,11 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             [sg.Column(col_jugador)]]
 
     window = sg.Window("ScrabbleAR", layout, size=(1000, 700), location=(300, 0), resizable=True).Finalize()
-    # window.Maximize()
 
     letra_seleccionada = " "
 
-    fichas_seleccionadas = [] # originales
-    llaves_seleccionadas = [] # 
+    fichas_seleccionadas = [] 
+    llaves_seleccionadas = [] 
     length_palabra = 0
     ficha_actual = None
     llave_actual = None
@@ -714,13 +712,10 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
     primera_jugada = True
 
     while True:
-        # el "_" detras de una variable significa que no se usa, es para que no salte warning
-        # cuando la usemos, le sacamos el "_"
         event, _values = window.Read(timeout=10)
 
         if not(len(bolsa)):
             terminar_juego(window, fichas_maquina, estado_fichas, dif)
-            #break
         if (pygame.mixer.music.get_busy() == 0) and (cancion_actual < cant_canciones):
             cancion_actual += 1
             pygame.mixer.music.load(lista_musica[cancion_actual])
@@ -775,16 +770,15 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                             if(todo):
                                 try:
                                     for i in range(length_palabra):
-                                        estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False} #if
+                                        estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False} 
                                         window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]]) # repite
                                 except IndexError:
                                     terminar_juego(window, fichas_maquina, estado_fichas, dif)
-                                    #break
-                                for key, value in palabra_actual.items(): #if
-                                    tablero_logico[key[0]][key[1]] = value #if
+                                for key, value in palabra_actual.items(): 
+                                    tablero_logico[key[0]][key[1]] = value 
                                 if(primera_jugada):
                                     primera_jugada = False
-                                p = "".join(palabra_actual.values()) # cambiar a palabra formada or something
+                                p = "".join(palabra_actual.values()) 
                                 puntos_obtenidos = calcular_puntaje_jugada(palabra_actual, dif, puntajes_letras)
                                 puntos_jugador += puntos_obtenidos
                                 agregar_puntaje_tabla(puntajes_partida, nombre_jugador, p, puntos_obtenidos)
@@ -861,7 +855,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                     window["music_toggle"].Update("MUSIC: OFF")
                 musica_muteada = not musica_muteada
 
-            if event == "cambiar_fichas": # me gustaria hacer que esto sea una funcion, asi queda mejor y mas prolijo aca
+            if event == "cambiar_fichas": 
 
                 if(cambios_jugador >= 3):
                     sg.Popup("Ya no tienes cambios de fichas restantes.", title="Aviso", non_blocking=True)
@@ -913,7 +907,6 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             
         else:
             terminar_juego(window, fichas_maquina, estado_fichas, dif)
-            #break
 
 def posponer_partida(datos_partida: dict):
     """
