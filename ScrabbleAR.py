@@ -450,7 +450,7 @@ def sentido_palabra_actual(pos: list, ultimo: int) -> str:
         return "?"
 
 
-def get_sentido_correcto(pos, actual, ultimo):
+def get_sentido_correcto(pos: tuple, actual: tuple, ultimo: int) -> bool:
     """
     Función que revisa si la proxima letra a ingresar esta
     siendo insertada correctamente.
@@ -464,7 +464,7 @@ def get_sentido_correcto(pos, actual, ultimo):
     else:
         return True
 
-def letra_cerca(pos: Union[None, list], actual, ultimo):
+def letra_cerca(pos: Union[None, list], actual: tuple, ultimo: int) -> bool:
     """
     Función que se encarga de verificar letras cercanas
     para determinar que la palabra se esta colocando
@@ -506,14 +506,14 @@ def calcular_puntaje_jugada(data: dict, dif: str, pl:dict) -> int:
 
     return total
 
-def agregar_puntaje_tabla(pp, nombre, palabra, puntaje):
+def agregar_puntaje_tabla(pp: list, nombre: str, palabra: str, puntaje: int):
     """
     Función encargada de agregar a la tabla ,el puntaje,el nombre del usuario
     y la palabra.
     """
     pp.append([nombre, palabra, puntaje])
 
-def guardar_puntaje_finalizado(nombre,dif,punt):
+def guardar_puntaje_finalizado(nombre: str, dif: str, punt: int):
     """
     Función encargada de guardar la partida del jugador al terminar 
     """
