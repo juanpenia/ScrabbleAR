@@ -53,3 +53,5 @@ Una vez descargado el codigo fuente, se debera ejecutar invocando al interprete 
 En Windows se puede ejecutar haciendo doble click en el mismo (en caso de tener instalado pylauncher), o llamandolo desde cmd o powershell, tipicamente como `py ScrabbleAR.py`
 
 En linux, para ejecutar con doble click se le debe dar permiso de ejecucion con el comando `chmod +x ./ScrabbleAR.py`, o invocandolo desde la terminal como `python3 ScrabbleAR.py`
+
+Musica obtenida de https://freemusicarchive.org.
