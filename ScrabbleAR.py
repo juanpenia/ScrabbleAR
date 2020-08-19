@@ -328,9 +328,9 @@ def sentido_palabra_actual(pos: list, ultimo: int) -> str:
     """
     if(len(pos) > 1):
         pos = [x for x in pos]
-        if pos[ultimo-1][0] == pos[ultimo-2][0]:
+        if pos[0][0] == pos[1][0]:
             return "Horizontal"
-        elif pos[ultimo-1][1] == pos[ultimo-2][1]: 
+        elif pos[0][1] == pos[1][1]: 
             return "Vertical"
     else:
         return "?"
@@ -342,7 +342,7 @@ def get_sentido_correcto(pos: tuple, actual: tuple, ultimo: int) -> bool:
     siendo insertada correctamente.
     """
     if(len(pos) > 1):
-        pos = [x for x in pos]
+        pos = sorted([x for x in pos])
         if(sentido_palabra_actual(pos, ultimo) == "Horizontal"): 
             return True if actual[1] in (pos[0][1]-1, pos[ultimo-1][1]+1) else False
         elif(sentido_palabra_actual(pos, ultimo) == "Vertical"): 
@@ -357,7 +357,7 @@ def letra_cerca(pos: Union[None, list], actual: tuple, ultimo: int) -> bool:
     de forma correcta.
     """
     if(pos != None):
-        pos = [x for x in pos]
+        pos = sorted([x for x in pos])
         posibles = ((pos[0][0]-1, pos[0][1]),
         (pos[ultimo-1][0]+1, pos[ultimo-1][1]), 
         (pos[0][0], pos[0][1]-1), 
@@ -769,7 +769,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             window["cronometro"].Update(value="Tiempo: {:02d}:{:02d}".format(min_restantes, seg_restantes))
 
             if event is None:
-                break
+                exit()
 
             if(not primer_turno_jugador):
                 primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
