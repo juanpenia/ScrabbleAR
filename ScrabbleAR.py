@@ -437,10 +437,10 @@ def turno_computadora(pj: bool,
         if(pj):
             sentido = randint(0, 1)
             for i in range(7, 7+len(palabra)):
-                tupuntajes_letrasa = (i, 7) if sentido == 0 else (i, 7)
-                window[tupuntajes_letrasa].Update(image_filename=letras[palabra[i-7]])
-                tablero_logico[tupuntajes_letrasa[0]][tupuntajes_letrasa[1]] = palabra[i-7]
-                posiciones_afectadas[tupuntajes_letrasa] = palabra[i-7]
+                tupla = (i, 7) if sentido == 0 else (7, i)
+                window[tupla].Update(image_filename=letras[palabra[i-7]])
+                tablero_logico[tupla[0]][tupla[1]] = palabra[i-7]
+                posiciones_afectadas[tupla] = palabra[i-7]
             pj = False
         else:
             while True:
@@ -464,10 +464,10 @@ def turno_computadora(pj: bool,
 
                     if todo_libre:
                         for i in range(posiciones[sentido], posiciones[sentido]+len(palabra)):
-                            tupuntajes_letrasa = (i, posiciones[1]) if sentido == 0 else (posiciones[0], i)
-                            window[tupuntajes_letrasa].Update(image_filename=letras[palabra[pos_actual]])
-                            tablero_logico[tupuntajes_letrasa[0]][tupuntajes_letrasa[1]] = palabra[pos_actual]
-                            posiciones_afectadas[tupuntajes_letrasa] = palabra[pos_actual]
+                            tupla = (i, posiciones[1]) if sentido == 0 else (posiciones[0], i)
+                            window[tupla].Update(image_filename=letras[palabra[pos_actual]])
+                            tablero_logico[tupla[0]][tupla[1]] = palabra[pos_actual]
+                            posiciones_afectadas[tupla] = palabra[pos_actual]
                             pos_actual+=1
                         break
                     else:
