@@ -10,7 +10,7 @@ _license_ = "GPL"
 _version_ = "3.0"
 _maintainer_ = "Juan Sebastián Peña, Hernan Nahuel Ramos, y Felipe Verdugo"
 _email_ = "juanpea.98@gmail.com, herni.ramoss@gmail.com, felipeverdugo016@gmail.com"
-_status_ = "Produccion"
+_status_ = "Release"
 
 import os
 import json
@@ -772,7 +772,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                 exit()
 
             if(not primer_turno_jugador):
-                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                 primer_turno_jugador = True
 
             if type(event) is tuple:
@@ -825,7 +825,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                                 reproducir_sonido(sfx["correcto"])
                                 window["puntajes_totales"].Update(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}")
                                 if(len(bolsa)):
-                                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                             else:
                                 devolver_fichas(window, length_palabra, estado_fichas, llaves_seleccionadas, fichas_seleccionadas, palabra_actual, dif)
                                 reproducir_sonido(sfx["incorrecto"])
@@ -850,7 +850,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             
             if event == "PASAR":
                 if(len(bolsa)):
-                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
 
             if event == "POSPONER":
                 if(hay_partida_guardada()):
@@ -882,8 +882,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                     posponer_partida(datos_partida)
                     pygame.mixer.music.stop()
                     sg.Popup("Tu partida ha sido pospuesta con exito. Hasta la proxima!", title="Enhorabuena!", button_color=("black", "#D9B382"))
-                    break
-                    
+                    exit()
 
             if event == "music_toggle":
                 if(musica_muteada):
@@ -914,7 +913,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                                         break
                             cambios_jugador += 1
                             if(len(bolsa)):
-                                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, 0, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                         else:
                             for i in range(7):
                                 estado_fichas[f"ficha_jugador_{i}"]["cambiando"] = False
@@ -1011,7 +1010,7 @@ def mostrar_opciones_avanzadas(letras: list): # recibe un dict_keys pero es la f
                 sg.Popup("No se puede guardar una cantidad de fichas igual o menor a 0. Por favor, corrija esto.", title="Error!", button_color=("black", "#D9B382"))
             else:
                 guardar_json(values)
-                window.Close()
+                break
 
         if event == "reset":
             if sg.PopupOKCancel("Seguro que quieres restablecer los  valores de fabrica?",
@@ -1022,11 +1021,9 @@ def mostrar_opciones_avanzadas(letras: list): # recibe un dict_keys pero es la f
                     values[key] = valor_nuevo
 
         if event in (sg.WIN_CLOSED, "Atras"):
-
             break
 
     window.close()
-
 
 def popup_top10_vacio():
     """
@@ -1045,7 +1042,7 @@ puntos_maquina = 0
 
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
         [sg.Button("TOP 10", button_color=("black", "#D9B382")), sg.Button("OPCIONES AVANZADAS", button_color=("black", "#D9B382"))],
         [sg.Button("REGLAMENTO", button_color=("black", "#D9B382"), pad=((64, 0), (5, 0)))],
         [sg.Button("CONTINUAR PARTIDA", button_color=("black", "#D9B382"), pad=((43, 0), (15, 0)))],
@@ -1091,9 +1088,9 @@ while True:
                         button_color=("black", "#D9B382"))
             if salida == "OK":
                 window.Close()
-                generar_ventana_de_juego(pr=True, dpr=data)
                 with open("partida_guardada.dat", "wb") as arc:
                     pickle.dump({}, arc)
+                generar_ventana_de_juego(pr=True, dpr=data)
     
     if event == "REGLAMENTO":
         sg.Popup("El jugador debe formar una palabra usando dos (2) o más letras, colocándolas horizontalmente (las letras ubicadas de izquierda a derecha) o verticalmente (en orden descendente) sobre el tablero.","En la primera jugada, una de las letras deberá estar situada en el cuadro de “inicio del juego”.","Para comenzar la partida, cada jugador retira siete (7) fichas de la bolsa. Luego combina dos o más de sus letras para formar una palabra, y la coloca en el tablero horizontal o verticalmente. Está obligado a poner una de las letras que forman su palabra en la casilla central.Una vez ingresada la palabra se debería confirmar la misma en el tablero y automáticamente se chequeará si la palabra corresponde a la clasificación que se está usando en el juego."," Las únicas palabras admitidas en el tablero serán adjetivos, sustantivos y verbos, de acuerdo a las opciones de configuración establecidas previamente. En caso de no corresponder, las fichas serán devueltas al jugador para que vuelva a intentar.Una vez que el jugador haya ingresado y confirmado correctamente la palabra, se le repondrá la cantidad de fichas que utilizó sin contar las preexistentes en el tablero. De esta manera el jugador nunca tendrá más de siete (7) fichas en su poder.","Cuando el turno lo tiene la computadora, se tratará de armar palabras con las fichas propias de la computadora. La primera combinación que concuerde es la que se tomará como válida. En caso de no encontrar combinación, pasará su turno.","En cualquier momento del juego, el jugador puede decidir usar un turno para cambiar algunas o todas sus fichas, devolviéndolas a la bolsa de fichas del juego y reemplazándolas por la misma cantidad; al final, siempre debe tener siete (7). En este mismo turno, el jugador no podrá colocar ninguna palabra sobre el tablero. Esta opción no está disponible para la computadora y el jugador sólo podrá usarla como máximo tres veces durante el juego.",title="Reglamento",button_color=("black", "#D9B382"))
