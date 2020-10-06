@@ -1046,7 +1046,6 @@ def mostrar_opciones_avanzadas(letras: list):  # recibe un dict_keys pero es la 
 
     window.close()
 
-
 def popup_top10_vacio():
     """
     Función encargada de mostrar una imagen
