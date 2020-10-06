@@ -13,11 +13,18 @@ Felipe Verdugo
 
 ### Requerimientos:
 
-* Python 3.6+ *
+* Python 3.6+ (1)
 * PySimpleGUI 4.19.0+
 * Pattern 3.6
+* Pygame
+* Playsound (2)
+* Sounddevice (3)
 
-* Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
+(1) Se puede utilizar con versiones de Python posteriores a 3.6, pero se deben hacer modificaciones al modulo Pattern para que funcione correctamente. Mas información en el archivo "pattern-guia-37.md".
+
+(2) Solo en Windows.
+
+(3) Solo en Linux.
 
 ### Como ejecutar:
 
@@ -28,21 +35,23 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 ### Windows:
 
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
-* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern`
+* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern pygame playsound`
 
-### Linux*:
+### Linux:
 
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
-* Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk libmysqlclient-dev`
-* Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern`
+* Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk libmysqlclient-dev libportaudio2 libasound2-dev`
+* Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern pygame sounddevice soundfile`
 
 (Pattern necesita de libmysqlclient-dev, de otra forma no se podrá instalar)
 
-***** Probado solo en Ubuntu 18.04 y 20.04.
+**Nota:** Probado solo en Ubuntu 18.04 y 20.04.
 
 Una vez descargado el codigo fuente, se debera ejecutar invocando al interprete con el nombre del archivo.
 
 En Windows se puede ejecutar haciendo doble click en el mismo (en caso de tener instalado pylauncher), o llamandolo desde cmd o powershell, tipicamente como `py ScrabbleAR.py`
 
 En linux, para ejecutar con doble click se le debe dar permiso de ejecucion con el comando `chmod +x ./ScrabbleAR.py`, o invocandolo desde la terminal como `python3 ScrabbleAR.py`
+
+Musica obtenida de https://freemusicarchive.org.
