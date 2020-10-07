@@ -428,8 +428,11 @@ def get_cat_azar(cat: str) -> str:
 
 
 def turno_computadora(pj: bool,
+                    puntos_maquina: int,
                     fichas_maquina: list,
                     cambios_maquina: int,
+                    nombre_jugador: str,
+                    puntos_jugador: int,
                     tablero_logico: list,
                     window: sg.PySimpleGUI.Window,
                     bolsa: list,
@@ -496,7 +499,6 @@ def turno_computadora(pj: bool,
         p = "".join(palabra)
         puntos_obtenidos = calcular_puntaje_jugada(posiciones_afectadas, dif, puntajes_letras)
         agregar_puntaje_tabla(puntajes_partida, "CPU", p, puntos_obtenidos)
-        global puntos_maquina
         puntos_maquina += puntos_obtenidos
         window["tabla_puntos"].Update(values=puntajes_partida)
         window["bolsa_fichas"].Update(value=f"Fichas restantes: {len(bolsa)}")
@@ -521,7 +523,7 @@ def turno_computadora(pj: bool,
         else:
             sg.Popup("El CPU pasó de turno.", title="Aviso", non_blocking=True)
 
-    return pj, cambios_maquina, intentos_fallidos_maquina
+    return pj, puntos_maquina, cambios_maquina, intentos_fallidos_maquina
 
 
 def agregar_puntaje_tabla(pp: list, nombre: str, palabra: str, puntaje: int):
@@ -601,12 +603,10 @@ def posponer_partida(datos_partida: dict):
         pickle.dump(datos_partida, arc)
 
 
-def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict, dif: str):
+def terminar_juego(window: sg.PySimpleGUI.Window, puntos_jugador: int, puntos_maquina: int, fm: list, estado_fichas: dict, dif: str):
     """
     Función encargada de finalizar el juego.
     """
-    global puntos_maquina
-    global puntos_jugador
     restantes_maquina = 0
     restantes_jugador = 0
     for i in range(0, 7):
@@ -618,9 +618,17 @@ def terminar_juego(window: sg.PySimpleGUI.Window, fm: list, estado_fichas: dict,
     if(puntos_jugador > 0):
         guardar_puntaje_finalizado(nombre_jugador, dif, puntos_jugador)
     if(puntos_jugador > puntos_maquina):
-        sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Enhorabuena!")
+        if(puntos_jugador > 0):
+            sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina if puntos_maquina > 0 else 0}", title="Enhorabuena!")
+        else:
+            sg.Popup("Has ganado la partida!", "Puntajes:", f"Tú: {abs(puntos_jugador - puntos_maquina)}", "CPU: 0", title="Enhorabuena!")
+    elif(puntos_jugador < puntos_maquina):
+        if(puntos_maquina > 0):
+            sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador if puntos_jugador > 0 else 0}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
+        else:
+            sg.Popup("Has perdido la partida.", "Puntajes:", "Tú: 0", f"CPU: {abs(puntos_maquina - puntos_jugador)}", title="Mejor suerte la proxima!")
     else:
-        sg.Popup("Has perdido la partida.", "Puntajes:", f"Tú: {puntos_jugador}", f"CPU: {puntos_maquina}", title="Mejor suerte la proxima!")
+        sg.Popup("Ha habido un empate.", "Puntajes:", f"Tú: {puntos_jugador if puntos_jugador > 0 else 0}", f"CPU: {puntos_maquina if puntos_maquina > 0 else 0}", title="Empate!")
     exit()
 
 
@@ -650,7 +658,12 @@ def generar_tablero(dificultad: str, pr: bool, tl: Union[list, None] = None) -> 
     return tablero
 
 
-def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, dpr: Union[dict, None] = None):
+def generar_ventana_de_juego(nombre_jugador: str = None,
+                            tiempo_juego: int = None,
+                            dif: str = None,
+                            puntos_maquina: int = None,
+                            pr: bool = False,
+                            dpr: Union[dict, None] = None):
     """
     Función encargada de iniciar el juego,utilizando los procesos
     declarados anteriormente.Tambien se encarga de generar el cronometro.
@@ -694,7 +707,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             estado_fichas[f"ficha_jugador_{i}"] = {"letra": sacar_letra(bolsa), "cambiando": False}
 
     #  cronometro related
-    fin = time() + (tj * 60) if not pr else time() + dpr["tiempo_restante"]
+    fin = time() + (tiempo_juego * 60) if not pr else time() + dpr["tiempo_restante"]
 
     # fichas de la maquina:
     fichas_maquina = dar_fichas_maquina(bolsa) if not pr else dpr["fichas_maquina"]
@@ -728,9 +741,8 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
     col_jugador.append(letras_jugador)
 
     if not pr:
-        global nombre_jugador
-        global puntos_jugador
-        global puntos_maquina
+        puntos_jugador = 0
+        puntos_maquina = 0
     else:
         nombre_jugador = dpr["nombre_jugador"]
         puntos_jugador = dpr["puntos_jugador"]
@@ -779,7 +791,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
         event, _values = window.Read(timeout=10)
 
         if not(len(bolsa)):
-            terminar_juego(window, fichas_maquina, estado_fichas, dif)
+            terminar_juego(window, puntos_jugador, puntos_maquina, fichas_maquina, estado_fichas, dif)
         if (pygame.mixer.music.get_busy() == 0) and (cancion_actual < cant_canciones):
             cancion_actual += 1
             pygame.mixer.music.load(lista_musica[cancion_actual])
@@ -797,7 +809,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                 exit()
 
             if(not primer_turno_jugador):
-                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                primera_jugada, puntos_maquina, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, puntos_maquina, fichas_maquina, cambios_maquina, nombre_jugador, puntos_jugador, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                 primer_turno_jugador = True
 
             if type(event) is tuple:
@@ -836,7 +848,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                                         estado_fichas[llaves_seleccionadas[i]] = {"letra": sacar_letra(bolsa), "cambiando": False}
                                         window[llaves_seleccionadas[i]].update(image_filename=letras[estado_fichas[llaves_seleccionadas[i]]["letra"]])  # repite
                                 except IndexError:
-                                    terminar_juego(window, fichas_maquina, estado_fichas, dif)
+                                    terminar_juego(window, puntos_jugador, puntos_maquina, fichas_maquina, estado_fichas, dif)
                                 for key, value in palabra_actual.items():
                                     tablero_logico[key[0]][key[1]] = value
                                 if(primera_jugada):
@@ -849,7 +861,8 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                                 reproducir_sonido(sfx["correcto"])
                                 window["puntajes_totales"].Update(f"{nombre_jugador}: {puntos_jugador}\n\nCPU: {puntos_maquina}")
                                 if(len(bolsa)):
-                                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                                    primera_jugada, puntos_maquina, cambios_maquina, intentos_fallidos_maquina = turno_computadora(False, puntos_maquina, fichas_maquina, cambios_maquina, nombre_jugador, puntos_jugador, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                                    
                             else:
                                 devolver_fichas(window, length_palabra, estado_fichas, llaves_seleccionadas, fichas_seleccionadas, palabra_actual, dif)
                                 reproducir_sonido(sfx["incorrecto"])
@@ -870,11 +883,11 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             if event == "TERMINAR":
                 salida = sg.PopupOKCancel("¿Esta seguro que desea salir?", title="Aviso", button_color=("black", "#D9B382"))
                 if(salida == "OK"):
-                    terminar_juego(window, fichas_maquina, estado_fichas, dif)
+                    terminar_juego(window, puntos_jugador, puntos_maquina, fichas_maquina, estado_fichas, dif)
 
             if event == "PASAR":
                 if(len(bolsa)):
-                    primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                    primera_jugada, puntos_maquina, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, puntos_maquina, fichas_maquina, cambios_maquina, nombre_jugador, puntos_jugador, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
 
             if event == "POSPONER":
                 if(hay_partida_guardada()):
@@ -936,7 +949,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
                                         break
                             cambios_jugador += 1
                             if(len(bolsa)):
-                                primera_jugada, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, fichas_maquina, cambios_maquina, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
+                                primera_jugada, puntos_maquina, cambios_maquina, intentos_fallidos_maquina = turno_computadora(primera_jugada, puntos_maquina, fichas_maquina, cambios_maquina, nombre_jugador, puntos_jugador, tablero_logico, window, bolsa, puntajes_partida, dif, puntajes_letras, intentos_fallidos_maquina, cat_azar if "cat_azar" in locals() else None)
                         else:
                             for i in range(7):
                                 estado_fichas[f"ficha_jugador_{i}"]["cambiando"] = False
@@ -966,7 +979,7 @@ def generar_ventana_de_juego(tj: int = None, dif: str = None, pr: bool = False, 
             window["bolsa_fichas"].Update(value=f"Fichas restantes: {len(bolsa)}")
 
         else:
-            terminar_juego(window, fichas_maquina, estado_fichas, dif)
+            terminar_juego(window, puntos_jugador, puntos_maquina, fichas_maquina, estado_fichas, dif)
 
 
 def mostrar_top10():
@@ -1046,6 +1059,7 @@ def mostrar_opciones_avanzadas(letras: list):  # recibe un dict_keys pero es la 
 
     window.close()
 
+
 def popup_top10_vacio():
     """
     Función encargada de mostrar una imagen
@@ -1056,19 +1070,13 @@ def popup_top10_vacio():
 
 # comienzo de "main"
 
-# is this bad? (pues variables globales)
-
-puntos_jugador = 0
-puntos_maquina = 0
-
 layout = [[sg.Text("ScrabbleAR", justification="center", font=("Arial Bold", 18))],
         [sg.Text("Nivel:   "), sg.Combo(values=("Facil", "Medio", "Dificil"), default_value="Facil", key="nivel")],
-        [sg.Text("Tiempo de juego:"), sg.Combo(values=(1, 20, 40, 60), default_value=1, key="tiempo")],
+        [sg.Text("Tiempo de juego:"), sg.Combo(values=(20, 40, 60), default_value=20, key="tiempo")],
         [sg.Button("TOP 10", button_color=("black", "#D9B382")), sg.Button("OPCIONES AVANZADAS", button_color=("black", "#D9B382"))],
         [sg.Button("REGLAMENTO", button_color=("black", "#D9B382"), pad=((64, 0), (5, 0)))],
         [sg.Button("CONTINUAR PARTIDA", button_color=("black", "#D9B382"), pad=((43, 0), (15, 0)))],
         [sg.Button("INICIAR", button_color=("black", "#D9B382"), pad=((83, 0), (15, 0)))]]
-
 
 window = sg.Window("ScrabbleAR", layout, size=(280, 280) if platform == "linux" else (250, 250)).Finalize()
 
@@ -1089,7 +1097,7 @@ while True:
             elif(len(nombre_jugador)):
                 break
 
-        generar_ventana_de_juego(values["tiempo"], values["nivel"])
+        generar_ventana_de_juego(nombre_jugador, values["tiempo"], values["nivel"])
 
     if event == "CONTINUAR PARTIDA":
         try:
