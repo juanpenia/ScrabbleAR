@@ -42,7 +42,7 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
 
 * Desde la terminal ejecutaremos lo siguiente: `sudo apt install python3-pip python3-tk libmysqlclient-dev libportaudio2 libasound2-dev`
-* Luego instalaremos PySimpleGUI `pip3 install PySimpleGUI pattern pygame sounddevice soundfile`
+* Luego en la misma terminal ejecutaremos: `pip3 install PySimpleGUI pattern pygame sounddevice soundfile`
 
 (Pattern necesita de libmysqlclient-dev, de otra forma no se podrá instalar)
 
@@ -55,3 +55,4 @@ En Windows se puede ejecutar haciendo doble click en el mismo (en caso de tener 
 En linux, para ejecutar con doble click se le debe dar permiso de ejecucion con el comando `chmod +x ./ScrabbleAR.py`, o invocandolo desde la terminal como `python3 ScrabbleAR.py`
 
 Musica obtenida de https://freemusicarchive.org.
+Efectos de sonido obtenidos de https://freesound.org.
