@@ -789,7 +789,6 @@ def generar_ventana_de_juego(nombre_jugador: str = None,
 
     while True:
         event, _values = window.Read(timeout=10)
-
         if not(len(bolsa)):
             terminar_juego(window, puntos_jugador, puntos_maquina, fichas_maquina, estado_fichas, dif)
         if (pygame.mixer.music.get_busy() == 0) and (cancion_actual < cant_canciones):
@@ -963,7 +962,7 @@ def generar_ventana_de_juego(nombre_jugador: str = None,
                 else:
                     window["cambiar_fichas"].Update(button_color=("black", "#D9B382"))
 
-            if event in estado_fichas.keys():
+            if event in estado_fichas.keys() and estado_fichas[event]["letra"] is not None:
                 letra_seleccionada = estado_fichas[event]["letra"]
                 ficha_actual = estado_fichas[event]
                 llave_actual = str(event)
