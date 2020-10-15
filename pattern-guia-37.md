@@ -7,6 +7,7 @@
 3. ¿Qué significa PEP?
 4. ¿Qué propone PEP 479?
 5. ¿Cómo se soluciona?
+6. Pasos adicionales para Python 3.9
 
 ### 1. ¿Qué es Pattern?
  
@@ -114,7 +115,7 @@ Y las sentencias se encuentran en:
 
 Se debe descargar este fichero zip (https://github.com/clips/pattern/archive/dev_fixing_issues.zip) (es el source code de la rama "dev_fixing_issues" del repositorio de Pattern)
 
-A continuación se debe ir a nuestra consola/terminal y ejecutar:
+A continuación, se debe ir a nuestra consola/terminal y ejecutar:
 
 ```
 cd pattern-dev_fixing_issues
@@ -122,6 +123,30 @@ py (o python3) setup.py install
 ```
 
 Una vez hecho esto, Pattern debería estar instalado y corriendo normalmente.
+
+### 6. Pasos adicionales para Python 3.9
+
+**Nota**: Estos son los pasos para instalar pattern usando Python 3.9 en Windows. Todavia no fue probado en Linux. Tambien, se espera que con el paso del tiempo, esto no sea necesario y se pueda instalar normalmente.
+
+Para instalar en esta versión de Python, se debe instalar de antemano Microsoft Build Tools 2015.
+
+Se debe descargar desde este link (http://go.microsoft.com/fwlink/?LinkId=691126&fixForIE=.exe) e instalar con la opción "Windows 8.1 SDK" marcada.
+
+Además, las siguientes librerías deben ser descargadas desde esta página (https://www.lfd.uci.edu/~gohlke/pythonlibs/) (ya que no pueden ser instaladas con las versiones provenientes de PyPI):
+
+* numpy+mkl
+* scipy
+* mysqlclient
+* lxml
+* pygame
+
+Al descargar las versiones correspondientes de cada una (las que incluyen "cp39"), se instalan de la siguiente forma:
+
+```
+pip3 install nombre_de_la_lib.whl
+```
+
+Tras finalizar, se debería poder proceder a instalar pattern con cualquiera de los procesos antes mencionados.
 
 ## Fuentes:
 
