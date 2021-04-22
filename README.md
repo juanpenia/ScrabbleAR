@@ -41,7 +41,7 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 
 ### Linux:
 
-Aquí no es necesario instalar python3 ya que viene por defecto con Linux, pero si son necesarias otras dependencias.
+Los pasos aquí varian ya que no todas las distribuciones usan el mismo gestor de paquetes, y porque algunos programas ya pueden venir instalados en ellas, como es el caso de Python 3 en Ubuntu.
 
 Para ambas distribuciones se tienen que ejecutar los siguientes comandos desde una terminal:
 
@@ -58,7 +58,7 @@ Si la version de Python es mayor o igual a 3.7:
 
 Arch:
 
-* `sudo pacman -S python-pip python-pygame tk --needed`
+* `sudo pacman -S python3 python-pip python-pygame tk --needed`
 * `pip3 install PySimpleGUI sounddevice soundfile`
 * `pip3 install pattern-dev_fixing_issues.zip`
 
