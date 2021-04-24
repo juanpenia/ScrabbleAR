@@ -54,13 +54,13 @@ Si la version de Python es 3.6:
 
 Si la version de Python es mayor o igual a 3.7:
 * `pip3 install pygame sounddevice soundfile PySimpleGUI==4.28.0`
-* `pip3 install pattern-dev_fixing_issues.zip`
+* `pip3 install https://github.com/clips/pattern/archive/dev_fixing_issues.zip`
 
 Arch:
 
 * `sudo pacman -S python3 python-pip python-pygame tk --needed`
 * `pip3 install sounddevice soundfile PySimpleGUI==4.28.0`
-* `pip3 install pattern-dev_fixing_issues.zip`
+* `pip3 install https://github.com/clips/pattern/archive/dev_fixing_issues.zip`
 
 
 **Nota:** Probado en Arch Linux y Ubuntu 18.04 en adelante.
