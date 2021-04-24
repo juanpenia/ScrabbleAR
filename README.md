@@ -50,16 +50,16 @@ Ubuntu:
 * `sudo apt install python3-pip python3-tk libmysqlclient-dev libportaudio2 libasound2-dev`
 
 Si la version de Python es 3.6:
-* `pip3 install PySimpleGUI pattern pygame sounddevice soundfile`
+* `pip3 install pattern pygame sounddevice soundfile PySimpleGUI==4.28.0`
 
 Si la version de Python es mayor o igual a 3.7:
-* `pip3 install PySimpleGUI pygame sounddevice soundfile`
+* `pip3 install pygame sounddevice soundfile PySimpleGUI==4.28.0`
 * `pip3 install pattern-dev_fixing_issues.zip`
 
 Arch:
 
 * `sudo pacman -S python3 python-pip python-pygame tk --needed`
-* `pip3 install PySimpleGUI sounddevice soundfile`
+* `pip3 install sounddevice soundfile PySimpleGUI==4.28.0`
 * `pip3 install pattern-dev_fixing_issues.zip`
 
 
