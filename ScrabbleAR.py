@@ -18,7 +18,7 @@ import pickle
 from random import shuffle, choice, randint
 from time import time
 from typing import Union
-from sys import platform
+from sys import platform, exit as sysexit
 from datetime import datetime
 
 import PySimpleGUI as sg
@@ -27,7 +27,6 @@ import pygame
 
 if platform == "win32":
     from playsound import playsound
-
 elif platform == "linux":
     import sounddevice as sd
     import soundfile as sf
@@ -785,7 +784,7 @@ def generar_ventana_de_juego(nombre_jugador: str = None,
     ficha_actual = None
     llave_actual = None
     palabra_actual = {}
-    primera_jugada = True
+    primera_jugada = True if not pr else (not len(dpr["lista_jugadas"]) > 0)
 
     while True:
         event, _values = window.Read(timeout=10)
