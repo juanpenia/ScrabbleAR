@@ -37,7 +37,14 @@ Esto lo hacemos de las siguientes maneras dependiendo del sistema operativo.
 ### Windows:
 
 * Descargar instalador de Python (https://www.python.org/downloads/release/python-368/)
-* En cmd o powershell ejecutar: `pip3 install PySimpleGUI pattern pygame playsound`
+* En cmd o powershell ejecutar dependiendo de la version de python: 
+
+  Si la version de Python es 3.6:
+  * `pip3 install pattern pygame playsound PySimpleGUI==4.28.0`
+
+  Si la version de Python es mayor o igual a 3.7:
+  * `pip3 install pygame playsound PySimpleGUI==4.28.0`
+  * `pip3 install https://github.com/clips/pattern/archive/dev_fixing_issues.zip`
 
 ### Linux:
 
